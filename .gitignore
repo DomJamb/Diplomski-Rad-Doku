@@ -7,7 +7,6 @@
 *.bcf
 *.blg
 *.brf
-*.bst
 *.dvi
 *.fdb_latexmk
 *.fls
@@ -29,7 +28,6 @@
 *.nlo
 *.nls
 *.out
-*.pdf
 *.pyg
 *.run.xml
 *.snm
