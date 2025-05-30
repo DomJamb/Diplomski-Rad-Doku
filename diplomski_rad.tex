@@ -58,7 +58,6 @@
 \chapter{Uvod}
 \label{pog:uvod}
   
-
 Duboki modeli koriste se u brojnim aspektima naše svakodnevice.\ Pri razvoju i učenju modela, pažnju prije svega posvećujemo performansama na neviđenim podatcima - želimo naučiti modele koji dobro generaliziraju.\ 
 Drugim riječima, želimo da modeli daju ispravna predviđanja za viđene, ali i za neviđene podatke.\ Ovime osiguravamo da naša rješenja imaju primjenu i van laboratorijskih uvjeta u kojima se uče.\
   
@@ -158,8 +157,53 @@ Kao i kod napada Blend, kod napada WaNet su izmjene oznaka uobičajeno tipa \tex
   \label{fig:wanet}
 \end{figure}
 
-\section{Primjeri obrana od zatrovanih podataka}
+\section{Primjeri algoritama za obranu od zatrovanih podataka}
 \label{sek:primjeri_obrana_trovanje}
+
+U ovome radu, rezultate okvira VIBE uspoređujemo s rezultatima tri algoritma za obranu od zatrovanih podataka: \textit{Anti-backdoor learning} (ABL)~\cite{li2021anti}, \textit{Decoupling based defense} (DBD)~\cite{huang2022backdoor} te \textit{Causality-inspired backdoor defense} (CBD)~\cite{zhang2023backdoor}.\
+
+\subsection{Obrana ABL}
+\label{sub:abl}
+
+Algoritam \textit{Anti-backdoor learning} (ABL) sastoji se od dva glavna koraka: izoliranje zatrovanih podataka (engl.\ \textit{backdoor isolation}) i odučavanje trovanja (engl. \textit{backdoor unlearning}).\ 
+Osnovna ideja ove obrane je da se nakon određenog broja epoha učenja uz posebno definiran gubitak izolira određeni broj primjera za koje se smatra da su zatrovani.\  
+Nakon prvog koraka, ti se primjeri koriste za odučavanje trovanja, dok se preostali primjeri koriste za standardno učenje.\ 
+  
+Konkretno, cilj prvog koraka je zadržati vrijednost gubitka svakog pojedinog primjera oko praga $\gamma$.\
+Kako bi ovo postigli, autori predlažu korištenje gradijentnog uspona u slučaju da gubitak primjera padne ispod praga, dok se inače koristi gradijentni spust.\ Gubitak u prvom koraku možemo prikazati jednadžbom:
+
+\begin{equation}
+  \mathcal{L}_1 = \mathbb{E}_{(\bm{x}, y) \sim \mathcal{D}} \left[ \operatorname{sign} \left( \ell(f_{\bm{\theta}}(\bm{x}), y) - \gamma \right) \cdot \ell(f_{\bm{\theta}}(\bm{x}), y) \right]
+  \label{eq:abl1}
+\end{equation}
+
+Pritom $(\bm{x}, y) \sim \mathcal{D}$ označava primjer $\bm{x}$ s pripadnom oznakom $y$ iz skupa podataka $\mathcal{D}$, $f_{\bm{\theta}}(\bm{x})$ izlaz modela parametriziranog parametrima $\bm{\theta}$, $\ell(\hat{y}, y)$ gubitak za predviđenu oznaku $\hat{y}$ i stvarnu oznaku $y$, a $\operatorname{sign}$ operaciju signum.\ 
+  
+Ideja je da će gubitak za zatrovane primjere veoma brzo pasti ispod praga te će se za njih često aktivirati gradijentni uspon, dok će gubitak čistih primjera sporije padati i stabilizirati se oko praga.\ 
+Nakon zadanog broja epoha, izolira se udio $p$ primjera s najnižim gubitkom i proglašava potencijalnim zatrovanim skupom.\
+
+U drugom koraku, učenje se u svakoj epohi provodi zasebno za procijenjeni čisti odnosno zatrovani skup.\ 
+Dok se učenje na čistom skupu provodi uz standardni gradijentni spust, učenje na zatrovanom skupu provodi se uz gradijentni uspon kako bi model odučili od trovanja.\ 
+Ovo je moguće zato što je trovanje najčešće realizirano uz samo jedan ciljni razred tj.\ uz \textit{all-to-one} način izmjene oznaka.\ Gubitak u drugom koraku možemo prikazati jednadžbom:
+
+\begin{equation}
+  \mathcal{L}_2 = \mathbb{E}_{(\bm{x}, y) \sim \hat{\mathcal{D}}_c} \left[ \ell(f_{\bm{\theta}}(\bm{x}), y) \right] - \mathbb{E}_{(\bm{x}, y) \sim \hat{\mathcal{D}}_b} \left[ \ell(f_{\bm{\theta}}(\bm{x}), y) \right]
+  \label{eq:abl2}
+\end{equation}
+
+Pritom $\hat{\mathcal{D}}_c$ označava procijenjeni čisti skup, a $\hat{\mathcal{D}}_b$ procijenjeni zatrovani skup.\
+
+\subsection{Obrana DBD}
+\label{sub:dbd}
+
+
+
+
+\subsection{Obrana CBD}
+\label{sub:cbd}
+
+
+
 %-------------------------------------------------------------------------------
 \chapter{Problem zašumljenih podataka}
 \label{pog:zasumljeni}
@@ -167,7 +211,7 @@ Kao i kod napada Blend, kod napada WaNet su izmjene oznaka uobičajeno tipa \tex
 \section{Primjeri metoda zašumljivanja podataka}
 \label{sek:primjeri_zasumljivanja}
 
-\section{Primjeri obrana od zašumljenih podataka}
+\section{Primjeri algoritama za obranu od zašumljenih podataka}
 \label{sek:primjeri_obrana_zasumljivanje}
 %-------------------------------------------------------------------------------
 \chapter{Samonadzirano učenje}
