@@ -57,17 +57,43 @@
 \chapter{Uvod}
 \label{pog:uvod}
   
-Ovdje ću citirati VIBE \cite{sabolic2025seal}...
+
+Duboki modeli koriste se u brojnim aspektima naše svakodnevice.\ Pri razvoju i učenju modela, pažnju prije svega posvećujemo performansama na neviđenim podatcima - želimo naučiti modele koji dobro generaliziraju.\ 
+Drugim riječima, želimo da modeli daju ispravna predviđanja za viđene, ali i za neviđene podatke.\ Ovime osiguravamo da naša rješenja imaju primjenu i van laboratorijskih uvjeta u kojima se uče.\
+
+U procesu razvoja modela za određeni zadatak strojnog učenja, osim odabira arhitekture, algoritma učenja i hiperparametara, veliku ulogu igraju podatci na kojima učimo.\ 
+Općenito govoreći, prikupljanje i označavanje podataka jedan je od najskupljih dijelova procesa razvoja rješenja za nekih problem.\ 
+Važno je da prikupljeni podatci što realističnije predstavljaju stvarne situacije s kojima će se naš model susretati tj.\ da distribucija podataka odgovara stvarnoj distribuciji situacija koje prikazuju.\ 
+Dodatno, pokazuje se da duboki modeli uz dovoljan kapacitet mogu naučiti ispravno predviđati oznake čak i za nasumično označene podatke~\cite{zhang2016understanding}, tako da je veoma važno da su prikupljeni podatci što točnije označeni.\
+
+Područje računalnog vida~\cite{voulodimos2018deep} bavi se razvojem algoritama i modela za brojne zadatke raspoznavanja i razumijevanja slika.\ Najčešći zadatak je klasifikacija slika - model na ulazu dobiva sliku, a na izlazu treba predvidjeti razred koji odgovara ulaznom primjeru.\ 
+Iako postoje brojni skupovi slikovnih podataka koji se mogu koristiti za učenje i evaluaciju modela, za konkretne zadatke u većini slučajeva trebamo prikupiti i označiti vlastite slike.\ 
+Pritom postoji nekoliko čestih opasnosti: prisutnost zatrovanih~\cite{biggio2012poisoning} ili zašumljenih~\cite{gupta2019dealing} podataka.\ 
+
+\pagebreak
+
+Kada govorimo o trovanju podataka, maliciozni agent u skup podataka dodaje zatrovane podatke s ciljem manipulacije izlaza naučenog modela za određene ulaze.\ 
+S druge strane, anotator podataka bez zlih namjera određenim podatcima može pridijeliti netočne oznake, time dodajući zašumljene podatke u skup.\ 
+Kroz vrijeme, razvili su se brojni algoritmi za obranu modela od zatrovanih~\cite{li2021anti, huang2022backdoor, zhang2023backdoor} odnosno zašumljenih~\cite{liu2022robust, chen2024imprecise} podataka.\ Ipak, većina radova se fokusira na samo jedan od ovih problema, a ne na razvoj algoritma koji se može nositi s oba problema.\ 
+
+Cilj ovog rada je reproducirati i poboljšati rezultate okvira za obranu od zatrovanih podataka imena VIBE~\cite{sabolic2025seal}.\ 
+Osim ovoga, cilj je i primijeniti VIBE na problem zašumljenih podataka.\ Pritom VIBE evaluiramo na nekoliko čestih vrsta trovanja odnosno zašumljivanja podataka kako bi se osigurala robusnost okvira.\ 
+Dodatno, cilj je usporediti VIBE sa stanjem tehnike (engl.\ \textit{state of the art - SotA}) za problem zašumljenih podataka.\
 
 
 %-------------------------------------------------------------------------------
-\chapter{Zatrovani podatci}
+\chapter{Problem zatrovanih podataka}
 \label{pog:zatrovani}
 
 
 %-------------------------------------------------------------------------------
-\chapter{Zašumljeni podatci}
+\chapter{Problem zašumljenih podataka}
 \label{pog:zasumljeni}
+
+
+%-------------------------------------------------------------------------------
+\chapter{Samonadzirano učenje}
+\label{pog:samonadzirano}
 
 
 %-------------------------------------------------------------------------------
