@@ -2,6 +2,7 @@
 % Dodaj opciju upload za generiranje konačne verzije koja se učitava na FERWeb
 % Add the option upload to generate the final version which is uploaded to FERWeb
 
+\usepackage{bm}
 
 %--- PODACI O RADU / THESIS INFORMATION ----------------------------------------
 
@@ -60,12 +61,12 @@
 
 Duboki modeli koriste se u brojnim aspektima naše svakodnevice.\ Pri razvoju i učenju modela, pažnju prije svega posvećujemo performansama na neviđenim podatcima - želimo naučiti modele koji dobro generaliziraju.\ 
 Drugim riječima, želimo da modeli daju ispravna predviđanja za viđene, ali i za neviđene podatke.\ Ovime osiguravamo da naša rješenja imaju primjenu i van laboratorijskih uvjeta u kojima se uče.\
-
+  
 U procesu razvoja modela za određeni zadatak strojnog učenja, osim odabira arhitekture, algoritma učenja i hiperparametara, veliku ulogu igraju podatci na kojima učimo.\ 
 Općenito govoreći, prikupljanje i označavanje podataka jedan je od najskupljih dijelova procesa razvoja rješenja za nekih problem.\ 
 Važno je da prikupljeni podatci što realističnije predstavljaju stvarne situacije s kojima će se naš model susretati tj.\ da distribucija podataka odgovara stvarnoj distribuciji situacija koje prikazuju.\ 
 Dodatno, pokazuje se da duboki modeli uz dovoljan kapacitet mogu naučiti ispravno predviđati oznake čak i za nasumično označene podatke~\cite{zhang2016understanding}, tako da je veoma važno da su prikupljeni podatci što točnije označeni.\
-
+  
 Područje računalnog vida~\cite{voulodimos2018deep} bavi se razvojem algoritama i modela za brojne zadatke raspoznavanja i razumijevanja slika.\ Najčešći zadatak je klasifikacija slika - model na ulazu dobiva sliku, a na izlazu treba predvidjeti razred koji odgovara ulaznom primjeru.\ 
 Iako postoje brojni skupovi slikovnih podataka koji se mogu koristiti za učenje i evaluaciju modela, za konkretne zadatke u većini slučajeva trebamo prikupiti i označiti vlastite slike.\ 
 Pritom postoji nekoliko čestih opasnosti: prisutnost zatrovanih~\cite{biggio2012poisoning} ili zašumljenih~\cite{gupta2019dealing} podataka.\ 
@@ -75,22 +76,99 @@ Pritom postoji nekoliko čestih opasnosti: prisutnost zatrovanih~\cite{biggio201
 Kada govorimo o trovanju podataka, maliciozni agent u skup podataka dodaje zatrovane podatke s ciljem manipulacije izlaza naučenog modela za određene ulaze.\ 
 S druge strane, anotator podataka bez zlih namjera određenim podatcima može pridijeliti netočne oznake, time dodajući zašumljene podatke u skup.\ 
 Kroz vrijeme, razvili su se brojni algoritmi za obranu modela od zatrovanih~\cite{li2021anti, huang2022backdoor, zhang2023backdoor} odnosno zašumljenih~\cite{liu2022robust, chen2024imprecise} podataka.\ Ipak, većina radova se fokusira na samo jedan od ovih problema, a ne na razvoj algoritma koji se može nositi s oba problema.\ 
-
+  
 Cilj ovog rada je reproducirati i poboljšati rezultate okvira za obranu od zatrovanih podataka imena VIBE~\cite{sabolic2025seal}.\ 
 Osim ovoga, cilj je i primijeniti VIBE na problem zašumljenih podataka.\ Pritom VIBE evaluiramo na nekoliko čestih vrsta trovanja odnosno zašumljivanja podataka kako bi se osigurala robusnost okvira.\ 
 Dodatno, cilj je usporediti VIBE sa stanjem tehnike (engl.\ \textit{state of the art - SotA}) za problem zašumljenih podataka.\
-
-
 %-------------------------------------------------------------------------------
 \chapter{Problem zatrovanih podataka}
 \label{pog:zatrovani}
 
+Cilj dodavanja zatrovanih podataka~\cite{biggio2012poisoning} u skup je ugrađivanje stražnjih vrata (engl.\ \textit{backdoor}) u naučeni model.\ Ako napad uspije, napadač može kontrolirati izlaz modela koristeći suptilne izmjene ulaznog primjera.\ 
+Općenito govoreći, stvaranje zatrovanih podataka podrazumijeva dodavanje vizualnog okidača na ulazni primjer, kao i prikladnu izmjenu oznaka.\ Pritom napadač radi izmjenu određenog udjela podataka, dok preostali podatci ostaju neizmjenjeni.\ 
+Hiperparametar koji opisuje udio zatrovanih podataka zvat ćemo stopom trovanja (engl. \textit{poisoning rate}).\ Pojedine metode trovanja podataka razlikuju se po načinu dodavanja okidača tj.\ načinu izmjene ulaznih primjera, kao i po načinu izmjene oznaka.\ 
+  
+Kada govorimo o načinu izmjene ulaznih primjera, možemo napraviti podjelu na lokalne i globalne izmjene primjera.\ Kod lokalnih izmjena, mijenja se samo određeno područje slike, najčešće dodavanjem zadanog okidača na to područje~\cite{gu2019badnets}.\ 
+S druge strane, kod globalnih izmjena se mijenja cijela slika koristeći različite tehnike poput miješanja slike s okidačem~\cite{chen2020backdoor} ili transformiranja slike na temelju zadanog deformacijskog polja~\cite{nguyen2021wanet}.\ 
+Osim korištenja jednog okidača za sve zatrovane podatke, određeni napadi koriste okidače specifične za pojedini uzorak~\cite{li2021invisible}.\
+  
+Većinu napada možemo svrstati u jedan od dva načina izmjena oznaka: \textit{all-to-one} i \textit{all-to-all} izmjena oznaka~\cite{doan2022marksman}.\ 
+Kod \textit{all-to-one} metode, primjeri dobivaju zatrovanu oznaku jednog proizvoljno odabranog razreda neovisno o originalnim oznakama pojedinih primjera.\ 
+S druge strane, kod \textit{all-to-all} metode, primjeri dobivaju zasebne zatrovane oznake ovisno o originalnim oznakama.\ 
+Osim ova dva načina izmjena oznaka, određeni napadi uopće ne mijenjaju oznake zatrovanih primjera, već se oslanjaju isključivo na jače izmjene ulaznih primjera.\ Ovakve napade zovemo napadi s čistim oznakama (engl. \textit{clean-label attacks})~\cite{barni2019new}.\
 
+\section{Primjeri metoda trovanja podataka}
+\label{sek:primjeri_trovanja}
+
+U ovome radu, fokusiramo se na tri metode trovanja podataka: napade BadNets~\cite{gu2019badnets}, Blend~\cite{chen2020backdoor} te WaNet~\cite{nguyen2021wanet}.\
+  
+\subsection{Napad BadNets}
+\label{sub:badnets}
+
+Napad BadNets uobičajeno dodaje jedan zadani okidač na svaki odabrani ulazni primjer.\ Okidač možemo shvatiti kao uzorak piksela koji se dodaje na specifično mjesto na slici.\ 
+Na primjer, okidač može biti bijeli pravokutnik pozicioniran u donjem lijevom kutu slike.\ Naravno, korišteni uzorak može biti proizvoljne kompleksnosti i veličine.\ 
+Kod napada BadNets, izmjene oznaka su najčešće tipa \textit{all-to-one}, ali česte su i izmjene tipa \textit{all-to-all}.\
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.6]{./Slike/imagenet1k_uzorak_badnets.png}
+  \caption{Primjer primjene napada BadNets.\ Izvornoj slici (lijevo) dodaje se okidač kako bi nastala zatrovana slika (desno).}
+  \label{fig:badnets}
+\end{figure}
+  
+\subsection{Napad Blend}
+\label{sub:blend}
+
+Napad Blend provodi miješanje zadanog okidača sa svakim odabranim ulaznim primjerom.\ Pritom je jačina napada određena hiperparametrom $\alpha$ koji nazivamo jačina miješanja (engl.\ \textit{blending strength}).\ 
+Primjenu napada Blend možemo prikazati jednadžbom:
+
+\begin{equation}
+  \bm{\tilde{x}} = (1 - \alpha) \cdot \bm{x} + \alpha \cdot \bm{t}
+  \label{eq:blend}
+\end{equation}
+
+Pri čemu $\bm{x}$ označava ulazni primjer, $\bm{t}$ okidač, a $\bm{\tilde{x}}$ zatrovani primjer.\ Kod napada Blend, izmjene oznaka su uobičajeno tipa \textit{all-to-one}.\
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.6]{./Slike/imagenet1k_uzorak_blend.png}
+  \caption{Primjer primjene napada Blend.\ Izvorna slika (lijevo) miješa se s okidačem uz $\alpha = 0.2$ kako bi nastala zatrovana slika (desno).}
+  \label{fig:badnets}
+\end{figure}
+  
+\subsection{Napad WaNet}
+\label{sub:wanet}
+
+Napad WaNet provodi geometrijsku transformaciju svakog odabranog ulaznog primjera koristeći nasumično generirano deformacijsko polje.\ Deformacijsko polje svakom pikselu odredišne slike dodjeljuje vektor pomaka prema pikselu izvorne slike.\
+Pritom hiperparametar $k$ određuje veličinu nasumično generiranog polja šuma na temelju kojeg se skaliranjem i interpolacijom dobiva konačno deformacijsko polje, a hiperparametar $s$ određuje jačinu deformacije.\ 
+Primjenu napada WaNet možemo definirati jednadžbom:
+
+\begin{equation}
+  \bm{\tilde{x}} = \mathcal{W}(\bm{x}, \bm{M}(k, s))
+  \label{eq:wanet}
+\end{equation}
+
+Pri čemu $\bm{x}$ označava ulazni primjer, $\bm{M}$ deformacijsko polje generirano uz hiperparametre $k$ i $s$, $\mathcal{W}$ primjenu deformacijskog polja na ulazni primjer, a $\bm{\tilde{x}}$ zatrovani primjer.\ 
+Kao i kod napada Blend, kod napada WaNet su izmjene oznaka uobičajeno tipa \textit{all-to-one}.\ 
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.6]{./Slike/imagenet1k_uzorak_wanet.png}
+  \caption{Primjer primjene napada WaNet.\ Izvorna slika (lijevo) transformira se koristeći deformacijsko polje uz $k = 8$ i $s = 4$ kako bi nastala zatrovana slika (desno).\ Hiperparametri $k$ i $s$ su uvećani kako bi učinak trovanja bio uočljiviji.}
+  \label{fig:wanet}
+\end{figure}
+
+\section{Primjeri obrana od zatrovanih podataka}
+\label{sek:primjeri_obrana_trovanje}
 %-------------------------------------------------------------------------------
 \chapter{Problem zašumljenih podataka}
 \label{pog:zasumljeni}
 
+\section{Primjeri metoda zašumljivanja podataka}
+\label{sek:primjeri_zasumljivanja}
 
+\section{Primjeri obrana od zašumljenih podataka}
+\label{sek:primjeri_obrana_zasumljivanje}
 %-------------------------------------------------------------------------------
 \chapter{Samonadzirano učenje}
 \label{pog:samonadzirano}
