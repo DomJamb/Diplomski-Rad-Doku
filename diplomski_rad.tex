@@ -95,6 +95,9 @@ Većinu napada možemo svrstati u jedan od dva načina izmjena oznaka: \textit{a
 Kod \textit{all-to-one} metode, primjeri dobivaju zatrovanu oznaku jednog proizvoljno odabranog razreda neovisno o originalnim oznakama pojedinih primjera.\ 
 S druge strane, kod \textit{all-to-all} metode, primjeri dobivaju zasebne zatrovane oznake ovisno o originalnim oznakama.\ 
 Osim ova dva načina izmjena oznaka, određeni napadi uopće ne mijenjaju oznake zatrovanih primjera, već se oslanjaju isključivo na jače izmjene ulaznih primjera.\ Ovakve napade zovemo napadi s čistim oznakama (engl. \textit{clean-label attacks})~\cite{barni2019new}.\
+  
+Uspješnost pojedinog napada mjerimo metrikom imena stopa uspješnosti napada (engl.\ \textit{attack success rate} - ASR).\ Ovu mjeru definiramo kao točnost modela mjerenu isključivo na zatrovanim primjerima.\ 
+Cilj algoritama za obranu od zatrovanih podataka je naučiti čisti model na zatrovanom skupu.\ Drugim riječima, glavni cilj obrane je naučiti model koji ima izvrsne performanse na čistim podatcima, ali i što nižu stopu uspješnosti napada.\ 
 
 \section{Primjeri metoda trovanja podataka}
 \label{sek:primjeri_trovanja}
@@ -114,6 +117,8 @@ Kod napada BadNets, izmjene oznaka su najčešće tipa \textit{all-to-one}, ali 
   \caption{Primjer primjene napada BadNets.\ Izvornoj slici (lijevo) dodaje se okidač kako bi nastala zatrovana slika (desno).}
   \label{fig:badnets}
 \end{figure}
+
+\pagebreak
   
 \subsection{Napad Blend}
 \label{sub:blend}
@@ -132,7 +137,7 @@ Pri čemu $\bm{x}$ označava ulazni primjer, $\bm{t}$ okidač, a $\bm{\tilde{x}}
   \centering
   \includegraphics[scale=0.6]{./Slike/imagenet1k_uzorak_blend.png}
   \caption{Primjer primjene napada Blend.\ Izvorna slika (lijevo) miješa se s okidačem uz $\alpha = 0.2$ kako bi nastala zatrovana slika (desno).}
-  \label{fig:badnets}
+  \label{fig:blend}
 \end{figure}
   
 \subsection{Napad WaNet}
@@ -146,6 +151,8 @@ Primjenu napada WaNet možemo definirati jednadžbom:
   \bm{\tilde{x}} = \mathcal{W}(\bm{x}, \bm{M}(k, s))
   \label{eq:wanet}
 \end{equation}
+
+\pagebreak
 
 Pri čemu $\bm{x}$ označava ulazni primjer, $\bm{M}$ deformacijsko polje generirano uz hiperparametre $k$ i $s$, $\mathcal{W}$ primjenu deformacijskog polja na ulazni primjer, a $\bm{\tilde{x}}$ zatrovani primjer.\ 
 Kao i kod napada Blend, kod napada WaNet su izmjene oznaka uobičajeno tipa \textit{all-to-one}.\ 
@@ -180,8 +187,8 @@ Kako bi ovo postigli, autori predlažu korištenje gradijentnog uspona u slučaj
 Pritom $(\bm{x}, y) \sim \mathcal{D}$ označava primjer $\bm{x}$ s pripadnom oznakom $y$ iz skupa podataka $\mathcal{D}$, $f_{\bm{\theta}}(\bm{x})$ izlaz modela parametriziranog parametrima $\bm{\theta}$, $\ell(\hat{y}, y)$ gubitak za predviđenu oznaku $\hat{y}$ i stvarnu oznaku $y$, a $\operatorname{sign}$ operaciju signum.\ 
   
 Ideja je da će gubitak za zatrovane primjere veoma brzo pasti ispod praga te će se za njih često aktivirati gradijentni uspon, dok će gubitak čistih primjera sporije padati i stabilizirati se oko praga.\ 
-Nakon zadanog broja epoha, izolira se udio $p$ primjera s najnižim gubitkom i proglašava potencijalnim zatrovanim skupom.\
-
+Nakon zadanog broja epoha, izolira se udio $p$ primjera s najnižim gubitkom i proglašava potencijalnim zatrovanim skupom.\ Važno je napomenuti da bismo prvi korak ABL-a mogli zamijeniti proizvoljnim algoritmom detekcije zatrovanih primjera.\ 
+  
 U drugom koraku, učenje se u svakoj epohi provodi zasebno za procijenjeni čisti odnosno zatrovani skup.\ 
 Dok se učenje na čistom skupu provodi uz standardni gradijentni spust, učenje na zatrovanom skupu provodi se uz gradijentni uspon kako bi model odučili od trovanja.\ 
 Ovo je moguće zato što je trovanje najčešće realizirano uz samo jedan ciljni razred tj.\ uz \textit{all-to-one} način izmjene oznaka.\ Gubitak u drugom koraku možemo prikazati jednadžbom:
@@ -196,8 +203,33 @@ Pritom $\hat{\mathcal{D}}_c$ označava procijenjeni čisti skup, a $\hat{\mathca
 \subsection{Obrana DBD}
 \label{sub:dbd}
 
+Algoritam \textit{Decoupling based defense} (DBD) problem učenja modela na zatrovanim podatcima razdvaja na tri koraka.\ 
+Pritom DBD model tretira kao dvije povezane cjeline: ekstraktor značajki (engl.\ \textit{feature extractor}) te klasifikator (najčešće nekoliko potpuno-povezanih slojeva).\  
+Ekstraktor značajki za ulazni primjer na izlazu daje vektor značajki tj.\ ugrađivanje (engl.\ \textit{embedding}) u latentnom metričkom prostoru.\ 
+S druge strane, klasifikator za ugrađivanje na ulazu predviđa jednu od mogućih oznaka.\
 
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.65]{./Slike/dbd.png}
+  \caption{Prikaz glavnih koraka obrane DBD.\ Preuzeto iz\cite{huang2022backdoor}}
+  \label{fig:dbd}
+\end{figure}
+  
+U prvom koraku, DBD uči ekstraktor značajki koristeći proizvoljan algoritam samonadziranog učenja~\cite{jaiswal2020survey} na slikama bez oznaka.\ 
+Pošto algoritmi samonadziranog učenja uobičajeno uključuju korištenje jakih augmentacija ulaznih primjera, kvaliteta okidača kod zatrovanih primjera bit će narušena.\ 
+Dodatno, pošto se model u ovoj fazi uči bez oznaka, u prvom koraku nije moguće zatrovati ekstraktor značajki.\ Drugim riječima, na kraju prvog koraka imat ćemo naučen čisti ekstraktor značajki.\ 
 
+U drugom koraku, parametri ekstraktora značajki su zamrznuti, a klasifikator učimo koristeći klasično nadzirano učenje na podatcima s oznakama.\ 
+Pritom kao funkciju gubitka koristimo simetričnu unakrsnu entropiju - pokazano je da korištenje iste rezultira višim gubitkom kod zatrovanih primjera~\cite{wang2019symmetric}.\ 
+Ipak, ako bismo koristili samo ova dva koraka, dobiveni model ne bi imao performanse jednake stanju tehnike jer smo ekstraktor značajki učili bez oznaka.\ 
+Zbog toga, važno je napraviti podjelu skupa podataka na čisti i zatrovani skup te nakon toga ugoditi (engl.\ \textit{fine-tune}) cijeli model.\ 
+Kod algoritma DBD, ova podjela se radi na temelju iznosa gubitka: udio $\alpha$ primjera s najnižim iznosom gubitka smatrat ćemo vjerodostojnim tj.\ čistim skupom, dok ćemo preostale primjere smatrati zatrovanima.\ 
+
+Treći korak koristi podjelu na čisti i zatrovani skup kako bi dodatno ugodio parametre cijelog modela.\ 
+Konkretno, zatrovanom skupu uklanjamo oznake te potom model učimo koristeći proizvoljni algoritam polu-nadziranog učenja~\cite{van2020survey}.\ 
+Na kraju ovog koraka, imat ćemo naučen cjelokupni model otporan na zatrovane primjere.\ 
+
+\pagebreak
 
 \subsection{Obrana CBD}
 \label{sub:cbd}
