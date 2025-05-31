@@ -68,17 +68,17 @@ Dodatno, pokazuje se da duboki modeli uz dovoljan kapacitet mogu naučiti isprav
   
 Područje računalnog vida~\cite{voulodimos2018deep} bavi se razvojem algoritama i modela za brojne zadatke raspoznavanja i razumijevanja slika.\ Najčešći zadatak je klasifikacija slika - model na ulazu dobiva sliku, a na izlazu treba predvidjeti razred koji odgovara ulaznom primjeru.\ 
 Iako postoje brojni skupovi slikovnih podataka koji se mogu koristiti za učenje i evaluaciju modela, za konkretne zadatke u većini slučajeva trebamo prikupiti i označiti vlastite slike.\ 
-Pritom postoji nekoliko čestih opasnosti: prisutnost zatrovanih~\cite{biggio2012poisoning} ili zašumljenih~\cite{gupta2019dealing} podataka.\ 
+Pritom postoji nekoliko čestih opasnosti: prisutnost zatrovanih podataka~\cite{biggio2012poisoning} ili zašumljenih oznaka~\cite{gupta2019dealing}.\ 
 
 \pagebreak
 
 Kada govorimo o trovanju podataka, maliciozni agent u skup podataka dodaje zatrovane podatke s ciljem manipulacije izlaza naučenog modela za određene ulaze.\ 
-S druge strane, anotator podataka bez zlih namjera određenim podatcima može pridijeliti netočne oznake, time dodajući zašumljene podatke u skup.\ 
-Kroz vrijeme, razvili su se brojni algoritmi za obranu modela od zatrovanih~\cite{li2021anti, huang2022backdoor, gao2023backdoor} odnosno zašumljenih~\cite{liu2022robust, chen2024imprecise} podataka.\ Ipak, većina radova se fokusira na samo jedan od ovih problema, a ne na razvoj algoritma koji se može nositi s oba problema.\ 
+S druge strane, anotator podataka bez zlih namjera određenim podatcima može pridijeliti netočne oznake, time dodajući podatke sa zašumljenim oznakama u skup.\ 
+Kroz vrijeme, razvili su se brojni algoritmi za obranu modela od zatrovanih podataka~\cite{li2021anti, huang2022backdoor, gao2023backdoor}, kao i za učenje na zašumljenim oznakama~\cite{liu2022robust, chen2024imprecise}.\ Ipak, većina radova se fokusira na samo jedan od ovih problema, a ne na razvoj algoritma koji se može nositi s oba problema.\ 
   
-Cilj ovog rada je reproducirati i poboljšati rezultate okvira za obranu od zatrovanih podataka imena VIBE~\cite{sabolic2025seal}.\ 
-Osim ovoga, cilj je i primijeniti VIBE na problem zašumljenih podataka.\ Pritom VIBE evaluiramo na nekoliko čestih vrsta trovanja odnosno zašumljivanja podataka kako bi se osigurala robusnost okvira.\ 
-Dodatno, cilj je usporediti VIBE sa stanjem tehnike (engl.\ \textit{state of the art - SotA}) za problem zašumljenih podataka.\
+Cilj ovog rada je reproducirati i poboljšati rezultate okvira za obranu od zatrovanih podataka imena VIBE (engl.\ \textit{Variational inference for backdoor elimination})~\cite{sabolic2025seal}.\ 
+Osim ovoga, cilj je i primijeniti VIBE na problem zašumljenih oznaka.\ Pritom VIBE evaluiramo na nekoliko čestih vrsta trovanja odnosno zašumljivanja oznaka kako bi se osigurala robusnost okvira.\ 
+Dodatno, cilj je usporediti VIBE sa stanjem tehnike (engl.\ \textit{state of the art - SotA}) za problem zašumljenih oznaka.\
 %-------------------------------------------------------------------------------
 \chapter{Problem zatrovanih podataka}
 \label{pog:zatrovani}
@@ -271,13 +271,13 @@ Ovu podjelu zovemo meta-podjela (engl.\ \textit{meta-split}) jer je pristup s u�
 Na kraju trećeg koraka, u čistom skupu će se nalaziti gotovo svi čisti primjeri, a dobiveni model će imati izvrsne performanse uz otpornost na zatrovane primjere.\
 
 %-------------------------------------------------------------------------------
-\chapter{Problem zašumljenih podataka}
+\chapter{Problem zašumljenih oznaka}
 \label{pog:zasumljeni}
 
-\section{Primjeri metoda zašumljivanja podataka}
+\section{Primjeri metoda zašumljivanja oznaka}
 \label{sek:primjeri_zasumljivanja}
 
-\section{Primjeri algoritama za obranu od zašumljenih podataka}
+\section{Primjeri algoritama za učenje na zašumljenim oznakama}
 \label{sek:primjeri_obrana_zasumljivanje}
 %-------------------------------------------------------------------------------
 \chapter{Samonadzirano učenje}
