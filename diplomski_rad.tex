@@ -180,11 +180,11 @@ Konkretno, cilj prvog koraka je zadržati vrijednost gubitka svakog pojedinog pr
 Kako bi ovo postigli, autori predlažu korištenje gradijentnog uspona u slučaju da gubitak primjera padne ispod praga, dok se inače koristi gradijentni spust.\ Gubitak u prvom koraku možemo prikazati jednadžbom:
 
 \begin{equation}
-  \mathcal{L}_1 = \mathbb{E}_{(\bm{x}, y) \sim \mathcal{D}} \left[ \operatorname{sign} \left( \ell(f_{\bm{\theta}}(\bm{x}), y) - \gamma \right) \cdot \ell(f_{\bm{\theta}}(\bm{x}), y) \right]
+  \mathcal{L}_1 = \mathbb{E}_{(\bm{x}, \bm{y}) \sim \mathcal{D}} \left[ \operatorname{sign} \left( \ell(f_{\bm{\theta}}(\bm{x}), \bm{y}) - \gamma \right) \cdot \ell(f_{\bm{\theta}}(\bm{x}), \bm{y}) \right]
   \label{eq:abl1}
 \end{equation}
 
-Pritom $(\bm{x}, y) \sim \mathcal{D}$ označava primjer $\bm{x}$ s pripadnom oznakom $y$ iz skupa podataka $\mathcal{D}$, $f_{\bm{\theta}}(\bm{x})$ izlaz modela parametriziranog parametrima $\bm{\theta}$, $\ell(\hat{y}, y)$ gubitak za predviđenu oznaku $\hat{y}$ i stvarnu oznaku $y$, a $\operatorname{sign}$ operaciju signum.\ 
+Pritom $(\bm{x}, \bm{y}) \sim \mathcal{D}$ označava primjer $\bm{x}$ s pripadnom oznakom $\bm{y}$ iz skupa podataka $\mathcal{D}$, $f_{\bm{\theta}}(\bm{x})$ izlaz modela s parametrima $\bm{\theta}$, $\ell(\bm{\hat{y}}, \bm{y})$ gubitak za predviđenu oznaku $\bm{\hat{y}}$ i stvarnu oznaku $\bm{y}$, a $\operatorname{sign}$ operaciju signum.\ 
   
 Ideja je da će gubitak za zatrovane primjere veoma brzo pasti ispod praga te će se za njih često aktivirati gradijentni uspon, dok će gubitak čistih primjera sporije padati i stabilizirati se oko praga.\ 
 Nakon zadanog broja epoha, izolira se udio $p$ primjera s najnižim gubitkom i proglašava potencijalnim zatrovanim skupom.\ Važno je napomenuti da bismo prvi korak ABL-a mogli zamijeniti proizvoljnim algoritmom detekcije zatrovanih primjera.\ 
@@ -194,7 +194,7 @@ Dok se učenje na čistom skupu provodi uz standardni gradijentni spust, učenje
 Ovo je moguće zato što je trovanje najčešće realizirano uz samo jedan ciljni razred tj.\ uz \textit{all-to-one} način izmjene oznaka.\ Gubitak u drugom koraku možemo prikazati jednadžbom:
 
 \begin{equation}
-  \mathcal{L}_2 = \mathbb{E}_{(\bm{x}, y) \sim \hat{\mathcal{D}}_c} \left[ \ell(f_{\bm{\theta}}(\bm{x}), y) \right] - \mathbb{E}_{(\bm{x}, y) \sim \hat{\mathcal{D}}_b} \left[ \ell(f_{\bm{\theta}}(\bm{x}), y) \right]
+  \mathcal{L}_2 = \mathbb{E}_{(\bm{x}, \bm{y}) \sim \hat{\mathcal{D}}_c} \left[ \ell(f_{\bm{\theta}}(\bm{x}), \bm{y}) \right] - \mathbb{E}_{(\bm{x}, \bm{y}) \sim \hat{\mathcal{D}}_b} \left[ \ell(f_{\bm{\theta}}(\bm{x}), \bm{y}) \right]
   \label{eq:abl2}
 \end{equation}
 
@@ -264,7 +264,7 @@ Nakon učenja virtualnog modela, mjerimo smanjenje gubitka definirano jednadžbo
   \label{eq:asd}
 \end{equation}
 
-Pritom $f_{\bm{\theta}}$ označava glavni model parametriziran parametrima $\bm{\theta}$, a $f_{\bm{\theta'}}$ predstavlja virtualni model parametriziran parametrima $\bm{\theta'}$ dobivenim nakon jedne epohe nadziranog učenja na zagađenom skupu.\ 
+Pritom $f_{\bm{\theta}}$ označava glavni model s parametrima $\bm{\theta}$, a $f_{\bm{\theta'}}$ predstavlja virtualni model s parametrima $\bm{\theta'}$ dobivenim nakon jedne epohe nadziranog učenja na zagađenom skupu.\ 
 Konačno, udio $\gamma$ primjera s najmanjim smanjenjem gubitka dodajemo u čisti skup.\ Intuicija iza ove podjele je da su zatrovani podatci lagani za naučiti, tako da već nakon jedne epohe nadziranog učenja isti imaju veoma nizak gubitak, dok teški čisti primjeri i dalje imaju visok gubitak.\ 
 Važno je napomenuti da se virtualni model koristi isključivo za provođenje podjele na temelju smanjenja gubitka.\ 
 Ovu podjelu zovemo meta-podjela (engl.\ \textit{meta-split}) jer je pristup s učenjem virtualnog modela inspiriran područjem meta-učenja (engl.\ \textit{meta-learning})~\cite{vilalta2002perspective}.\
@@ -341,6 +341,59 @@ U ovome radu, rezultate prilagođenog okvira VIBE uspoređujemo s rezultatima dv
 
 \subsection{Algoritam SOP}
 \label{sub:sop}
+
+Osnovna ideja algoritma \textit{Sparse over-parameterization} (SOP) bazira se na činjenici da su primjeri sa zašumljenim oznakama u većini slučajeva rijetki.\ 
+Jedan od mogućih načina za učenje modela na zašumljenim oznakama tada je modeliranje šuma za pojedine primjere koristeći rijetke vektore.\ 
+
+Konkretno, za svaki primjer $(\bm{x}_i, \bm{y}_i)$ iz skupa podataka $\mathcal{D}$ definiramo rijetki vektor $\bm{s}_i$ koji služi kao odstupanje između uočene (potencijalno zatrovane) oznake $\bm{y}_i$ i čiste (skrivene) oznake $\bm{l}_i$.\ 
+Uobičajeno, učenje modela se svodi na potragu za parametrima $\bm{\theta}$ koji minimiziraju gubitak definiran jednadžbom:
+
+\begin{equation}
+  \mathcal{L} = \mathbb{E}_{(\bm{x}, \bm{y}) \sim \mathcal{D}} \left[ \ell(f_{\bm{\theta}}(\bm{x}), \bm{y}) \right]
+  \label{eq:sop1}
+\end{equation}
+
+Pritom $f_{\bm{\theta}}$ predstavlja model s parametrima $\bm{\theta}$, a $\ell(\bm{\hat{y}}, \bm{y})$ funkciju gubitka između predviđanja modela $\bm{\hat{y}}$ i dane oznake $\bm{y}$.\ 
+Uz uvođenje rijetkog vektora $\bm{s}_i$ za svaki primjer, učenje se svodi na potragu za parametrima $(\bm{\theta}, \{\bm{s}_i\}_{i=1}^N)$ koji minimiziraju gubitak:
+
+\begin{equation}
+  \mathcal{L} = \mathbb{E}_{(\bm{x}, \bm{y}) \sim \mathcal{D}} \left[ \ell(f_{\bm{\theta}}(\bm{x}) + \bm{s}, \bm{y}) \right]
+  \label{eq:sop2}
+\end{equation}
+
+Dodatno, kako bi se osigurala rijetkost vektora $\bm{s}_i$, isti definiramo pomoću vektora $\bm{u}_i$ i vektora $\bm{v}_i$ kao:
+
+\begin{equation}
+  \bm{s}_i = \bm{u}_i \odot \bm{u}_i - \bm{v}_i \odot \bm{v}_i
+  \label{eq:sop_s1}
+\end{equation}
+
+Drugim riječima, za svaki podatak $(\bm{x}_i, \bm{y}_i)$ definiramo dva vektora parametara: $\bm{u}_i$ i $\bm{v}_i$.\ 
+Ove vektore učimo zajedno s parametrima modela $\bm{\theta}$ koristeći gradijentni spust.\ 
+Pritom je stopa učenja za parametre $\{\bm{u}_i,\bm{v}_i\}_{i=1}^N$ skalirana hiperparametrom $\alpha$ kako bi se izbjeglo trivijalno rješenje optimizacijskog problema kod kojeg vrijedi $\bm{u}_i \equiv \bm{v}_i \equiv \bm{0}\:,\:\forall i \in N$.\ 
+
+Uočimo da vektor $\bm{s}_i$ za primjer $(\bm{x}_i, \bm{y}_i)$ dodatno mora poštovati nekoliko uvjeta: u vektoru $\bm{s}_i$ se pozitivna vrijednost može nalaziti isključivo na mjestu koje odgovara nenegativnoj vrijednosti u $\bm{y}_i$, dok se negativne vrijednosti mogu nalaziti isključivo na mjestima koje odgovaraju vrijednosti $0$ u $\bm{y}_i$.\ 
+Dodatno, svaki element vektora $\bm{s}_i$ mora biti u rasponu $\left[ -1, 1 \right]$.\ Kako bismo ovo osigurali, uvodimo konačnu definiciju vektora $\bm{s}_i$:
+
+\begin{equation}
+  \bm{s}_i = \bm{u}_i \odot \bm{u}_i \odot \bm{y}_i - \bm{v}_i \odot \bm{v}_i \odot (\bm{1} - \bm{y}_i)
+  \label{eq:sop_s2}
+\end{equation}
+
+Pritom su vektori parametara $\bm{u}_i$ i $\bm{v}_i$ definirani kao:
+
+\begin{equation}
+  \bm{u}_i \in \left[ -1, 1 \right]^K\:,\:\bm{v}_i \in \left[ -1, 1 \right]^K
+  \label{eq:sop_u,i}
+\end{equation}
+
+U algoritmu SOP, za učenje parametara $(\bm{\theta}, \{\bm{u}_i\}_{i=1}^N)$ se kao funkcija gubitka koristi standardna unakrsna entropija.\ Nažalost, unakrsna entropija se ne može koristiti za ispravno učenje parametara $\{\bm{v}_i\}_{i=1}^N$.\ 
+Umjesto toga, za učenje tih parametara kao funkciju gubitka koristimo srednju kvadratnu pogrešku.\ 
+
+Kako bi poboljšali performanse osnovnog algoritma SOP, autori predlažu dodavanje dvije nove komponente gubitka: konzistencijski gubitak (engl.\ \textit{consistency loss})~\cite{berthelot2019mixmatch} te gubitak ravnoteže razreda (engl.\ \textit{class-balance loss})~\cite{tanaka2018joint}.\ 
+Inačicu algoritma koja dodatno koristi ove dvije komponente gubitka zovemo SOP+, a ista općenito postiže bolje performanse od osnovne inačice algoritma.\
+
+\pagebreak
 
 \subsection{Algoritam ILL}
 \label{sub:ill}
