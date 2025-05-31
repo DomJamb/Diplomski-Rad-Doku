@@ -274,6 +274,21 @@ Na kraju trećeg koraka, u čistom skupu će se nalaziti gotovo svi čisti primj
 \chapter{Problem zašumljenih oznaka}
 \label{pog:zasumljeni}
 
+Proces stvaranja skupa vizualnih podataka otprilike možemo podijeliti u tri koraka.\ U prvom koraku, potrebno je definirati skup razreda tj.\ oznaka koje mogu biti dodijeljene svakom primjeru.\ 
+Tijekom drugog koraka, cilj nam je prikupiti što veći skup slika, pritom pazeći na to da slike precizno prikazuju situacije s kojima će se naš model susretati.\ Dodatno, veoma je važno da je prikupljeni skup što raznovrsniji kako bi model mogao naučiti dobro generalizirati.\ 
+Konačno, u trećem koraku anotatori označavaju slike na temelju definiranog skupa oznaka.\ Drugi i treći korak ovog procesa mogu se provoditi jedan za drugim, ali i paralelno - nakon što se prikupi određen broj slika, taj skup se šalje na označavanje, a istovremeno je moguće prikupiti još slika.\ 
+  
+Iako anotatori podataka prolaze kroz brojne edukacije kako bi se što bolje upoznali s pravilima na temelju kojih će označavati podatke, određeni podatci su prirodom teži od drugih pa može doći do pogrešnog označavanja.\ 
+Problem zašumljenih oznaka sličan je problemu zatrovanih podataka po tome što se kod oba problema model mora nositi s pogrešnim oznakama.\ Ipak, kod problema zašumljenih oznaka podrazumijevamo da su ulazne slike netaknute tj.\ da ne postoji nikakva izmjena ulaza.\ 
+Dodatno, kod problema zašumljenih oznaka ne postoji konkretan cilj - podatci sa zašumljenim oznakama nastaju slučajno, bez ikakvih loših namjera.\ 
+  
+Dok je kod zatrovanih podataka problem prelako učenje poveznice između prisutnosti okidača i određenog ciljnog razreda, kod podataka sa zašumljenim oznakama je problem činjenica da model uz dovoljan kapacitet može naučiti oznake čak i ako su one nasumično generirane~\cite{zhang2016understanding}.\ 
+Drugim riječima, ako nismo oprezni, lako je doći do prenaučenosti (engl.\ \textit{overfitting}) modela.\ Naravno, ovakav model će loše generalizirati na ispravno označenim podatcima.\ 
+  
+Kako bismo mogli usporediti performanse različitih algoritama za učenje na zašumljenim oznakama, najčešće određenom udjelu čistog skupa podataka dodajemo sintetičke zašumljene oznake.\ 
+Hiperparametar koji opisuje udio podataka sa zašumljenim oznakama zvat ćemo stopa šuma (engl. \textit{noise rate}).\ Nakon učenja na zašumljenim podatcima, performanse modela evaluiramo na čistom, ali i na u potpunosti zašumljenom skupu.\ 
+Cilj algoritama za učenje na zašumljenim oznakama tada je zadržati performanse modela učenog na zašumljenim podatcima što bližima performansama modela učenog na čistim podatcima.\ 
+
 \section{Primjeri metoda zašumljivanja oznaka}
 \label{sek:primjeri_zasumljivanja}
 
