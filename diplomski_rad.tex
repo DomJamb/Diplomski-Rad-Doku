@@ -167,7 +167,7 @@ Kao i kod napada Blend, kod napada WaNet su izmjene oznaka uobičajeno tipa \tex
 \section{Primjeri algoritama za obranu od zatrovanih podataka}
 \label{sek:primjeri_obrana_trovanje}
 
-U ovome radu, rezultate okvira VIBE uspoređujemo s rezultatima tri algoritma za obranu od zatrovanih podataka: \textit{Anti-backdoor learning} (ABL)~\cite{li2021anti}, \textit{Decoupling based defense} (DBD)~\cite{huang2022backdoor} te \textit{Adaptively splitting dataset-based defense} (ASD)~\cite{gao2023backdoor}.\
+U ovome radu, rezultate okvira VIBE uspoređujemo s rezultatima triju algoritama za obranu od zatrovanih podataka: \textit{Anti-backdoor learning} (ABL)~\cite{li2021anti}, \textit{Decoupling based defense} (DBD)~\cite{huang2022backdoor} te \textit{Adaptively splitting dataset-based defense} (ASD)~\cite{gao2023backdoor}.\
 
 \subsection{Obrana ABL}
 \label{sub:abl}
@@ -292,8 +292,59 @@ Cilj algoritama za učenje na zašumljenim oznakama tada je zadržati performans
 \section{Primjeri metoda zašumljivanja oznaka}
 \label{sek:primjeri_zasumljivanja}
 
+U ovome radu, fokusiramo se na dvije metode zašumljivanja oznaka: simetrično (engl.\ \textit{symmetric}) i asimetrično (engl.\ \textit{asymmetric}) zašumljivanje~\cite{cordeiro2020survey}.\
+
+\subsection{Simetrično zašumljivanje}
+\label{sub:sym}
+
+Kod simetričnog zašumljivanja, nasumično biramo zadani udio primjera iz čistog skupa podataka te istima dodjeljujemo nasumično generirane nove oznake.\ 
+Ovu metodu zašumljivanja također zovemo i uniformno zašumljivanje jer svaki razred ima jednaku vjerojatnost postati nova oznaka za neki zadani primjer.\ 
+  
+Pritom razlikujemo dvije vrste simetričnog zašumljivanja: inkluzivnu (engl.\ \textit{symm-inc}) i ekskluzivnu (engl.\ \textit{symm-exc}) vrstu~\cite{cordeiro2020survey}.\ 
+Ako govorimo o inkluzivnom simetričnom zašumljivanju, stvarna oznaka za neki zadani primjer može biti odabrana i kao zašumljena oznaka.\ 
+S druge strane, kod ekskluzivnog simetričnog zašumljivanja ignoriramo stvarnu oznaku tj.\ zašumljena oznaka se uvijek razlikuje od stvarne oznake primjera.\ 
+U našem radu, fokusiramo se na inkluzivno simetrično zašumljivanje.\ 
+
+\pagebreak
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.7]{./Slike/sym.png}
+  \caption{Prikaz inkluzivnog (gore) odnosno ekskluzivnog (dolje) simetričnog zašumljivanja za tri odabrana primjera iz skupa CIFAR10~\cite{krizhevsky2009learning}.\ Čiste oznake (lijevo) preslikavaju se na jednu od mogućih oznaka (sredina) i nastaju zašumljene oznake (desno).\ Vidimo da primjeri s istim čistim oznakama nemaju nužno i iste zašumljene oznake.}
+  \label{fig:sym}
+\end{figure}
+
+\subsection{Asimetrično zašumljivanje}
+\label{sub:asym}
+
+Kod asimetričnog zašumljivanja, prvo nasumično biramo zadani udio primjera zasebno za svaki razred.\ 
+Drugim riječima, ako je u pitanju skup CIFAR10~\cite{krizhevsky2009learning}, za svaki od $10$ razreda nasumično ćemo odabrati zadani udio primjera kojima ćemo potencijalno dodijeliti zašumljene oznake.\ 
+
+Nakon početnog odabira, svakom primjeru dodjeljujemo novu oznaku na temelju predodređenog preslikavanja.\ 
+Pritom je moguće da određeni razredi nemaju definirano preslikavanje u neki drugi razred, tako da odabranim primjerima iz tih razreda neće biti dodijeljene zašumljene oznake.\ 
+Preslikavanje na temelju kojeg se pojedinim primjerima dodjeljuje nova oznaka unaprijed je definirano za pojedine skupove podataka poput skupova MNIST~\cite{deng2012mnist}, CIFAR10 i CIFAR100~\cite{krizhevsky2009learning}.\ 
+Kod skupova s hijerarhijskim odnosom razreda poput skupa CIFAR100, preslikavanja su definirana nasumično unutar pojedinih grupa razreda.\ 
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.7]{./Slike/asym.png}
+  \caption{Prikaz preslikavanja razreda za skup CIFAR10.\ Odabranim primjerima se na temelju čistih oznaka (lijevo) dodjeljuju zašumljene oznake (desno).\ Pritom odabrani primjeri s istim čistim oznakama uvijek imaju i iste zašumljene oznake.}
+  \label{fig:asym}
+\end{figure}
+
+\pagebreak
+
 \section{Primjeri algoritama za učenje na zašumljenim oznakama}
 \label{sek:primjeri_obrana_zasumljivanje}
+
+U ovome radu, rezultate prilagođenog okvira VIBE uspoređujemo s rezultatima dvaju algoritama za učenje na podatcima sa zašumljenim oznakama: \textit{Sparse over-parameterization} (SOP)~\cite{liu2022robust} te \textit{Imprecise label learning} (ILL)~\cite{chen2024imprecise}.\ 
+
+\subsection{Algoritam SOP}
+\label{sub:sop}
+
+\subsection{Algoritam ILL}
+\label{sub:ill}
+
 %-------------------------------------------------------------------------------
 \chapter{Samonadzirano učenje}
 \label{pog:samonadzirano}
