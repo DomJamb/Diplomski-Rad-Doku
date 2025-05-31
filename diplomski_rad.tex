@@ -74,7 +74,7 @@ Pritom postoji nekoliko čestih opasnosti: prisutnost zatrovanih~\cite{biggio201
 
 Kada govorimo o trovanju podataka, maliciozni agent u skup podataka dodaje zatrovane podatke s ciljem manipulacije izlaza naučenog modela za određene ulaze.\ 
 S druge strane, anotator podataka bez zlih namjera određenim podatcima može pridijeliti netočne oznake, time dodajući zašumljene podatke u skup.\ 
-Kroz vrijeme, razvili su se brojni algoritmi za obranu modela od zatrovanih~\cite{li2021anti, huang2022backdoor, zhang2023backdoor} odnosno zašumljenih~\cite{liu2022robust, chen2024imprecise} podataka.\ Ipak, većina radova se fokusira na samo jedan od ovih problema, a ne na razvoj algoritma koji se može nositi s oba problema.\ 
+Kroz vrijeme, razvili su se brojni algoritmi za obranu modela od zatrovanih~\cite{li2021anti, huang2022backdoor, gao2023backdoor} odnosno zašumljenih~\cite{liu2022robust, chen2024imprecise} podataka.\ Ipak, većina radova se fokusira na samo jedan od ovih problema, a ne na razvoj algoritma koji se može nositi s oba problema.\ 
   
 Cilj ovog rada je reproducirati i poboljšati rezultate okvira za obranu od zatrovanih podataka imena VIBE~\cite{sabolic2025seal}.\ 
 Osim ovoga, cilj je i primijeniti VIBE na problem zašumljenih podataka.\ Pritom VIBE evaluiramo na nekoliko čestih vrsta trovanja odnosno zašumljivanja podataka kako bi se osigurala robusnost okvira.\ 
@@ -167,7 +167,7 @@ Kao i kod napada Blend, kod napada WaNet su izmjene oznaka uobičajeno tipa \tex
 \section{Primjeri algoritama za obranu od zatrovanih podataka}
 \label{sek:primjeri_obrana_trovanje}
 
-U ovome radu, rezultate okvira VIBE uspoređujemo s rezultatima tri algoritma za obranu od zatrovanih podataka: \textit{Anti-backdoor learning} (ABL)~\cite{li2021anti}, \textit{Decoupling based defense} (DBD)~\cite{huang2022backdoor} te \textit{Causality-inspired backdoor defense} (CBD)~\cite{zhang2023backdoor}.\
+U ovome radu, rezultate okvira VIBE uspoređujemo s rezultatima tri algoritma za obranu od zatrovanih podataka: \textit{Anti-backdoor learning} (ABL)~\cite{li2021anti}, \textit{Decoupling based defense} (DBD)~\cite{huang2022backdoor} te \textit{Adaptively splitting dataset-based defense} (ASD)~\cite{gao2023backdoor}.\
 
 \subsection{Obrana ABL}
 \label{sub:abl}
@@ -231,10 +231,44 @@ Na kraju ovog koraka, imat ćemo naučen cjelokupni model otporan na zatrovane p
 
 \pagebreak
 
-\subsection{Obrana CBD}
-\label{sub:cbd}
+\subsection{Obrana ASD}
+\label{sub:asd}
 
+Algoritam \textit{Adaptively splitting dataset-based defense} (ASD) problem učenja modela na zatrovanim podatcima razdvaja na tri koraka.\ 
+Tijekom sva tri koraka, održavaju se dva skupa podataka: čisti i zagađeni skup.\ Pritom se u čistom skupu nalaze podatci za koje je velika vjerojatnost da su čisti, dok se u zagađenom skupu nalaze zatrovani podatci, kao i preostali čisti podatci.\ 
+Kroz učenje, čisti skup se povećava dodavanjem primjera iz zagađenog skupa.\ Konačno, na kraju učenja bi zagađeni skup trebao sadržavati isključivo zatrovane podatke.\ 
+Parametri modela uvijek se ažuriraju na temelju proizvoljnog polu-nadziranog gubitka, pri čemu se zagađeni skup koristi za učenje bez oznaka.\   
 
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.65]{./Slike/asd.png}
+  \caption{Prikaz glavnih koraka obrane ASD.\ $D_C$ predstavlja čisti skup, a $D_P$ zagađeni skup.\ Preuzeto iz\cite{gao2023backdoor}}
+  \label{fig:asd}
+\end{figure}
+  
+U prvom koraku, čisti skup se inicijalizira na mali broj provjereno čistih primjera (na primjer, po $10$ primjera za svaki razred), dok se zagađeni skup inicijalizira na cijeli skup podataka.\ 
+Svakih $t$ epoha učenja, u čisti skup se iz zagađenog skupa dodaje $n$ primjera iz svakog pojedinog razreda koji imaju najniži gubitak $\mathcal{L}_1$.\ Pritom kao funkciju gubitka $\mathcal{L}_1$ koristimo simetričnu unakrsnu entropiju kako bi zatrovani primjeri imali što viši gubitak.\ 
+Ovu podjelu zovemo razredno-svjesna podjela vođena gubitkom (engl.\ \textit{class-aware loss-guided split}).\ 
+  
+Tijekom drugog koraka, čisti skup značajno proširujemo dodavanjem udjela $\alpha$ zagađenog skupa.\ 
+Pritom se dodaju primjeri iz cijelog skupa (neovisno o razredu) koji imaju najniži gubitak $\mathcal{L}_1$.\ 
+Ovu podjelu zovemo razredno-nesvjesna podjela vođena gubitkom (engl.\ \textit{class-agnostic loss-guided split}).\ 
+  
+Nakon prva dva koraka ASD-a, u zagađenom skupu preostaju zatrovani primjeri, ali i neki teški primjeri specifični za model.\ 
+Zbog toga što model nismo učili na teškim primjerima s oznakama, performanse modela trenutno su niže od stanja tehnike.\ Kako bismo dodali i teške primjere u čisti skup, svaku epohu trećeg koraka konstruiramo virtualni model.\ 
+Virtualni model inicijaliziramo parametrima glavnog modela te potom provodimo jednu epohu nadziranog učenja na zagađenom skupu uz korištenje gubitka $\mathcal{L}_2$.\ Kao funkciju gubitka $\mathcal{L}_2$ koristimo standardnu unakrsnu entropiju.\ 
+Nakon učenja virtualnog modela, mjerimo smanjenje gubitka definirano jednadžbom:
+
+\begin{equation}
+  \Delta \mathcal{L} = \mathcal{L}_1(f_{\bm{\theta}}) - \mathcal{L}_1(f_{\bm{\theta'}})
+  \label{eq:asd}
+\end{equation}
+
+Pritom $f_{\bm{\theta}}$ označava glavni model parametriziran parametrima $\bm{\theta}$, a $f_{\bm{\theta'}}$ predstavlja virtualni model parametriziran parametrima $\bm{\theta'}$ dobivenim nakon jedne epohe nadziranog učenja na zagađenom skupu.\ 
+Konačno, udio $\gamma$ primjera s najmanjim smanjenjem gubitka dodajemo u čisti skup.\ Intuicija iza ove podjele je da su zatrovani podatci lagani za naučiti, tako da već nakon jedne epohe nadziranog učenja isti imaju veoma nizak gubitak, dok teški čisti primjeri i dalje imaju visok gubitak.\ 
+Važno je napomenuti da se virtualni model koristi isključivo za provođenje podjele na temelju smanjenja gubitka.\ 
+Ovu podjelu zovemo meta-podjela (engl.\ \textit{meta-split}) jer je pristup s učenjem virtualnog modela inspiriran područjem meta-učenja (engl.\ \textit{meta-learning})~\cite{vilalta2002perspective}.\
+Na kraju trećeg koraka, u čistom skupu će se nalaziti gotovo svi čisti primjeri, a dobiveni model će imati izvrsne performanse uz otpornost na zatrovane primjere.\
 
 %-------------------------------------------------------------------------------
 \chapter{Problem zašumljenih podataka}
