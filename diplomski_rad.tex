@@ -211,7 +211,7 @@ S druge strane, klasifikator za ugrađivanje na ulazu predviđa jednu od mogući
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.65]{./Slike/dbd.png}
-  \caption{Prikaz glavnih koraka obrane DBD.\ Preuzeto iz\cite{huang2022backdoor}}
+  \caption{Prikaz glavnih koraka obrane DBD.\ Preuzeto iz \cite{huang2022backdoor}}
   \label{fig:dbd}
 \end{figure}
   
@@ -242,25 +242,25 @@ Parametri modela uvijek se ažuriraju na temelju proizvoljnog polunadziranog gub
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.65]{./Slike/asd.png}
-  \caption{Prikaz glavnih koraka obrane ASD.\ $D_C$ predstavlja čisti skup, a $D_P$ zagađeni skup.\ Preuzeto iz\cite{gao2023backdoor}}
+  \caption{Prikaz glavnih koraka obrane ASD.\ $D_C$ predstavlja čisti skup, a $D_P$ zagađeni skup.\ $\mathcal{L}_1$ odgovara gubitku $\mathcal{L}_{SCE}$, a $\mathcal{L}_2$ gubitku $\mathcal{L}_{CE}$.\ Preuzeto iz \cite{gao2023backdoor}}
   \label{fig:asd}
 \end{figure}
   
 U prvom koraku, čisti skup se inicijalizira na mali broj provjereno čistih primjera (na primjer, po $10$ primjera za svaki razred), dok se zagađeni skup inicijalizira na cijeli skup podataka.\ 
-Svakih $t$ epoha učenja, u čisti skup se iz zagađenog skupa dodaje $n$ primjera iz svakog pojedinog razreda koji imaju najniži gubitak $\mathcal{L}_1$.\ Pritom kao funkciju gubitka $\mathcal{L}_1$ koristimo simetričnu unakrsnu entropiju kako bi zatrovani primjeri imali što viši gubitak.\ 
+Svakih $t$ epoha učenja, u čisti skup se iz zagađenog skupa dodaje $n$ primjera iz svakog pojedinog razreda koji imaju najniži gubitak $\mathcal{L}_{SCE}$.\ Pritom kao funkciju gubitka $\mathcal{L}_{SCE}$ koristimo simetričnu unakrsnu entropiju kako bi zatrovani primjeri imali što viši gubitak.\ 
 Ovu podjelu zovemo razredno-svjesna podjela vođena gubitkom (engl.\ \textit{class-aware loss-guided split}).\ 
   
 Tijekom drugog koraka, čisti skup značajno proširujemo dodavanjem udjela $\alpha$ zagađenog skupa.\ 
-Pritom se dodaju primjeri iz cijelog skupa (neovisno o razredu) koji imaju najniži gubitak $\mathcal{L}_1$.\ 
+Pritom se dodaju primjeri iz cijelog skupa (neovisno o razredu) koji imaju najniži gubitak $\mathcal{L}_{SCE}$.\ 
 Ovu podjelu zovemo razredno-nesvjesna podjela vođena gubitkom (engl.\ \textit{class-agnostic loss-guided split}).\ 
   
 Nakon prva dva koraka ASD-a, u zagađenom skupu preostaju zatrovani primjeri, ali i neki teški primjeri specifični za model.\ 
 Zbog toga što model nismo učili na teškim primjerima s oznakama, performanse modela trenutno su niže od stanja tehnike.\ Kako bismo dodali i teške primjere u čisti skup, svaku epohu trećeg koraka konstruiramo virtualni model.\ 
-Virtualni model inicijaliziramo parametrima glavnog modela te potom provodimo jednu epohu nadziranog učenja na zagađenom skupu uz korištenje gubitka $\mathcal{L}_2$.\ Kao funkciju gubitka $\mathcal{L}_2$ koristimo standardnu unakrsnu entropiju.\ 
+Virtualni model inicijaliziramo parametrima glavnog modela te potom provodimo jednu epohu nadziranog učenja na zagađenom skupu uz korištenje gubitka $\mathcal{L}_{CE}$.\ Kao funkciju gubitka $\mathcal{L}_{CE}$ koristimo standardnu unakrsnu entropiju.\ 
 Nakon učenja virtualnog modela, mjerimo smanjenje gubitka definirano jednadžbom:
 
 \begin{equation}
-  \Delta \mathcal{L} = \mathcal{L}_1(f_{\bm{\theta}}) - \mathcal{L}_1(f_{\bm{\theta'}})
+  \Delta \mathcal{L}_{SCE} = \mathcal{L}_{SCE}(f_{\bm{\theta}}) - \mathcal{L}_{SCE}(f_{\bm{\theta'}})
   \label{eq:asd}
 \end{equation}
 
@@ -357,7 +357,7 @@ Pritom $f_{\bm{\theta}}$ predstavlja model s parametrima $\bm{\theta}$, a $\ell(
 Uz uvođenje rijetkog vektora $\bm{s}_i$ za svaki primjer, učenje se svodi na potragu za parametrima $(\bm{\theta}, \{\bm{s}_i\}_{i=1}^N)$ koji minimiziraju gubitak:
 
 \begin{equation}
-  \mathcal{L} = \mathbb{E}_{(\bm{x}, \bm{y}) \sim \mathcal{D}} \left[ \ell(f_{\bm{\theta}}(\bm{x}) + \bm{s}, \bm{y}) \right]
+  \mathcal{L}_{SOP} = \mathbb{E}_{(\bm{x}, \bm{y}) \sim \mathcal{D}} \left[ \ell(f_{\bm{\theta}}(\bm{x}) + \bm{s}, \bm{y}) \right]
   \label{eq:sop2}
 \end{equation}
 
@@ -444,7 +444,7 @@ Ovaj problem pojednostavit ćemo razmatranjem modela šuma neovisnog o uzorku $\
 Funkcija gubitka koju želimo minimizirati tada postaje:
 
 \begin{equation}
-  \mathcal{L} = \mathcal{L}_{CE} (p(\bm{y} | \bm{x}, \bm{\hat{y}; \bm{\theta}, \bm{\omega}^t}), p(\bm{y} | \bm{x}, \bm{\hat{y}; \bm{\theta}^t, \bm{\omega}^t})) + \mathcal{L}_{CE} (p(\bm{\hat{y}} | \bm{x}; \bm{\theta}, \bm{\omega}), \bm{\hat{y}})
+  \mathcal{L}_{ILL} = \mathcal{L}_{CE} (p(\bm{y} | \bm{x}, \bm{\hat{y}; \bm{\theta}, \bm{\omega}^t}), p(\bm{y} | \bm{x}, \bm{\hat{y}; \bm{\theta}^t, \bm{\omega}^t})) + \mathcal{L}_{CE} (p(\bm{\hat{y}} | \bm{x}; \bm{\theta}, \bm{\omega}), \bm{\hat{y}})
   \label{eq:ill_loss}
 \end{equation}
 
