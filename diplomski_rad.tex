@@ -226,7 +226,7 @@ Zbog toga, važno je napraviti podjelu skupa podataka na čisti i zatrovani skup
 Kod algoritma DBD, ova podjela se radi na temelju iznosa gubitka: udio $\alpha$ primjera s najnižim iznosom gubitka smatrat ćemo vjerodostojnim tj.\ čistim skupom, dok ćemo preostale primjere smatrati zatrovanima.\ 
 
 Treći korak koristi podjelu na čisti i zatrovani skup kako bi dodatno ugodio parametre cijelog modela.\ 
-Konkretno, zatrovanom skupu uklanjamo oznake te potom model učimo koristeći proizvoljni algoritam polu-nadziranog učenja~\cite{van2020survey}.\ 
+Konkretno, zatrovanom skupu uklanjamo oznake te potom model učimo koristeći proizvoljni algoritam polunadziranog učenja~\cite{van2020survey}.\ 
 Na kraju ovog koraka, imat ćemo naučen cjelokupni model otporan na zatrovane primjere.\ 
 
 \pagebreak
@@ -237,7 +237,7 @@ Na kraju ovog koraka, imat ćemo naučen cjelokupni model otporan na zatrovane p
 Algoritam \textit{Adaptively splitting dataset-based defense} (ASD) problem učenja modela na zatrovanim podatcima razdvaja na tri koraka.\ 
 Tijekom sva tri koraka, održavaju se dva skupa podataka: čisti i zagađeni skup.\ Pritom se u čistom skupu nalaze podatci za koje je velika vjerojatnost da su čisti, dok se u zagađenom skupu nalaze zatrovani podatci, kao i preostali čisti podatci.\ 
 Kroz učenje, čisti skup se povećava dodavanjem primjera iz zagađenog skupa.\ Konačno, na kraju učenja bi zagađeni skup trebao sadržavati isključivo zatrovane podatke.\ 
-Parametri modela uvijek se ažuriraju na temelju proizvoljnog polu-nadziranog gubitka, pri čemu se zagađeni skup koristi za učenje bez oznaka.\   
+Parametri modela uvijek se ažuriraju na temelju proizvoljnog polunadziranog gubitka, pri čemu se zagađeni skup koristi za učenje bez oznaka.\   
 
 \begin{figure}[h]
   \centering
@@ -397,6 +397,67 @@ Inačicu algoritma koja dodatno koristi ove dvije komponente gubitka zovemo SOP+
 
 \subsection{Algoritam ILL}
 \label{sub:ill}
+
+Algoritam \textit{Imprecise label learning} (ILL) obuhvaća i pokušava riješiti nekoliko problema vezanih uz nesavršenosti oznaka: učenje na djelomičnim oznakama (engl.\ \textit{partial label learning})~\cite{tian2023partial}, polunadzirano učenje te učenje na zašumljenim oznakama.\ 
+Konkretno, ILL sve ove probleme smatra vrstama problema nepreciznih oznaka (engl.\ \textit{imprecise labels}).\ Skup podataka tada sadrži ulazne slike $X$ i neprecizne oznake $I$, dok su čiste oznake $Y$ skrivene (latentne).\ 
+Pritom su neprecizne oznake apstraktne - u stvarnosti to može biti skup oznaka (u problemu učenja na djelomičnim oznakama), ali i zašumljena oznaka (u problemu učenja na zašumljenim oznakama).\ 
+Cilj učenja modela tada je pronaći parametre $\bm{\theta}$ koji maksimiziraju zajedničku vjerojatnost definiranu kao: 
+
+\begin{equation}
+  P(X, I; \bm{\theta}) = \sum_{Y} P(X, I, Y; \bm{\theta})
+  \label{eq:ill_joint}
+\end{equation}
+
+Kako bismo maksimizirali logaritam očekivanja uz prisutnost latentne varijable, koristimo algoritam maksimizacije očekivanja (EM algoritam)~\cite{moon1996expectation}.\
+Pritom u E koraku algoritma maksimizacije očekivanja računamo očekivanje zajedničke vjerojatnosti $P(X, I, Y; \bm{\theta})$ uz zadanu uvjetnu vjerojatnost $P(Y | X, I; \bm{\theta}^t)$ u vremenskom koraku $t$.\ 
+S druge strane, u M koraku tražimo parametre $\bm{\theta}$ koji maksimiziraju donju varijacijsku granicu (engl.\ \textit{evidence lower bound} - ELBO) vjerojatnosti $P(X, I; \bm{\theta})$.\ 
+Pošto se različite vrste problema razlikuju primarno po prirodi nepreciznosti oznaka, algoritmi za pojedine probleme najviše će se razlikovati u načinu izračuna vjerojatnosti $P(Y | X, I; \bm{\theta}^t)$.\
+Ovime algoritam ILL pruža unificirani okvir koji podržava različite vrste nepreciznosti oznaka, kao i kombinacije istih.\
+
+Dakle, glavni cilj algoritma ILL je pronaći parametre $\bm{\theta}$ koji maksimiziraju zajedničku vjerojatnost $P(X, I; \bm{\theta})$ odnosno logaritam iste.\
+Prema EM algoritmu, ovaj problem možemo riješiti maksimizacijom očekivanja:
+
+\begin{equation}
+  \mathbb{E}_{Y | X, I; \bm{\theta}^t} \left[ \log P(X, Y, I; \bm{\theta}) \right] = \mathbb{E}_{Y | X, I; \bm{\theta}^t} \left[ \log P(Y | X; \bm{\theta}) + \log P(I | X, Y; \bm{\theta}) \right]
+  \label{eq:ill_expectation}
+\end{equation}
+
+\pagebreak
+
+Pritom ignoriramo član $P(X)$ jer isti ne ovisi o parametrima $\bm{\theta}$.\ Iz dobivenog izraza vidimo da izračunom očekivanja razmatramo sve moguće oznake $Y$ na temelju danih nepreciznih oznaka $I$, umjesto da se fokusiramo na samo jednu prepravljenu oznaku.\
+Na temelju ove formulacije dalje možemo izvesti cilj za pojedini problem.\ U našem radu, fokusirat ćemo se na izvod za problem učenja na zašumljenim oznakama.\ 
+
+Kod problema učenja na zašumljenim oznakama, neprecizne oznake $I$ se manifestiraju kao zašumljene oznake $\hat{Y}$.\ 
+Vjerojatnost $P(\hat{Y} | Y, X; \bm{\theta})$ tada predstavlja model šuma ovisan o pojedinom uzorku $X$.\ 
+Ovaj problem pojednostavit ćemo razmatranjem modela šuma neovisnog o uzorku $\mathcal{T}(\hat{Y} | Y; \bm{\omega})$ s parametrima $\bm{\omega}$.\ Cilj koji želimo maksimizirati tada dobivamo kao:
+
+\begin{equation}
+  \begin{aligned}
+    \mathbb{E}_{Y | X, I; \bm{\theta}^t} \left[ \log P(X, Y, I; \bm{\theta}) \right] &= \mathbb{E}_{Y | X, I; \bm{\theta}^t} \left[ \log P(Y, I | X; \bm{\theta}) \right] \\
+    &= \mathbb{E}_{Y | X, \hat{Y}; \bm{\theta}^t} \left[ \log P(Y, \hat{Y} | X; \bm{\theta}) \right] \\
+    &= \mathbb{E}_{Y | X, \hat{Y}; \bm{\theta}^t} \left[ \log P(Y | \hat{Y}, X; \bm{\theta}) + \log P(\hat{Y} | X; \bm{\theta}) \right] \\
+    &= \sum_{Y} P(Y | \hat{Y}, X; \bm{\theta}^t) \log P(Y | \hat{Y}, X; \bm{\theta}) + \log P(\hat{Y} | X; \bm{\theta}) \\
+  \end{aligned}
+  \label{eq:ill_target}
+\end{equation}
+
+Funkcija gubitka koju želimo minimizirati tada postaje:
+
+\begin{equation}
+  \mathcal{L} = \mathcal{L}_{CE} (p(\bm{y} | \bm{x}, \bm{\hat{y}; \bm{\theta}, \bm{\omega}^t}), p(\bm{y} | \bm{x}, \bm{\hat{y}; \bm{\theta}^t, \bm{\omega}^t})) + \mathcal{L}_{CE} (p(\bm{\hat{y}} | \bm{x}; \bm{\theta}, \bm{\omega}), \bm{\hat{y}})
+  \label{eq:ill_loss}
+\end{equation}
+
+Pritom $\mathcal{L}_{CE}$ označava unakrsnu entropiju.\ Prva komponenta dobivenog gubitka odgovara konzistencijskom gubitku čistih oznaka uvjetovanih zašumljenim oznakama, dok druga komponenta odgovara nadziranom gubitku na zašumljenim oznakama.\ 
+Pritom se za izračun obje komponente koristi model šuma uz zadanu zašumljenu oznaku $\bm{\hat{y}}$:
+
+\begin{equation}
+  \begin{aligned}
+    p(\bm{y} | \bm{x}, \bm{\hat{y}; \bm{\theta}, \bm{\omega}^t}) \propto p(\bm{y} | \bm{x}; \bm{\theta}) \, \mathcal{T}(\bm{\hat{y}} | \bm{y}; \bm{\omega}^t) \\
+    p(\bm{\hat{y}} | \bm{x}; \bm{\theta}, \bm{\omega}) = \sum_{\bm{y}} p(\bm{y} | \bm{x}; \bm{\theta}) \, \mathcal{T}(\bm{\hat{y}} | \bm{y}; \bm{\omega})
+  \end{aligned}
+  \label{eq:ill_probs}
+\end{equation}
 
 %-------------------------------------------------------------------------------
 \chapter{Samonadzirano učenje}
