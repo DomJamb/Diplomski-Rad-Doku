@@ -467,7 +467,7 @@ Samonadzirano učenje~\cite{jaiswal2020survey} paradigma je strojnog učenja kod
 Ovim pristupom pokušava se adresirati problem cijene i vremena potrebnog za označavanje velikih skupova podataka.\ 
 Model učen proizvoljnim algoritmom samonadziranog učenja dalje se može koristiti kao okosnica (engl.\ \textit{backbone}) za model koji rješava neki nizvodni (engl.\ \textit{downstream}) zadatak poput klasifikacije ili detekcije objekata.\ 
 Pritom se okosnici dodaje klasifikacijska glava (najčešće nekoliko potpuno-povezanih slojeva), a cijeli model se dodatno ugađa nadziranim učenjem na manjem skupu podataka prilagođenom konkretnom problemu.\ 
-
+  
 Ključno pitanje kod samonadziranog učenja je formiranje zadatka učenja bez oznaka tj.\ odlučivanje o tome na temelju čega će model dobivati signal za učenje.\ 
 Tipični zadatci uključuju rekonstrukciju ulaznih podataka na temelju izlučenih reprezentacija, grupiranje reprezentacija tj.\ ugrađivanja (engl.\ \textit{embedding}) semantički sličnih podataka u prostoru ugrađivanja ili predviđanje maskiranih piksela ulaznih slika (engl.\ \textit{masked image modeling} - MIM)~\cite{hondru2024masked}.\
 Rješavanjem jednog od zadataka učenja, model posredno uči izlučivati korisne reprezentacije ulaznih podataka ili uočavati korisne odnose između podataka.\ 
@@ -482,7 +482,7 @@ U našem radu, fokusirat ćemo se na kontrastno samonadzirano učenje.\
 Kontrastno učenje jedno je od područja samonadziranog učenja.\ Ono podrazumijeva učenje izlučivanja korisnih reprezentacija tj.\ ugrađivanja ulaznih podataka na temelju parova podataka.\ 
 Ako su dobivena ugrađivanja normirana, a sličnost dvaju ugrađivanja možemo izračunati koristeći neku od standardnih metrika (na primjer, kosinusnu sličnost), tada govorimo o metričkim ugrađivanjima tj.\ ugrađivanjima u metrički prostor~\cite{chavez2001searching}.\ 
 Možemo reći da naučeni model preslikava ulazne slike na $(d - 1)$ dimenzionalnu hipersferu $S^{d - 1}$, pri čemu sličnost ugrađivanja odgovara semantičkoj sličnosti ulaza.\
-
+  
 Kod kontrastnog učenja razlikujemo sidro, pozitivne i negativne primjere.\ Trenutno promatrani podatak iz minigrupe nazivamo sidro, podatak sličan sidru nazivamo pozitivan primjer, a podatak različit od sidra nazivamo negativan primjer.\ 
 Budući da primjeri nisu označeni, pozitivne primjere najčešće dobivamo perturbacijom sidra, dok negativnim primjerima smatramo sve ostale podatke iz minigrupe.\ 
 
@@ -504,6 +504,112 @@ Gubitak N parova također je poznat i kao infoNCE gubitak~\cite{oord2018represen
 
 Pritom $\bm{z}_{a}$ označava ugrađivanje sidra $\bm{x}_{a}$, $\bm{z}_{p}$ ugrađivanje pozitivnog primjera $\bm{x}_{p}$, $\bm{z}_{ni}$ ugrađivanje i-tog negativnog primjera $\bm{x}_{ni}$ iz minigrupe, a $\tau$ hiperparametar temperature.\ 
 Oznaka $\langle ... \rangle$ označava skalarni produkt vektora unutar zagrada.\
+  
+U algoritmu za obranu od zatrovanih podataka VIBE, samonadzirana inicijalizacija parametara modela veoma je važan korak koji osigurava uspješnost obrane.\ 
+Pritom za inicijalizaciju koristimo okvir All4One~\cite{estepa2023all4one} koji se bazira na kontrastnom samonadziranom učenju.\
+
+\section{Okvir All4One}
+\label{sek:all4one}
+
+Okvir All4One kombinira tri zasebna pristupa kontrastiranju kako bi naučeni modeli postizali što bolje rezultate.\ 
+Konkretno, optimizacijski cilj okvira All4One sadrži komponentu kontrastiranja najbližih susjeda (engl.\ \textit{nearest neighbour contrast})~\cite{dwibedi2021little}, komponentu kontrastiranja centroida (engl.\ \textit{centroid contrast}) te komponentu kontrastiranja značajki (engl.\ \textit{feature contrast})~\cite{zbontar2021barlow}.\ 
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.7]{./Slike/all4one.png}
+  \caption{Prikaz arhitekture okvira All4One. Komponenta kontrastiranja najbližih susjeda označena je zelenom bojom, komponenta kontrastiranja centroida ljubičastom bojom, a komponenta kontrastiranja značajki crvenom bojom.\ Preuzeto iz \cite{estepa2023all4one}.}
+  \label{fig:all4one}
+\end{figure}
+
+\pagebreak
+
+U okviru All4One, model koji učimo služi kao koder značajki $f_{\bm{\theta}}$.\ Osim glavnog kodera koji učimo gradijentnim spustom, tijekom učenja se dodatno održava i koder s momentom $f_{\bm{\xi}}$ čiji parametri odgovaraju eksponencijalnom pomičnom prosjeku (engl.\ \textit{exponential moving average} - EMA) parametara glavnog kodera.\
+Dodatno, osim para kodera, učimo i par projektora $g_{\bm{\theta}}$ i $g_{\bm{\xi}}$.\ Za svaku sliku $\bm{x}$ na ulazu, generiraju se dvije augmentirane slike $\bm{x}^1$ te $\bm{x}^2$.\ 
+Jedna od dobivenih augmentiranih slika tada prolazi kroz koder s momentom i pripadni projektor te dobivamo ugrađivanje $\bm{z}^1 = g_{\bm{\xi}}(f_{\bm{\xi}}(\bm{x}^1))$, dok druga augmentirana slika prolazi kroz glavni koder i pripadni projektor te dobivamo ugrađivanje $\bm{z}^2 = g_{\bm{\theta}}(f_{\bm{\theta}}(\bm{x}^2))$.\
+Dobivena ugrađivanja dalje se mogu koristiti za izračun pojedinih komponenti optimizacijskog cilja.\ Osim para kodera i para projektora, dodatno se održavaju i dva prediktora $q_{\bm{\theta}}^{nn}$ te $q_{\bm{\theta}}^{c}$ koji služe za prilagodbu ugrađivanja za zadatak kontrastiranja najbližih susjeda odnosno zadatak kontrastiranja centroida.\
+
+\subsection{Kontrastiranje najbližih susjeda}
+\label{sub:knn}
+
+Kontrastiranje najbližih susjeda često je korišten pristup kontrastnog samonadziranog učenja kod kojega se ugrađivanje jedne od perturbiranih slika zamijeni sa svojim najbližim susjedom.\ 
+Konkretno, tijekom učenja održavamo skup prethodnih ugrađivanja (engl.\ \textit{support set}) $Q$ koji možemo koristiti za pronalazak najbližih susjeda za neko zadano ugrađivanje.\ Ovu operaciju označit ćemo operatorom $KNN$.\ 
+Gubitak za i-ti primjer $\bm{x}_i$ u minigrupi tada možemo definirati jednadžbom:
+
+\begin{equation}
+  \mathcal{L}_{NNCLR} = - \log{\frac{\exp(\langle \bm{nn}_{i}^{1}, \bm{p}_{i}^{nn, 2} \rangle / \tau)}{\sum_{k=1}^{N}{\exp(\langle \bm{nn}_{i}^{1}, \bm{p}_{k}^{nn, 2} \rangle / \tau)}}}
+  \label{eq:NNCLR_loss}
+\end{equation}
+
+Pritom $\bm{nn}_{i}^{1}$ označava najbližeg susjeda ugrađivanja prve perturbacije primjera $\bm{x}_i$, $\bm{p}_{i}^{nn, 2}$ izlaz prediktora $q_{\bm{\theta}}^{nn}$ za ugrađivanje druge perturbacije primjera $\bm{x}_i$, a $\tau$ hiperparametar temperature.\ 
+Naspram osnovne inačice kontrastnog učenja, kontrastiranje najbližih susjeda povećava raznolikost primjera koje model vidi tijekom učenja, a time i generalizacijsku moć naučenog modela.\ 
+
+\pagebreak
+
+\subsection{Kontrastiranje centroida}
+\label{sub:centroids}
+  
+Ipak, pokazano je da modeli učeni kontrastiranjem najbližih susjeda mogu postići još bolje performanse ako se pritom koristi više od jednog najbližeg susjeda~\cite{koohpayegani2021mean}.\ 
+Nažalost, učenje s više od jednog najbližeg susjeda značajno povećava trajanje učenja jer se funkcija cilja treba evaluirati za svakog susjeda pojedinačno.\ 
+Autori okvira All4One ovome problemu doskaču uvođenjem kontrastiranja centroida.\ 
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=1]{./Slike/neighbour_vs_centroid.png}
+  \caption{Prikaz kontrastiranja najbližih susjeda (lijevo) i kontrastiranja centroida (desno).\ Kod kontrastiranja najbližih susjeda, kontrastiraju se najbliži susjed jedne perturbacije i druga perturbacija.\ S druge strane, kod kontrastiranja centroida, kontrastiraju se centroidi pojedinih perturbacija.\ Preuzeto iz \cite{estepa2023all4one}.}
+  \label{fig:neighbour_vs_centroid}
+\end{figure}
+
+Konkretno, nakon što smo za zadani primjer $\bm{x}$ generirali ugrađivanja $\bm{z}^1$ te $\bm{z}^2$, za ista prvo pronalazimo skupove najbližih susjeda $NN^1$ odnosno $NN^2$.\ 
+Ugrađivanje $\bm{z}^2$ tada prolazi kroz prediktor $q_{\bm{\theta}}^{c}$ te dobivamo ugrađivanje $\bm{p}^{c, 2}$.\ Ovim ugrađivanjem zamijenit ćemo posljednjeg najbližeg susjeda u skupu $NN^2$ te potom provesti operaciju kružnog posmaka (engl.\ \textit{shift}) kojim će ugrađivanje $\bm{p}^{c, 2}$ doći na prvo mjesto u skupu.\ 
+  
+Kada imamo pripremljene skupove najbližih susjeda $NN^1$ te $NN^2$, iz istih želimo dobiti po jedno ugrađivanje koje sadrži informacije o svim najbližim susjedima iz pripadnog skupa.\ 
+Kako bismo ovo postigli, koristimo mehanizam samopažnje (engl.\ \textit{self-attention})~\cite{vaswani2017attention}.\
+Konkretno, koristimo koder transformera $\psi$ kojemu na ulaz dovodimo niz ugrađivanja $Seq$ iz skupa $NN$ obogaćen sinusoidalnim pozicijskim kodiranjem~\cite{vaswani2017attention}.\ 
+Na izlazu kodera $\psi$ tada dobivamo niz ugrađivanja $Seq^c$ obogaćenih kontekstualnim informacijama o preostalim susjedima iz skupa.\ Kako bismo za svaki skup imali samo jedno ugrađivanje, kao centroid $\bm{c}$ proglašavamo prvo ugrađivanje s izlaza kodera transformera $Seq_1^c$.\ 
+
+\pagebreak
+
+Ovaj postupak provodimo zasebno za skup $NN^1$ odnosno skup $NN^2$ kako bismo dobili centroide $\bm{c}^1$ odnosno $\bm{c}^2$.\ Konačno, gubitak za i-ti primjer $\bm{x}_i$ u minigrupi možemo definirati jednadžbom:
+
+\begin{equation}
+  \mathcal{L}_{centroid} = - \log{\frac{\exp(\langle \bm{c}_{i}^{1}, \bm{c}_{i}^{2} \rangle / \tau)}{\sum_{k=1}^{N}{\exp(\langle \bm{c}_{i}^{1}, \bm{c}_{k}^{2} \rangle / \tau)}}}
+  \label{eq:centroid_loss}
+\end{equation}
+
+\subsection{Kontrastiranje značajki}
+\label{sub:features}
+  
+Kontrastiranje značajki veoma se razlikuje od uobičajenih pristupa kontrastnom učenju.\ Kod ovog pristupa, ideja je direktno kontrastirati značajke ugrađivanja.\ 
+Kako bismo ovo postigli, potrebno je izračunati korelacijsku matricu značajki za svaku minigrupu.\ Tada je cilj naučiti parametre modela koji korelacijsku matricu značajki što više približavaju prema jediničnoj matrici.\ 
+
+Konkretno, prvo za svaku minigrupu konstruiramo matrice $\bm{Z}^1$ odnosno $\bm{Z}^2$ u kojima reci označavaju ugrađivanja prve odnosno druge perturbacije pripadnih primjera iz minigrupe.\ 
+Nakon provođenja $L_2$ normalizacije matrice po stupcima, korelacijsku matricu $\bm{CC}^1$ dobivamo računanjem kosinusne sličnosti između transponirane matrice $\bm{Z}^1$ te matrice $\bm{Z}^2$.\ 
+Dodatno, korelacijsku matricu $\bm{CC}^2$ dobivamo uz zamjenu grana tj.\ zamjenu glavnog kodera i kodera s momentom te ponovan izračun sličnosti.\ 
+Kada smo izračunali obje korelacijske matrice, gubitak za zadanu minigrupu možemo definirati jednadžbom:
+
+\begin{equation}
+  \mathcal{L}_{feature} = \frac{1}{2} \sqrt{\frac{1}{2D}\sum_{i=1}^{D}((1 - \bm{CC}_{ii}^1)^2 + (1 - \bm{CC}_{ii}^2)^2)} + \frac{1}{2} \sqrt{\frac{1}{2D(D - 1)}\sum_{i=1}^{D}\sum_{j \neq i}^{D}((\bm{CC}_{ij}^1)^2 + (\bm{CC}_{ij}^2)^2)}
+  \label{eq:feature_loss}
+\end{equation}
+
+Pritom $D$ označava broj značajki tj.\ dimenzionalnost vektora ugrađivanja.\ Vidimo da će gubitak biti to manji što su korelacijske matrice bliže jediničnoj matrici.\ 
+Prvi član gubitka pokušava povećati invarijantnost pojedinih značajki na augmentacije ulaznih slika, dok drugi član pokušava smanjiti međusobnu redundantnost značajki.\ 
+
+\pagebreak
+
+\subsection{Kombinirano kontrastiranje}
+\label{sub:all4one_combined}
+
+Dok prethodni algoritmi samonadziranog učenja većinom koriste samo jednu vrstu kontrastiranja (na primjer, samo kontrastiranje najbližih susjeda), okvir All4One kombinira sva tri navedena pristupa.\ 
+Konkretno, gubitak koji želimo minimizirati možemo definirati jednadžbom:
+
+\begin{equation}
+  \mathcal{L}_{All4One} = \sigma \mathcal{L}_{NNCLR} + \kappa \mathcal{L}_{centroid} + \eta \mathcal{L}_{feature}
+  \label{eq:all4one_loss}
+\end{equation}
+
+Pritom su $\sigma$, $\kappa$ i $\eta$ hiperparametri koji određuju jačinu utjecaja pojedine vrste kontrastiranja.\ 
+Kombiniranjem više pristupa kontrastnog učenja, okvir All4One poboljšava učenje korisnih reprezentacija ulaznih podataka.\
 
 %-------------------------------------------------------------------------------
 \chapter{Algoritam maksimizacije očekivanja}
