@@ -404,39 +404,39 @@ Pritom su neprecizne oznake apstraktne - u stvarnosti to može biti skup oznaka 
 Cilj učenja modela tada je pronaći parametre $\bm{\theta}$ koji maksimiziraju zajedničku vjerojatnost definiranu kao: 
 
 \begin{equation}
-  P(X, I; \bm{\theta}) = \sum_{Y} P(X, I, Y; \bm{\theta})
+  p(X, I | \bm{\theta}) = \sum_{Y} p(X, I, Y | \bm{\theta})
   \label{eq:ill_joint}
 \end{equation}
 
-Kako bismo maksimizirali logaritam očekivanja uz prisutnost latentne varijable, koristimo algoritam maksimizacije očekivanja (EM algoritam)~\cite{moon1996expectation}.\
-Pritom u E koraku algoritma maksimizacije očekivanja računamo očekivanje zajedničke vjerojatnosti $P(X, I, Y; \bm{\theta})$ uz zadanu uvjetnu vjerojatnost $P(Y | X, I; \bm{\theta}^t)$ u vremenskom koraku $t$.\ 
-S druge strane, u M koraku tražimo parametre $\bm{\theta}$ koji maksimiziraju donju varijacijsku granicu (engl.\ \textit{evidence lower bound} - ELBO) vjerojatnosti $P(X, I; \bm{\theta})$.\ 
-Budući da se različite vrste problema razlikuju primarno po prirodi nepreciznosti oznaka, algoritmi za pojedine probleme najviše će se razlikovati u načinu izračuna vjerojatnosti $P(Y | X, I; \bm{\theta}^t)$.\
+Kako bismo maksimizirali logaritam očekivanja uz prisutnost latentne varijable, koristimo algoritam maksimizacije očekivanja (algoritam EM)~\cite{moon1996expectation}.\
+Pritom u E koraku algoritma maksimizacije očekivanja računamo očekivanje zajedničke vjerojatnosti $p(X, I, Y | \bm{\theta})$ uz zadanu uvjetnu vjerojatnost $p(Y | X, I, \bm{\theta}^t)$ u vremenskom koraku $t$.\ 
+S druge strane, u M koraku tražimo parametre $\bm{\theta}$ koji maksimiziraju donju varijacijsku granicu (engl.\ \textit{evidence lower bound} - ELBO) vjerojatnosti $p(X, I | \bm{\theta})$.\ 
+Budući da se različite vrste problema razlikuju primarno po prirodi nepreciznosti oznaka, algoritmi za pojedine probleme najviše će se razlikovati u načinu izračuna vjerojatnosti $p(Y | X, I, \bm{\theta}^t)$.\
 Ovime algoritam ILL pruža unificirani okvir koji podržava različite vrste nepreciznosti oznaka, kao i kombinacije istih.\
 
-Dakle, glavni cilj algoritma ILL je pronaći parametre $\bm{\theta}$ koji maksimiziraju zajedničku vjerojatnost $P(X, I; \bm{\theta})$ odnosno logaritam iste.\
-Prema EM algoritmu, ovaj problem možemo riješiti maksimizacijom očekivanja:
+Dakle, glavni cilj algoritma ILL je pronaći parametre $\bm{\theta}$ koji maksimiziraju zajedničku vjerojatnost $p(X, I | \bm{\theta})$ odnosno logaritam iste.\
+Prema algoritmu EM, ovaj problem možemo riješiti maksimizacijom očekivanja:
 
 \begin{equation}
-  \mathbb{E}_{Y | X, I; \bm{\theta}^t} \left[ \log P(X, Y, I; \bm{\theta}) \right] = \mathbb{E}_{Y | X, I; \bm{\theta}^t} \left[ \log P(Y | X; \bm{\theta}) + \log P(I | X, Y; \bm{\theta}) \right]
+  \mathbb{E}_{Y | X, I, \bm{\theta}^t} \left[ \log p(X, Y, I | \bm{\theta}) \right] = \mathbb{E}_{Y | X, I, \bm{\theta}^t} \left[ \log p(Y | X, \bm{\theta}) + \log p(I | X, Y, \bm{\theta}) \right]
   \label{eq:ill_expectation}
 \end{equation}
 
 \pagebreak
 
-Pritom ignoriramo član $P(X)$ jer isti ne ovisi o parametrima $\bm{\theta}$.\ Iz dobivenog izraza vidimo da izračunom očekivanja razmatramo sve moguće oznake $Y$ na temelju danih nepreciznih oznaka $I$, umjesto da se fokusiramo na samo jednu prepravljenu oznaku.\
+Pritom ignoriramo član $p(X)$ jer isti ne ovisi o parametrima $\bm{\theta}$.\ Iz dobivenog izraza vidimo da izračunom očekivanja razmatramo sve moguće oznake $Y$ na temelju danih nepreciznih oznaka $I$, umjesto da se fokusiramo na samo jednu prepravljenu oznaku.\
 Na temelju ove formulacije dalje možemo izvesti cilj za pojedini problem.\ U našem radu, fokusirat ćemo se na izvod za problem učenja na zašumljenim oznakama.\ 
 
 Kod problema učenja na zašumljenim oznakama, neprecizne oznake $I$ se manifestiraju kao zašumljene oznake $\hat{Y}$.\ 
-Vjerojatnost $P(\hat{Y} | Y, X; \bm{\theta})$ tada predstavlja model šuma ovisan o pojedinom uzorku $X$.\ 
-Ovaj problem pojednostavit ćemo razmatranjem modela šuma neovisnog o uzorku $\mathcal{T}(\hat{Y} | Y; \bm{\omega})$ s parametrima $\bm{\omega}$.\ Cilj koji želimo maksimizirati tada dobivamo kao:
+Vjerojatnost $p(\hat{Y} | Y, X, \bm{\theta})$ tada predstavlja model šuma ovisan o pojedinom uzorku $X$.\ 
+Ovaj problem pojednostavit ćemo razmatranjem modela šuma neovisnog o uzorku $\mathcal{T}(\hat{Y} | Y, \bm{\omega})$ s parametrima $\bm{\omega}$.\ Cilj koji želimo maksimizirati tada dobivamo kao:
 
 \begin{equation}
   \begin{aligned}
-    \mathbb{E}_{Y | X, I; \bm{\theta}^t} \left[ \log P(X, Y, I; \bm{\theta}) \right] &= \mathbb{E}_{Y | X, I; \bm{\theta}^t} \left[ \log P(Y, I | X; \bm{\theta}) \right] \\
-    &= \mathbb{E}_{Y | X, \hat{Y}; \bm{\theta}^t} \left[ \log P(Y, \hat{Y} | X; \bm{\theta}) \right] \\
-    &= \mathbb{E}_{Y | X, \hat{Y}; \bm{\theta}^t} \left[ \log P(Y | \hat{Y}, X; \bm{\theta}) + \log P(\hat{Y} | X; \bm{\theta}) \right] \\
-    &= \sum_{Y} P(Y | \hat{Y}, X; \bm{\theta}^t) \log P(Y | \hat{Y}, X; \bm{\theta}) + \log P(\hat{Y} | X; \bm{\theta}) \\
+    \mathbb{E}_{Y | X, I, \bm{\theta}^t} \left[ \log p(X, Y, I | \bm{\theta}) \right] &= \mathbb{E}_{Y | X, I, \bm{\theta}^t} \left[ \log p(Y, I | X, \bm{\theta}) \right] \\
+    &= \mathbb{E}_{Y | X, \hat{Y}, \bm{\theta}^t} \left[ \log p(Y, \hat{Y} | X, \bm{\theta}) \right] \\
+    &= \mathbb{E}_{Y | X, \hat{Y}, \bm{\theta}^t} \left[ \log p(Y | \hat{Y}, X, \bm{\theta}) + \log p(\hat{Y} | X, \bm{\theta}) \right] \\
+    &= \sum_{Y} p(Y | \hat{Y}, X, \bm{\theta}^t) \log p(Y | \hat{Y}, X, \bm{\theta}) + \log p(\hat{Y} | X, \bm{\theta}) \\
   \end{aligned}
   \label{eq:ill_target}
 \end{equation}
@@ -444,7 +444,7 @@ Ovaj problem pojednostavit ćemo razmatranjem modela šuma neovisnog o uzorku $\
 Funkcija gubitka koju želimo minimizirati tada postaje:
 
 \begin{equation}
-  \mathcal{L}_{ILL} = \mathcal{L}_{CE} (p(\bm{y} | \bm{x}, \bm{\hat{y}; \bm{\theta}, \bm{\omega}^t}), p(\bm{y} | \bm{x}, \bm{\hat{y}; \bm{\theta}^t, \bm{\omega}^t})) + \mathcal{L}_{CE} (p(\bm{\hat{y}} | \bm{x}; \bm{\theta}, \bm{\omega}), \bm{\hat{y}})
+  \mathcal{L}_{ILL} = \mathcal{L}_{CE} (p(\bm{y} | \bm{x}, \bm{\hat{y}}, \bm{\theta}, \bm{\omega}^t), p(\bm{y} | \bm{x}, \bm{\hat{y}}, \bm{\theta}^t, \bm{\omega}^t)) + \mathcal{L}_{CE} (p(\bm{\hat{y}} | \bm{x}, \bm{\theta}, \bm{\omega}), \bm{\hat{y}})
   \label{eq:ill_loss}
 \end{equation}
 
@@ -453,8 +453,8 @@ Pritom se za izračun obje komponente koristi model šuma uz zadanu zašumljenu 
 
 \begin{equation}
   \begin{aligned}
-    p(\bm{y} | \bm{x}, \bm{\hat{y}; \bm{\theta}, \bm{\omega}^t}) \propto p(\bm{y} | \bm{x}; \bm{\theta}) \, \mathcal{T}(\bm{\hat{y}} | \bm{y}; \bm{\omega}^t) \\
-    p(\bm{\hat{y}} | \bm{x}; \bm{\theta}, \bm{\omega}) = \sum_{\bm{y}} p(\bm{y} | \bm{x}; \bm{\theta}) \, \mathcal{T}(\bm{\hat{y}} | \bm{y}; \bm{\omega})
+    p(\bm{y} | \bm{x}, \bm{\hat{y}}, \bm{\theta}, \bm{\omega}^t) \propto p(\bm{y} | \bm{x}, \bm{\theta}) \, \mathcal{T}(\bm{\hat{y}} | \bm{y}, \bm{\omega}^t) \\
+    p(\bm{\hat{y}} | \bm{x}, \bm{\theta}, \bm{\omega}) = \sum_{\bm{y}} p(\bm{y} | \bm{x}, \bm{\theta}) \, \mathcal{T}(\bm{\hat{y}} | \bm{y}, \bm{\omega})
   \end{aligned}
   \label{eq:ill_probs}
 \end{equation}
@@ -615,6 +615,51 @@ Kombiniranjem više pristupa kontrastnog učenja, okvir All4One poboljšava uče
 \chapter{Algoritam maksimizacije očekivanja}
 \label{pog:em_algoritam}
 
+Zamislimo da imamo skup opaženih varijabli $X$ te želimo pronaći parametre $\bm{\theta}$ pretpostavljenog modela za koje je log-izglednost $\log p(X | \bm{\theta})$ maksimalna.\ 
+Drugim riječima, zanima nas MLE (engl.\ \textit{maximum likelihood estimation}) procjena~\cite{myung2003tutorial} parametara $\bm{\theta}$.\ 
+Osim što ovaj zadatak ponekad ima rješenje u zatvorenoj formi (engl.\ \textit{closed-form solution}), općenito ga možemo riješiti gradijentnim postupcima poput stohastičkog gradijentnog spusta~\cite{amari1993backpropagation}.\ 
+Ako uz opažene varijable $X$ postoje i skrivene (latentne) varijable $Z$, problem pronalaska MLE procjene parametara $\bm{\theta}$ postaje kompliciraniji.\  
+Konkretno, nepotpunu log-izglednost parametara tada možemo definirati kao:
+
+\begin{equation}
+  \log p(X | \bm{\theta}) = \log \int p(X, Z | \bm{\theta}) dZ = \log \int p(X | Z, \bm{\theta}) p(Z |\bm{\theta}) dZ
+  \label{eq:log_likelihood_latent}
+\end{equation}
+
+Gledajući da optimizacijski cilj sada sadrži varijable $Z$ čije vrijednosti ne znamo, više ga nije moguće direktno maksimizirati.\ 
+Jedan od mogućih algoritama koji se nosi s postojanjem skrivenih varijabli je algoritam maksimizacije očekivanja (engl.\ \textit{expectation maximization algorithm} - algoritam EM)~\cite{moon1996expectation}.\ 
+Kao i gradijentni spust, i algoritam EM je iterativne prirode, ali se pritom svaka iteracija sastoji od dva zasebna koraka: E koraka i M koraka.\ 
+  
+Pokazuje se da algoritam EM osigurava monotoni rast nepotpune log-izglednosti parametara $\log p(X | \bm{\theta})$, ali pritom ne postoji garancija da će algoritam konvergirati u globalni maksimum~\cite{wu1983convergence}.\
+Drugim riječima, moguće je da dobiveni parametri $\bm{\theta}$ odgovaraju lokalnom maksimumu nepotpune log-izglednosti, tako da se preporučuje koristiti heurističke pristupe poput ponovnog pokretanja algoritma s nasumično odabranim početnim vrijednostima parametara $\bm{\theta}$.\ 
+
+\section{Osnovna formulacija algoritma}
+\label{sek:basic_em}
+
+Osnovna ideja algoritma EM je jednostavna.\ Tijekom učenja, u svakoj iteraciji prvo provodimo E korak, a nakon njega provodimo M korak.\ 
+Gledajući da ne znamo vrijednosti skrivenih varijabli $Z$, kao ni vrijednosti optimalnih parametara $\bm{\theta}$, učenje možemo započeti uz nasumično odabrane vrijednosti parametara $\bm{\theta}^{(0)}$.\ 
+  
+Na početku E koraka, fiksiramo trenutne vrijednosti parametara $\bm{\theta}^{(t)}$. Tada računamo očekivanje potpune log-izglednosti $\log p(X, Z | \bm{\theta})$ uz uvjetnu distribuciju skrivenih varijabli $p(Z | X, \bm{\theta}^{(t)})$.\ 
+Izračunato očekivanje možemo definirati jednadžbom:
+
+\begin{equation}
+  Q (\bm{\theta} | \bm{\theta}^{(t)}) = \mathbb{E}_{Z \sim p(\cdot | X, \bm{\theta}^{(t)})} \left[ \log p(X, Z | \bm{\theta}) \right]
+  \label{eq:em_e_step_basic}
+\end{equation}
+
+U M koraku, cilj nam je pronaći parametre $\bm{\theta}$ koji maksimiziraju izračunato očekivanje $Q (\bm{\theta} | \bm{\theta}^{(t)})$.\
+Nakon što smo izračunali nove parametre $\bm{\theta}^{(t + 1)}$, možemo ih iskoristiti za provođenje E koraka sljedeće iteracije.\ 
+Općenito, jednu iteraciju algoritma EM sažeto možemo prikazati kao:
+
+\begin{equation}
+  \bm{\theta}^{(t + 1)} = \arg \max_{\bm{\theta}} \mathbb{E}_{Z \sim p(\cdot | X, \bm{\theta}^{(t)})} \left[ \log p(X, Z | \bm{\theta}) \right]
+  \label{eq:em_alg_basic}
+\end{equation}
+
+Pokažimo sada općenitu formulaciju algoritma maksimizacije očekivanja.\
+
+\section{Općenita formulacija algoritma}
+\label{sek:general_em}
 
 %-------------------------------------------------------------------------------
 \chapter{Transportni problem}
