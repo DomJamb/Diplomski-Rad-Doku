@@ -639,7 +639,7 @@ Drugim riječima, moguće je da dobiveni parametri $\bm{\theta}$ odgovaraju loka
 Osnovna ideja algoritma EM je jednostavna.\ Tijekom učenja, u svakoj iteraciji prvo provodimo E korak, a nakon njega provodimo M korak.\ 
 Gledajući da ne znamo vrijednosti skrivenih varijabli $Z$, kao ni vrijednosti optimalnih parametara $\bm{\theta}$, učenje možemo započeti uz nasumično odabrane vrijednosti parametara $\bm{\theta}^{(0)}$.\ 
   
-Na početku E koraka, fiksiramo trenutne vrijednosti parametara $\bm{\theta}^{(t)}$. Tada računamo očekivanje potpune log-izglednosti $\log p(X, Z | \bm{\theta})$ uz uvjetnu distribuciju skrivenih varijabli $p(Z | X, \bm{\theta}^{(t)})$.\ 
+Na početku E koraka fiksiramo trenutne vrijednosti parametara $\bm{\theta}^{(t)}$. Tada računamo očekivanje potpune log-izglednosti $\log p(X, Z | \bm{\theta})$ uz uvjetnu distribuciju skrivenih varijabli $p(Z | X, \bm{\theta}^{(t)})$.\ 
 Izračunato očekivanje možemo definirati jednadžbom:
 
 \begin{equation}
@@ -660,6 +660,114 @@ Pokažimo sada općenitu formulaciju algoritma maksimizacije očekivanja.\
 
 \section{Općenita formulacija algoritma}
 \label{sek:general_em}
+
+Glavni cilj algoritma EM je pronalazak parametara $\bm{\theta}$ koji maksimiziraju log-izglednost $\log p(X | \bm{\theta})$ uz postojanje skrivenih varijabli $Z$.\ Koristeći Bayesovu formulu, vjerojatnost $p(X | \bm{\theta})$ možemo prikazati kao:
+
+\begin{equation}
+  p(X | \bm{\theta}) = \frac{p(X | Z, \bm{\theta}) p(Z | \bm{\theta})}{p(Z | X, \bm{\theta})}
+  \label{eq:em_bayes}
+\end{equation}
+
+\pagebreak
+
+Definirajmo sada zamjensku distribuciju $q(Z)$ kao proizvoljnu distribuciju skrivenih varijabli $Z$.\ Ako izraz za vjerojatnost $p(X | \bm{\theta})$ pomnožimo i podijelimo s $q(Z)$ te potom primijenimo operaciju logaritmiranja, dobivamo:
+
+\begin{equation}
+  \log p(X | \bm{\theta}) = \log \frac{p(X | Z, \bm{\theta}) p(Z | \bm{\theta})}{q(Z)} + \log \frac{q(z)}{p(Z | X, \bm{\theta})}
+  \label{eq:em_log}
+\end{equation}
+
+Izračunajmo sada očekivanje dobivenog izraza s obzirom na distribuciju $q(Z)$. Budući da se na lijevoj strani jednadžbe ne pojavljuju skrivene varijable $Z$, nepotpunu log-izglednost $\log p(X | \bm{\theta})$ konačno možemo definirati jednadžbom:
+
+\begin{equation}
+  \begin{aligned}
+    \log p(X | \bm{\theta}) &= \int q(Z) \log \frac{p(X | Z, \bm{\theta}) p(Z | \bm{\theta})}{q(Z)} dZ + \int q(Z) \log \frac{q(Z)}{p(Z | X, \bm{\theta})} dZ \\
+                            &= F(q(Z), \bm{\theta}) + KL(q(Z) || p(Z | X, \bm{\theta}))
+  \end{aligned}
+  \label{eq:em_general_form}
+\end{equation}
+
+Pritom $F(q(Z), \bm{\theta})$ predstavlja donju varijacijsku granicu (engl.\ \textit{evidence lower bound} - ELBO) log-izglednosti $\log p(X | \bm{\theta})$, a $KL(q(Z) || p(Z | X, \bm{\theta}))$ predstavlja Kullback-Leibler (KL) divergenciju~\cite{perez2008kullback} između distribucija $q(Z)$ te $p(Z | X, \bm{\theta})$.\
+Algoritam maksimizacije očekivanja sada možemo interpretirati kao koordinatni uspon (engl.\ \textit{coordinate ascent})~\cite{neal1998view} s ciljem maksimizacije donje varijacijske granice $F(q(Z), \bm{\theta})$.\ 
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.7]{./Slike/em_algoritam.png}
+  \caption{Prikaz rada algoritma EM.\ $l(\bm{\theta})$ odgovara nepotpunoj log-izglednosti $\log p(X | \bm{\theta})$.\ E korak algoritma maksimizira donju varijacijsku granicu $F(q(Z), \bm{\theta}^{(t)})$ s obzirom na distribuciju $q(Z)$, a M korak algoritma maksimizira istu s obzirom na parametre $\bm{\theta}$.\ Preuzeto iz \cite{bernsteinEMblog}.}
+  \label{fig:em_alg}
+\end{figure}
+
+E korak algoritma maksimizacije očekivanja sada maksimizira donju varijacijsku granicu $F(q(Z), \bm{\theta}^{(t)})$ s obzirom na distribuciju $q(Z)$ uz fiksirane vrijednosti parametara $\bm{\theta}^{(t)}$.\ 
+Budući da lijeva strana jednadžbe~\ref{eq:em_general_form} ne ovisi o distribuciji $q(Z)$, vidimo da je problem maksimizacije funkcije $F(q(Z), \bm{\theta}^{(t)})$ s obzirom na distribuciju $q(Z)$ ekvivalentan problemu minimizacije izraza $KL(q(Z) || p(Z | X, \bm{\theta}^{(t)}))$.\ 
+Iznos KL divergencije jednak je $0$ jedino kada vrijedi:
+
+\begin{equation}
+  q(Z) = p(Z | X, \bm{\theta}^{(t)})
+  \label{eq:em_e_step_q}
+\end{equation}
+
+Ovime dobivamo rješenje E koraka, a uz dobivenu distribuciju $q^{(t + 1)}(Z)$ dodatno vrijedi da je donja varijacijska granica $F(q^{(t + 1)}(Z), \bm{\theta}^{(t)})$ jednaka nepotpunoj log-izglednosti $\log p(X | \bm{\theta}^{(t)})$.\ 
+Uz uvrštavanje izraza za distribuciju $q^{(t + 1)}(Z)$, donju varijacijsku granicu možemo zapisati kao:
+
+\begin{equation}
+  \begin{aligned}
+    F(p(Z | X, \bm{\theta}^{(t)}), \bm{\theta}) &= \int p(Z | X, \bm{\theta}^{(t)}) \log \frac{p(X, Z | \bm{\theta})}{p(Z | X, \bm{\theta}^{(t)})} dZ \\
+                         &= \int \left[ p(Z | X, \bm{\theta}^{(t)}) \log p(X, Z | \bm{\theta}) - p(Z | X, \bm{\theta}^{(t)}) \log p(Z | X, \bm{\theta}^{(t)}) \right] dZ \\
+                         &= \mathbb{E}_{Z \sim p(\cdot | X, \bm{\theta}^{(t)})} \left[ \log p(X, Z | \bm{\theta}) \right] - \mathbb{E}_{Z \sim p(\cdot | X, \bm{\theta}^{(t)})} \left[\log p(Z | X, \bm{\theta}^{(t)}) \right] \\
+                         &= Q(\bm{\theta} | \bm{\theta}^{(t)}) + H(p(Z | X, \bm{\theta}^{(t)}))
+  \end{aligned}
+  \label{eq:em_equality_of_e_step}
+\end{equation}
+
+Pri čemu $H(p(Z | X, \bm{\theta}^{(t)}))$ označava entropiju~\cite{renyi1961measures} distribucije $p(Z | X, \bm{\theta}^{(t)})$.\ Uočimo da je dobiveni izraz za donju varijacijsku granicu jednak izrazu $Q(\bm{\theta} | \bm{\theta}^{(t)})$ koji računamo u E koraku osnovne formulacije, ali uvećan za iznos entropije $H(p(Z | X, \bm{\theta}^{(t)}))$.\ 
+Kada smo odredili distribuciju $q^{(t + 1)}(Z)$ koja maksimizira donju varijacijsku granicu, možemo prijeći na M korak.\ 
+
+M korak algoritma maksimizacije očekivanja sada maksimizira donju varijacijsku granicu $F(q^{(t + 1)}(Z), \bm{\theta})$ s obzirom na parametre $\bm{\theta}$ uz fiksiranu distribuciju $q^{(t + 1)}(Z)$ dobivenu u E koraku.\
+Dakle, cilj je pronaći parametre $\bm{\theta}^{(t + 1)}$ koji maksimiziraju izraz:
+
+\begin{equation}
+  \begin{aligned}
+    F(p(Z | X, \bm{\theta}^{(t)}), \bm{\theta}) &= Q(\bm{\theta} | \bm{\theta}^{(t)}) + H(p(Z | X, \bm{\theta}^{(t)})) \\ 
+                                                &= Q(\bm{\theta} | \bm{\theta}^{(t)}) + const. \\
+  \end{aligned}
+  \label{eq:em_m_step_general}
+\end{equation}
+
+Pritom je član $H(p(Z | X, \bm{\theta}^{(t)}))$ konstantan s obzirom na trenutne parametre $\bm{\theta}$, tako da on ne utječe na tijek optimizacije.\
+Vidimo da je M korak općenite formulacije identičan M koraku osnovne formulacije - jedina razlika je prisutnost konstantnog člana u izrazu koji maksimiziramo.\ 
+Kao i kod osnovne formulacije algoritma maksimizacije očekivanja, dobivene parametre $\bm{\theta}^{(t + 1)}$ dalje možemo iskoristiti za provođenje E koraka sljedeće iteracije.\ 
+
+% Kod algoritma koordinatnog uspona u dvije dimenzije, u svakoj iteraciji prvo fiksiramo jednu dimenziju i optimiramo drugu, a potom fiksiramo drugu dimenziju te optimiramo prvu.\ 
+% Vidimo da algoritam EM slijedi istu ideju: u E koraku fiksiramo parametre $\bm{\theta}^{(t)}$ i optimiramo distribuciju $q(Z)$, a u M koraku fiksiramo distribuciju $q(Z)^{(t + 1)}$ te optimiramo parametre $\bm{\theta}^{(t + 1)}$.\ 
+
+Pokažimo još da provođenjem algoritma maksimizacije očekivanja postižemo monotoni rast nepotpune log-izglednosti $\log p(X | \bm{\theta})$.\ 
+Na kraju E koraka raspolažemo distribucijom $q^{(t + 1)}(Z)$ uz koju vrijedi:
+
+\begin{equation}
+  \log p(X | \bm{\theta}^{(t)}) = F(q^{(t + 1)}(Z), \bm{\theta}^{(t)})
+  \label{eq:em_proof_pt1}
+\end{equation}
+
+Provođenjem M koraka dobivamo parametre $\bm{\theta}^{(t + 1)}$ uz koje vrijedi:
+
+\begin{equation}
+  F(q^{(t + 1)}(Z), \bm{\theta}^{(t)}) \leq F(q^{(t + 1)}(Z), \bm{\theta}^{(t + 1)})
+  \label{eq:em_proof_pt2}
+\end{equation}
+
+Gledajući da je funkcija $F(q(Z), \bm{\theta})$ donja granica log-izglednosti $\log p(X | \bm{\theta})$, vrijedi i:
+
+\begin{equation}
+  F(q^{(t + 1)}(Z), \bm{\theta}^{(t + 1)}) \leq \log p(X | \bm{\theta}^{t + 1})
+  \label{eq:em_proof_pt3}
+\end{equation}
+
+Konačno, dobivamo početnu tvrdnju:
+
+\begin{equation}
+  \log p(X | \bm{\theta}^{(t)}) \leq \log p(X | \bm{\theta}^{t + 1})
+  \label{eq:em_proof_final}
+\end{equation}
 
 %-------------------------------------------------------------------------------
 \chapter{Transportni problem}
