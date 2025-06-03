@@ -180,11 +180,11 @@ Konkretno, cilj prvog koraka je zadržati vrijednost gubitka svakog pojedinog pr
 Kako bi ovo postigli, autori predlažu korištenje gradijentnog uspona u slučaju da gubitak primjera padne ispod praga, dok se inače koristi gradijentni spust.\ Gubitak u prvom koraku možemo prikazati jednadžbom:
 
 \begin{equation}
-  \mathcal{L}_1 = \mathbb{E}_{(\bm{x}, \bm{y}) \sim \mathcal{D}} \left[ \operatorname{sign} \left( \ell(f_{\bm{\theta}}(\bm{x}), \bm{y}) - \gamma \right) \cdot \ell(f_{\bm{\theta}}(\bm{x}), \bm{y}) \right]
+  \mathcal{L}_1 = \mathbb{E}_{(\bm{x}, y) \sim \mathcal{D}} \left[ \operatorname{sign} \left( \ell(f_{\bm{\theta}}(\bm{x}), y) - \gamma \right) \cdot \ell(f_{\bm{\theta}}(\bm{x}), y) \right]
   \label{eq:abl1}
 \end{equation}
 
-Pritom $(\bm{x}, \bm{y}) \sim \mathcal{D}$ označava primjer $\bm{x}$ s pripadnom oznakom $\bm{y}$ iz skupa podataka $\mathcal{D}$, $f_{\bm{\theta}}(\bm{x})$ izlaz modela s parametrima $\bm{\theta}$, $\ell(\bm{\hat{y}}, \bm{y})$ gubitak za predviđenu oznaku $\bm{\hat{y}}$ i stvarnu oznaku $\bm{y}$, a $\operatorname{sign}$ operaciju signum.\ 
+Pritom $(\bm{x}, y) \sim \mathcal{D}$ označava primjer $\bm{x}$ s pripadnom oznakom $y$ iz skupa podataka $\mathcal{D}$, $f_{\bm{\theta}}(\bm{x})$ izlaz modela s parametrima $\bm{\theta}$, $\ell(f_{\bm{\theta}}(\bm{x}), y)$ gubitak za izlaz modela i stvarnu oznaku $y$, a $\operatorname{sign}$ operaciju signum.\ 
   
 Ideja je da će gubitak za zatrovane primjere veoma brzo pasti ispod praga te će se za njih često aktivirati gradijentni uspon, dok će gubitak čistih primjera sporije padati i stabilizirati se oko praga.\ 
 Nakon zadanog broja epoha, izolira se udio $p$ primjera s najnižim gubitkom i proglašava potencijalnim zatrovanim skupom.\ Važno je napomenuti da bismo prvi korak ABL-a mogli zamijeniti proizvoljnim algoritmom detekcije zatrovanih primjera.\ 
@@ -194,7 +194,7 @@ Dok se učenje na čistom skupu provodi uz standardni gradijentni spust, učenje
 Ovo je moguće zato što je trovanje najčešće realizirano uz samo jedan ciljni razred tj.\ uz \textit{all-to-one} način izmjene oznaka.\ Gubitak u drugom koraku možemo prikazati jednadžbom:
 
 \begin{equation}
-  \mathcal{L}_2 = \mathbb{E}_{(\bm{x}, \bm{y}) \sim \hat{\mathcal{D}}_c} \left[ \ell(f_{\bm{\theta}}(\bm{x}), \bm{y}) \right] - \mathbb{E}_{(\bm{x}, \bm{y}) \sim \hat{\mathcal{D}}_b} \left[ \ell(f_{\bm{\theta}}(\bm{x}), \bm{y}) \right]
+  \mathcal{L}_2 = \mathbb{E}_{(\bm{x}, y) \sim \hat{\mathcal{D}}_c} \left[ \ell(f_{\bm{\theta}}(\bm{x}), y) \right] - \mathbb{E}_{(\bm{x}, y) \sim \hat{\mathcal{D}}_b} \left[ \ell(f_{\bm{\theta}}(\bm{x}), y) \right]
   \label{eq:abl2}
 \end{equation}
 
@@ -345,19 +345,19 @@ U ovome radu, rezultate prilagođenog okvira VIBE uspoređujemo s rezultatima dv
 Osnovna ideja algoritma \textit{Sparse over-parameterization} (SOP) bazira se na činjenici da su primjeri sa zašumljenim oznakama u većini slučajeva rijetki.\ 
 Jedan od mogućih načina za učenje modela na zašumljenim oznakama tada je modeliranje šuma za pojedine primjere koristeći rijetke vektore.\ 
 
-Konkretno, za svaki primjer $(\bm{x}_i, \bm{y}_i)$ iz skupa podataka $\mathcal{D}$ definiramo rijetki vektor $\bm{s}_i$ koji služi kao odstupanje između uočene (potencijalno zatrovane) oznake $\bm{y}_i$ i čiste (skrivene) oznake $\bm{l}_i$.\ 
-Uobičajeno, učenje modela se svodi na potragu za parametrima $\bm{\theta}$ koji minimiziraju gubitak definiran jednadžbom:
+Konkretno, za svaki primjer $(\bm{x}_i, y_i)$ iz skupa podataka $\mathcal{D}$ definiramo rijetki vektor $\bm{s}_i$ koji služi kao odstupanje između uočene (potencijalno zatrovane) oznake $\bm{y}_i^{OH}$ i čiste (skrivene) oznake $\bm{l}_i^{OH}$.\ 
+Pritom $\bm{y}_i^{OH}$ označava jednojedinično kodiranu (engl.\ \textit{one-hot encoding}) oznaku $y$.\ Uobičajeno, učenje modela se svodi na potragu za parametrima $\bm{\theta}$ koji minimiziraju gubitak definiran jednadžbom:
 
 \begin{equation}
-  \mathcal{L} = \mathbb{E}_{(\bm{x}, \bm{y}) \sim \mathcal{D}} \left[ \ell(f_{\bm{\theta}}(\bm{x}), \bm{y}) \right]
+  \mathcal{L} = \mathbb{E}_{(\bm{x}, y) \sim \mathcal{D}} \left[ \ell(f_{\bm{\theta}}(\bm{x}), y) \right]
   \label{eq:sop1}
 \end{equation}
 
-Pritom $f_{\bm{\theta}}$ predstavlja model s parametrima $\bm{\theta}$, a $\ell(\bm{\hat{y}}, \bm{y})$ funkciju gubitka između predviđanja modela $\bm{\hat{y}}$ i dane oznake $\bm{y}$.\ 
+Pritom $f_{\bm{\theta}}$ predstavlja model s parametrima $\bm{\theta}$, a $\ell(f_{\bm{\theta}}(\bm{x}), y)$ funkciju gubitka između izlaza modela $f_{\bm{\theta}}(\bm{x})$ i dane oznake $y$.\ 
 Uz uvođenje rijetkog vektora $\bm{s}_i$ za svaki primjer, učenje se svodi na potragu za parametrima $(\bm{\theta}, \{\bm{s}_i\}_{i=1}^N)$ koji minimiziraju gubitak:
 
 \begin{equation}
-  \mathcal{L}_{SOP} = \mathbb{E}_{(\bm{x}, \bm{y}) \sim \mathcal{D}} \left[ \ell(f_{\bm{\theta}}(\bm{x}) + \bm{s}, \bm{y}) \right]
+  \mathcal{L}_{SOP} = \mathbb{E}_{(\bm{x}, y) \sim \mathcal{D}} \left[ \ell(f_{\bm{\theta}}(\bm{x}) + \bm{s}, y) \right]
   \label{eq:sop2}
 \end{equation}
 
@@ -368,15 +368,15 @@ Dodatno, kako bi se osigurala rijetkost vektora $\bm{s}_i$, isti definiramo pomo
   \label{eq:sop_s1}
 \end{equation}
 
-Drugim riječima, za svaki podatak $(\bm{x}_i, \bm{y}_i)$ definiramo dva vektora parametara: $\bm{u}_i$ i $\bm{v}_i$.\ 
+Drugim riječima, za svaki podatak $(\bm{x}_i, y_i)$ definiramo dva vektora parametara: $\bm{u}_i$ i $\bm{v}_i$.\ 
 Ove vektore učimo zajedno s parametrima modela $\bm{\theta}$ koristeći gradijentni spust.\ 
 Pritom je stopa učenja za parametre $\{\bm{u}_i,\bm{v}_i\}_{i=1}^N$ skalirana hiperparametrom $\alpha$ kako bi se izbjeglo trivijalno rješenje optimizacijskog problema kod kojeg vrijedi $\bm{u}_i \equiv \bm{v}_i \equiv \bm{0}\:,\:\forall i \in N$.\ 
 
-Uočimo da vektor $\bm{s}_i$ za primjer $(\bm{x}_i, \bm{y}_i)$ dodatno mora poštovati nekoliko uvjeta: u vektoru $\bm{s}_i$ se pozitivna vrijednost može nalaziti isključivo na mjestu koje odgovara nenegativnoj vrijednosti u $\bm{y}_i$, dok se negativne vrijednosti mogu nalaziti isključivo na mjestima koje odgovaraju vrijednosti $0$ u $\bm{y}_i$.\ 
+Uočimo da vektor $\bm{s}_i$ za primjer $(\bm{x}_i, y_i)$ dodatno mora poštovati nekoliko uvjeta: u vektoru $\bm{s}_i$ se pozitivna vrijednost može nalaziti isključivo na mjestu koje odgovara nenegativnoj vrijednosti u $\bm{y}_i^{OH}$, dok se negativne vrijednosti mogu nalaziti isključivo na mjestima koje odgovaraju vrijednosti $0$ u $\bm{y}_i^{OH}$.\ 
 Dodatno, svaki element vektora $\bm{s}_i$ mora biti u rasponu $\left[ -1, 1 \right]$.\ Kako bismo ovo osigurali, uvodimo konačnu definiciju vektora $\bm{s}_i$:
 
 \begin{equation}
-  \bm{s}_i = \bm{u}_i \odot \bm{u}_i \odot \bm{y}_i - \bm{v}_i \odot \bm{v}_i \odot (\bm{1} - \bm{y}_i)
+  \bm{s}_i = \bm{u}_i \odot \bm{u}_i \odot \bm{y}_i^{OH} - \bm{v}_i \odot \bm{v}_i \odot (\bm{1} - \bm{y}_i^{OH})
   \label{eq:sop_s2}
 \end{equation}
 
@@ -444,17 +444,17 @@ Ovaj problem pojednostavit ćemo razmatranjem modela šuma neovisnog o uzorku $\
 Funkcija gubitka koju želimo minimizirati tada postaje:
 
 \begin{equation}
-  \mathcal{L}_{ILL} = \mathcal{L}_{CE} (p(\bm{y} | \bm{x}, \bm{\hat{y}}, \bm{\theta}, \bm{\omega}^t), p(\bm{y} | \bm{x}, \bm{\hat{y}}, \bm{\theta}^t, \bm{\omega}^t)) + \mathcal{L}_{CE} (p(\bm{\hat{y}} | \bm{x}, \bm{\theta}, \bm{\omega}), \bm{\hat{y}})
+  \mathcal{L}_{ILL} = \mathcal{L}_{CE} (p(y | \bm{x}, \hat{y}, \bm{\theta}, \bm{\omega}^t), p(y | \bm{x}, \hat{y}, \bm{\theta}^t, \bm{\omega}^t)) + \mathcal{L}_{CE} (p(\hat{y} | \bm{x}, \bm{\theta}, \bm{\omega}), \hat{y})
   \label{eq:ill_loss}
 \end{equation}
 
 Pritom $\mathcal{L}_{CE}$ označava unakrsnu entropiju.\ Prva komponenta dobivenog gubitka odgovara konzistencijskom gubitku čistih oznaka uvjetovanih zašumljenim oznakama, dok druga komponenta odgovara nadziranom gubitku na zašumljenim oznakama.\ 
-Pritom se za izračun obje komponente koristi model šuma uz zadanu zašumljenu oznaku $\bm{\hat{y}}$:
+Pritom se za izračun obje komponente koristi model šuma uz zadanu zašumljenu oznaku $\hat{y}$:
 
 \begin{equation}
   \begin{aligned}
-    p(\bm{y} | \bm{x}, \bm{\hat{y}}, \bm{\theta}, \bm{\omega}^t) \propto p(\bm{y} | \bm{x}, \bm{\theta}) \, \mathcal{T}(\bm{\hat{y}} | \bm{y}, \bm{\omega}^t) \\
-    p(\bm{\hat{y}} | \bm{x}, \bm{\theta}, \bm{\omega}) = \sum_{\bm{y}} p(\bm{y} | \bm{x}, \bm{\theta}) \, \mathcal{T}(\bm{\hat{y}} | \bm{y}, \bm{\omega})
+    p(y | \bm{x}, \hat{y}, \bm{\theta}, \bm{\omega}^t) \propto p(y | \bm{x}, \bm{\theta}) \, \mathcal{T}(\bm{y} | y, \bm{\omega}^t) \\
+    p(\hat{y} | \bm{x}, \bm{\theta}, \bm{\omega}) = \sum_{y} p(y | \bm{x}, \bm{\theta}) \, \mathcal{T}(\bm{y} | y, \bm{\omega})
   \end{aligned}
   \label{eq:ill_probs}
 \end{equation}
@@ -588,7 +588,7 @@ Dodatno, korelacijsku matricu $\bm{CC}^2$ dobivamo uz zamjenu grana tj.\ zamjenu
 Kada smo izračunali obje korelacijske matrice, gubitak za zadanu minigrupu možemo definirati jednadžbom:
 
 \begin{equation}
-  \mathcal{L}_{feature} = \frac{1}{2} \sqrt{\frac{1}{2D}\sum_{i=1}^{D}((1 - cc_{ii}^1)^2 + (1 - cc_{ii}^2)^2)} + \frac{1}{2} \sqrt{\frac{1}{2D(D - 1)}\sum_{i=1}^{D}\sum_{j \neq i}^{D}((cc_{ij}^1)^2 + (cc_{ij}^2)^2)}
+  \mathcal{L}_{feature} = \frac{1}{2} \sqrt{\frac{1}{2D}\sum_{i=1}^{D}((1 - \bm{CC}_{i,i}^1)^2 + (1 - \bm{CC}_{i,i}^2)^2)} + \frac{1}{2} \sqrt{\frac{1}{2D(D - 1)}\sum_{i=1}^{D}\sum_{j \neq i}^{D}((\bm{CC}_{i,j}^1)^2 + (\bm{CC}_{i,j}^2)^2)}
   \label{eq:feature_loss}
 \end{equation}
 
@@ -795,7 +795,7 @@ U okviru našeg rada, fokusirat ćemo se na Kantorovičevu formulaciju problema 
 
 Neka su $\bm{\mu}$ i $\bm{\nu}$ vektori distribucija vjerojatnosti nad prostorima $X$ odnosno $Y$.\ Vektor $\bm{\mu}$ neka je duljine $m$, a vektor $\bm{\nu}$ neka je duljine $n$.\
 Cilj problema je pronaći optimalni plan transporta koji distribuciju $\bm{\mu}$ preslikava u distribuciju $\bm{\nu}$ uz što nižu ukupnu cijenu.\ 
-Cijenu transporta između točke $x \in X$ i točke $y \in Y$ označit ćemo s $c_{xy}$, pri čemu je $\bm{C}$ matrica cijena transporta.\ 
+Cijenu transporta između točke $x \in X$ i točke $y \in Y$ označit ćemo s $\bm{C}_{x,y}$, pri čemu je $\bm{C}$ matrica cijena transporta.\ 
 Neki zadani plan transporta definirat ćemo matricom $\bm{Q}$.\ Važno je napomenuti da su matrice $\bm{C}$ i $\bm{Q}$ definirane nad prostorom $X \times Y$ odnosno dimenzija su $m \times n$.\ 
 Dodatno, svaki plan transporta mora zadovoljavati sljedeće uvjete:
 
@@ -835,7 +835,7 @@ Problem optimalnog transporta s entropijskom regularizacijom~\cite{genevay2019en
 Pri čemu je $\lambda$ regularizacijski hiperparametar, a $H(\bm{Q})$ entropija matrice vjerojatnosti dana kao:
 
 \begin{equation}
-  H(\bm{Q}) = -\sum_{i = 1}^{m} \sum_{j = 1}^{n} q_{ij} \log q_{ij}
+  H(\bm{Q}) = -\sum_{i = 1}^{m} \sum_{j = 1}^{n} \bm{Q}_{i,j} \log \bm{Q}_{i,j}
   \label{eq:ot_with_entropy}
 \end{equation}
 
@@ -846,7 +846,7 @@ Jedan od algoritama kojim možemo riješiti problem optimalnog transporta s entr
 \label{sek:sk_alg}
 
 Sinkhornov teorem~\cite{sinkhorn1964relationship} govori da za svaku matricu s pozitivnim vrijednostima $\bm{A}$ dimenzija $n \times n$ postoje dijagonalne matrice $\bm{U}$ i $\bm{V}$ s pozitivnim vrijednostima takve da je matrica $\bm{U} \bm{A} \bm{V}$ dvostruko stohastička tj.\ da se svaki redak i stupac dobivene matrice sumiraju u $1$.\ 
-Pritom matrice možemo definirati kao $\bm{U} = diag(\bm{u})$ odnosno $\bm{V} = diag(\bm{v})$ pri čemu je $diag(\bm{u})$ dijagonalna matrica s vrijednostima vektora $\bm{u}$.\ 
+Pritom matrice možemo definirati kao $\bm{U} = diag(\bm{u})$ odnosno $\bm{V} = diag(\bm{v})$, pri čemu je $diag(\bm{u})$ dijagonalna matrica s vrijednostima vektora $\bm{u}$.\ 
 Originalna namjena algoritma Sinkhorn-Knopp bila je proizvesti dvostruko stohastičku matricu $\bm{U} \bm{A} \bm{V}$ na temelju dane matrice $\bm{A}$.\ 
   
 Uočimo da matrice $\bm{U}$ i $\bm{V}$ zapravo skaliraju retke odnosno stupce matrice $\bm{A}$.\ Zadatak algoritma tada postaje pronaći pripadne vektore $\bm{u}$ i $\bm{v}$ koji ispravno skaliraju zadanu matricu.\ 
@@ -878,17 +878,17 @@ Pritom je $\lambda$ regularizacijski hiperparametar, a $H(\bm{Q})$ entropija mat
   \label{eq:sk_lagrange}
 \end{equation}
 
-Vektori $\bm{\alpha}$ i $\bm{\beta}$ odgovaraju Lagrangeovim multiplikatorima uz linearne uvjete jednakosti.\ Pogledajmo sada kako izgleda derivacija dobivene Lagrangeove funkcije $\mathcal{L}(\bm{Q}, \bm{\alpha}, \bm{\beta})$ po proizvoljnom elementu matrice plana transporta $q_{ij}$:
+Vektori $\bm{\alpha}$ i $\bm{\beta}$ odgovaraju Lagrangeovim multiplikatorima uz linearne uvjete jednakosti.\ Pogledajmo sada kako izgleda derivacija dobivene Lagrangeove funkcije $\mathcal{L}(\bm{Q}, \bm{\alpha}, \bm{\beta})$ po proizvoljnom elementu matrice plana transporta $\bm{Q}_{i,j}$:
 
 \begin{equation}
-  \frac{\partial \mathcal{L}}{\partial q_{ij}} = c_{ij} + \frac{1}{\lambda} (1 + \log q_{ij}) + \alpha_{i} + \beta_{j}
+  \frac{\partial \mathcal{L}}{\partial \bm{Q}_{i,j}} = \bm{C}_{i,j} + \frac{1}{\lambda} (1 + \log \bm{Q}_{i,j}) + \alpha_{i} + \beta_{j}
   \label{eq:sk_deriv}
 \end{equation}
 
-Izjednačavanjem dobivene parcijalne derivacije s $0$, dobivamo izraz za element matrice plana transporta $q_{ij}$:
+Izjednačavanjem dobivene parcijalne derivacije s $0$, dobivamo izraz za element matrice plana transporta $\bm{Q}_{i,j}$:
 
 \begin{equation}
-  q_{ij} = \exp(-1) \exp(-\lambda c_{ij}) \exp(-\lambda \alpha_{i}) \exp(-\lambda \beta_{j})
+  \bm{Q}_{i,j} = \exp(-1) \exp(-\lambda \bm{C}_{i,j}) \exp(-\lambda \alpha_{i}) \exp(-\lambda \beta_{j})
   \label{eq:sk_one_el}
 \end{equation}
 
@@ -896,7 +896,7 @@ Pritom član $\exp(-1)$ možemo ignorirati jer je on konstantan $\forall i,j$.\ 
 
 \begin{equation}
   \begin{aligned}
-    a_{ij} &= \exp(-\lambda c_{ij}) \\
+    \bm{A}_{i,j} &= \exp(-\lambda \bm{C}_{i,j}) \\
     u_{i} &= \exp(-\lambda \alpha_{i}) \\
     v_{j} &= \exp(-\lambda \beta_{j}) \\
   \end{aligned}
