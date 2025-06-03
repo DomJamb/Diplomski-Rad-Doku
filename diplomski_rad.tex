@@ -588,7 +588,7 @@ Dodatno, korelacijsku matricu $\bm{CC}^2$ dobivamo uz zamjenu grana tj.\ zamjenu
 Kada smo izračunali obje korelacijske matrice, gubitak za zadanu minigrupu možemo definirati jednadžbom:
 
 \begin{equation}
-  \mathcal{L}_{feature} = \frac{1}{2} \sqrt{\frac{1}{2D}\sum_{i=1}^{D}((1 - \bm{CC}_{ii}^1)^2 + (1 - \bm{CC}_{ii}^2)^2)} + \frac{1}{2} \sqrt{\frac{1}{2D(D - 1)}\sum_{i=1}^{D}\sum_{j \neq i}^{D}((\bm{CC}_{ij}^1)^2 + (\bm{CC}_{ij}^2)^2)}
+  \mathcal{L}_{feature} = \frac{1}{2} \sqrt{\frac{1}{2D}\sum_{i=1}^{D}((1 - cc_{ii}^1)^2 + (1 - cc_{ii}^2)^2)} + \frac{1}{2} \sqrt{\frac{1}{2D(D - 1)}\sum_{i=1}^{D}\sum_{j \neq i}^{D}((cc_{ij}^1)^2 + (cc_{ij}^2)^2)}
   \label{eq:feature_loss}
 \end{equation}
 
@@ -770,14 +770,88 @@ Konačno, dobivamo početnu tvrdnju:
 \end{equation}
 
 %-------------------------------------------------------------------------------
-\chapter{Transportni problem}
+\chapter{Problem optimalnog transporta}
 \label{pog:transport}
 
+Problem optimalnog transporta (engl.\ \textit{optimal transport problem})~\cite{peyre2019computational} bavi se pitanjem premještanja jedne raspodjele (distribucije) mase u drugu, pritom nastojeći minimizirati ukupnu cijenu transporta.\ 
+Drugim riječima, cilj je pronaći optimalni plan transporta za koji je ukupna cijena premještanja jedne distribucije u drugu minimalna.\ 
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.75]{./Slike/optimalni_transport.png}
+  \caption{Prikaz problema optimalnog transporta.\ Plan transporta $T$ opisuje kako preoblikovati distribuciju $\bm{\mu}_0$ u distribuciju $\bm{\mu}_1$.\ Preuzeto iz \cite{papadakis2015optimal}.}
+  \label{fig:ot_problem}
+\end{figure}
+  
+Općenito govoreći, dvije najpoznatije formulacije problema su Mongeova formulacija te Kantorovičeva formulacija, a po istima se problem optimalnog transporta često naziva i Monge-Kantorovičev problem~\cite{bogachev2012monge}.\ 
+Kod Mongeove formulacije problema, optimalni plan transporta je bijekcija - jedna vrijednost iz prve distribucije može se preslikati u samo jednu vrijednost iz druge distribucije.\ 
+Ova formulacija ekvivalentna je problemu uparivanja bipartitnog grafa (engl.\ \textit{bipartite graph matching})~\cite{karp1990optimal}.\ 
+  
+S druge strane, kod Kantorovičeve formulacije problema, optimalni plan transporta možemo prikazati matricom zajedničke vjerojatnosti uz nekoliko dodatnih ograničenja.\ 
+U okviru našeg rada, fokusirat ćemo se na Kantorovičevu formulaciju problema optimalnog transporta, kao i jedno moguće rješenje istoga.\
+
+\section{Općenita formulacija problema}
+\label{sek:transport}
+
+Neka su $\bm{\mu}$ i $\bm{\nu}$ vektori distribucija vjerojatnosti nad prostorima $X$ odnosno $Y$.\ Vektor $\bm{\mu}$ neka je duljine $m$, a vektor $\bm{\nu}$ neka je duljine $n$.\
+Cilj problema je pronaći optimalni plan transporta koji distribuciju $\bm{\mu}$ preslikava u distribuciju $\bm{\nu}$ uz što nižu ukupnu cijenu.\ 
+Cijenu transporta između točke $x \in X$ i točke $y \in Y$ označit ćemo s $c_{xy}$, pri čemu je $\bm{C}$ matrica cijena transporta.\ 
+Neki zadani plan transporta definirat ćemo matricom $\bm{Q}$.\ Važno je napomenuti da su matrice $\bm{C}$ i $\bm{Q}$ definirane nad prostorom $X \times Y$ odnosno dimenzija su $m \times n$.\ 
+Dodatno, svaki plan transporta mora zadovoljavati sljedeće uvjete:
+
+\begin{equation}
+  \begin{aligned}
+    \bm{Q} \bm{1}_n &= \bm{\mu} \\
+    \bm{Q}^T \bm{1}_m &= \bm{\nu} \\
+  \end{aligned}
+  \label{eq:ot_plan_conds}
+\end{equation}
+
+Drugim riječima, plan transporta $\bm{Q}$ mora se marginalizirati po stupcima u vektor $\bm{\mu}$ odnosno po recima u vektor $\bm{\nu}$.\ Gledajući da je u pitanju matrica vjerojatnosti, svaki element $q_{ij}$ mora biti nenegativan.\ 
+Ovim skupom linearnih ograničenja definiran je politop~\cite{ziegler1993lectures}:
+
+\begin{equation}
+  \bm{Q}\left[ \bm{\mu}, \bm{\nu} \right] = \{ \bm{Q} \in \mathbb{R}_{+}^{m \times n} | \bm{Q} \bm{1}_n = \bm{\mu}\,, \bm{Q}^T \bm{1}_m = \bm{\nu} \}
+  \label{eq:ot_polytope}
+\end{equation}
+
+Svako rješenje problema mora se nalaziti na zadanom politopu $\bm{Q}\left[ \bm{\mu}, \bm{\nu} \right]$.\ Problem optimalnog transporta tada možemo definirati kao potragu za matricom $\bm{Q}$ koja zadovoljava:
+
+\begin{equation}
+  \min_{\bm{Q}} tr(\bm{C}^T \bm{Q})
+  \label{eq:ot_basic}
+\end{equation}
+
+Pritom $tr$ označava operaciju traga matrice, a $\bm{C}^T$ označava transponiranu matricu $\bm{C}$.\ Ovako formuliran problem možemo riješiti proizvoljnim algoritmom linearnog programiranja~\cite{dantzig2002linear}.\ 
+Matrica $\bm{Q}$ dobivena kao rješenje zadanog problema optimalnog transporta često će biti rijetka (engl.\ \textit{sparse}).\ 
+Ako želimo osigurati da rješenje $\bm{Q}$ što manje odgovara rijetkoj matrici, u problem možemo dodati komponentu entropijske regularizacije.\ 
+Problem optimalnog transporta s entropijskom regularizacijom možemo definirati jednadžbom:
+
+\begin{equation}
+  \min_{\bm{Q}} \left[ tr(\bm{C}^T \bm{Q}) - \frac{1}{\lambda} H(\bm{Q}) \right]
+  \label{eq:ot_with_entropy}
+\end{equation}
+
+Pri čemu je $\lambda$ regularizacijski hiperparametar, a $H(\bm{Q})$ entropija matrice vjerojatnosti dana kao:
+
+\begin{equation}
+  H(\bm{Q}) = -\sum_{i = 1}^{m} \sum_{j = 1}^{n} q_{ij} \log q_{ij}
+  \label{eq:ot_with_entropy}
+\end{equation}
+
+Ovisno o iznosu hiperparametra $\lambda$, član $- \frac{1}{\lambda} H(\bm{Q})$ može potaknuti gustoću matrice plana transporta $\bm{Q}$ te time spriječiti degeneraciju rješenja.\
+Jedan od algoritama kojim možemo riješiti problem optimalnog transporta s entropijskom regularizacijom je algoritam Sinkhorn-Knopp~\cite{knight2008sinkhorn}.\ 
+
+\section{Algoritam Sinkhorn-Knopp}
+\label{sek:sk_alg}
 
 %-------------------------------------------------------------------------------
 \chapter{VIBE}
 \label{pog:vibe}
 
+%-------------------------------------------------------------------------------
+\chapter{Duboki konvolucijski modeli}
+\label{pog:cnn}
 
 %-------------------------------------------------------------------------------
 \chapter{Skup podataka}
