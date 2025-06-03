@@ -825,7 +825,7 @@ Svako rješenje problema mora se nalaziti na zadanom politopu $\bm{Q}\left[ \bm{
 Pritom $tr$ označava operaciju traga matrice, a $\bm{C}^T$ označava transponiranu matricu $\bm{C}$.\ Ovako formuliran problem možemo riješiti proizvoljnim algoritmom linearnog programiranja~\cite{dantzig2002linear}.\ 
 Matrica $\bm{Q}$ dobivena kao rješenje zadanog problema optimalnog transporta često će biti rijetka (engl.\ \textit{sparse}).\ 
 Ako želimo osigurati da rješenje $\bm{Q}$ što manje odgovara rijetkoj matrici, u problem možemo dodati komponentu entropijske regularizacije.\ 
-Problem optimalnog transporta s entropijskom regularizacijom možemo definirati jednadžbom:
+Problem optimalnog transporta s entropijskom regularizacijom~\cite{genevay2019entropy} možemo definirati jednadžbom:
 
 \begin{equation}
   \min_{\bm{Q}} \left[ tr(\bm{C}^T \bm{Q}) - \frac{1}{\lambda} H(\bm{Q}) \right]
@@ -840,10 +840,105 @@ Pri čemu je $\lambda$ regularizacijski hiperparametar, a $H(\bm{Q})$ entropija 
 \end{equation}
 
 Ovisno o iznosu hiperparametra $\lambda$, član $- \frac{1}{\lambda} H(\bm{Q})$ može potaknuti gustoću matrice plana transporta $\bm{Q}$ te time spriječiti degeneraciju rješenja.\
-Jedan od algoritama kojim možemo riješiti problem optimalnog transporta s entropijskom regularizacijom je algoritam Sinkhorn-Knopp~\cite{knight2008sinkhorn}.\ 
+Jedan od algoritama kojim možemo riješiti problem optimalnog transporta s entropijskom regularizacijom je algoritam Sinkhorn-Knopp (algoritam SK)~\cite{knight2008sinkhorn}.\ 
 
 \section{Algoritam Sinkhorn-Knopp}
 \label{sek:sk_alg}
+
+Sinkhornov teorem~\cite{sinkhorn1964relationship} govori da za svaku matricu s pozitivnim vrijednostima $\bm{A}$ dimenzija $n \times n$ postoje dijagonalne matrice $\bm{U}$ i $\bm{V}$ s pozitivnim vrijednostima takve da je matrica $\bm{U} \bm{A} \bm{V}$ dvostruko stohastička tj.\ da se svaki redak i stupac dobivene matrice sumiraju u $1$.\ 
+Pritom matrice možemo definirati kao $\bm{U} = diag(\bm{u})$ odnosno $\bm{V} = diag(\bm{v})$ pri čemu je $diag(\bm{u})$ dijagonalna matrica s vrijednostima vektora $\bm{u}$.\ 
+Originalna namjena algoritma Sinkhorn-Knopp bila je proizvesti dvostruko stohastičku matricu $\bm{U} \bm{A} \bm{V}$ na temelju dane matrice $\bm{A}$.\ 
+  
+Uočimo da matrice $\bm{U}$ i $\bm{V}$ zapravo skaliraju retke odnosno stupce matrice $\bm{A}$.\ Zadatak algoritma tada postaje pronaći pripadne vektore $\bm{u}$ i $\bm{v}$ koji ispravno skaliraju zadanu matricu.\ 
+Kako bismo ovo postigli, kod algoritma SK alterniramo između ažuriranja vektora $\bm{u}$ na temelju suma pojedinih redaka odnosno vektora $\bm{v}$ na temelju suma pojedinih stupaca.\
+Konkretno, nakon inicijalizacije vektora na proizvoljne vrijednosti (na primjer, na vektore jedinica $\bm{1}_n$), u svakoj iteraciji ih ažuriramo koristeći sljedeće jednadžbe:
+
+\begin{equation}
+  \begin{aligned}
+    \bm{u}^{(t + 1)} &= \frac{\bm{1}_n}{\bm{A} \bm{v}^{(t)}} \\
+    \bm{v}^{(t + 1)} &= \frac{\bm{1}_n}{\bm{A}^T \bm{u}^{(t)}} \\
+  \end{aligned}
+  \label{eq:sk_basic_form}
+\end{equation}
+
+Nakon dovoljnog broja iteracija, vektori $\bm{u}$ i $\bm{v}$ će konvergirati u očekivane vrijednosti, a konačnu dvostruko stohastičku matricu dobivamo kao $\bm{U} \bm{A} \bm{V}$.\ 
+Osim za postizanje dvostruke stohastičnosti dane matrice, pokazano je da se algoritam Sinkhorn-Knopp može koristiti i za rješavanje problema optimalnog transporta s entropijskom regularizacijom~\cite{cuturi2013sinkhorn}.\ 
+
+Prisjetimo se danog problema.\ Uz vektore distribucija vjerojatnosti $\bm{\mu}$ i $\bm{\nu}$ definiranih nad prostorima $X$ odnosno $Y$ te matricu cijena transporta $\bm{C}$ dimenzija $m \times n$, cilj je pronaći matricu plana transporta $\bm{Q}$ koja se nalazi na politopu $\bm{Q}\left[ \bm{\mu}, \bm{\nu} \right]$ te za koju vrijedi:
+
+\begin{equation}
+  \min_{\bm{Q}} \left[ tr(\bm{C}^T \bm{Q}) - \frac{1}{\lambda} H(\bm{Q}) \right]
+  \label{eq:ot_with_entropy_repeat}
+\end{equation}
+
+Pritom je $\lambda$ regularizacijski hiperparametar, a $H(\bm{Q})$ entropija matrice vjerojatnosti.\ Kako bismo izveli pravila za ažuriranje temeljena na algoritmu SK, definirajmo prvo Lagrangeovu funkciju~\cite{slater2013lagrange}:
+
+\begin{equation}
+  \mathcal{L}(\bm{Q}, \bm{\alpha}, \bm{\beta}) = tr(\bm{C}^T \bm{Q}) - \frac{1}{\lambda} H(\bm{Q}) + \bm{\alpha}^T (\bm{Q} \bm{1}_n - \bm{\mu}) + \bm{\beta}^T (\bm{Q}^T \bm{1}_m - \bm{\nu})
+  \label{eq:sk_lagrange}
+\end{equation}
+
+Vektori $\bm{\alpha}$ i $\bm{\beta}$ odgovaraju Lagrangeovim multiplikatorima uz linearne uvjete jednakosti.\ Pogledajmo sada kako izgleda derivacija dobivene Lagrangeove funkcije $\mathcal{L}(\bm{Q}, \bm{\alpha}, \bm{\beta})$ po proizvoljnom elementu matrice plana transporta $q_{ij}$:
+
+\begin{equation}
+  \frac{\partial \mathcal{L}}{\partial q_{ij}} = c_{ij} + \frac{1}{\lambda} (1 + \log q_{ij}) + \alpha_{i} + \beta_{j}
+  \label{eq:sk_deriv}
+\end{equation}
+
+Izjednačavanjem dobivene parcijalne derivacije s $0$, dobivamo izraz za element matrice plana transporta $q_{ij}$:
+
+\begin{equation}
+  q_{ij} = \exp(-1) \exp(-\lambda c_{ij}) \exp(-\lambda \alpha_{i}) \exp(-\lambda \beta_{j})
+  \label{eq:sk_one_el}
+\end{equation}
+
+Pritom član $\exp(-1)$ možemo ignorirati jer je on konstantan $\forall i,j$.\ Uvođenjem:
+
+\begin{equation}
+  \begin{aligned}
+    a_{ij} &= \exp(-\lambda c_{ij}) \\
+    u_{i} &= \exp(-\lambda \alpha_{i}) \\
+    v_{j} &= \exp(-\lambda \beta_{j}) \\
+  \end{aligned}
+  \label{eq:sk_alias}
+\end{equation}
+
+Dolazimo do formulacije iz Sinkhornovog teorema:
+
+\begin{equation}
+  \bm{Q} = diag(\bm{u})\,\bm{A}\,diag(\bm{v})
+  \label{eq:sk_q_formula}
+\end{equation}
+
+Gledajući da se svako rješenje $\bm{Q}$ mora nalaziti na politopu $\bm{Q}\left[ \bm{\mu}, \bm{\nu} \right]$, mora vrijediti:
+
+\begin{equation}
+  \begin{aligned}
+    diag(\bm{u})\,\bm{A}\,diag(\bm{v}) \bm{1}_n = \bm{\mu} \\
+    diag(\bm{v})\,\bm{A}^T\,diag(\bm{u}) \bm{1}_m = \bm{\nu} \\
+  \end{aligned}
+  \label{eq:sk_conditions}
+\end{equation}
+
+Ove izraze možemo dodatno pojednostaviti:
+
+\begin{equation}
+  \begin{aligned}
+    \bm{u} \odot (\bm{A} \bm{v}) &= \bm{\mu} \\
+    \bm{v} \odot (\bm{A}^T \bm{u}) &= \bm{\nu} \\
+  \end{aligned}
+  \label{eq:sk_conditions_simplified}
+\end{equation}
+
+Pronalaskom vektora $\bm{u}$ i $\bm{v}$ koji zadovoljavaju dana ograničenja, pronašli smo i rješenje $\bm{Q}$.\ Konačno, slijedeći algoritam Sinkhorn-Knopp, na temelju dobivenih ograničenja izvodimo izraze za iterativno ažuriranje vektora $\bm{u}$ i $\bm{v}$:
+
+\begin{equation}
+  \begin{aligned}
+    \bm{u}^{(t + 1)} &= \frac{\bm{\mu}}{\bm{A} \bm{v}^{(t)}} \\
+    \bm{v}^{(t + 1)} &= \frac{\bm{\nu}}{\bm{A}^T \bm{u}^{(t)}} \\
+  \end{aligned}
+  \label{eq:sk_final}
+\end{equation}
 
 %-------------------------------------------------------------------------------
 \chapter{VIBE}
