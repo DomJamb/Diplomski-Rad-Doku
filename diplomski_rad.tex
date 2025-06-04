@@ -1239,6 +1239,25 @@ Uz korištenje jake augmentacije ulaza za izračun standardnog gubitka te dodava
 \section{Pretprocesiranje}
 \label{sek:preproc}
 
+Okvir VIBE algoritmom maksimizacije očekivanja implicitno prepravlja oznake zatrovanih primjera te ih potom koristi za učenje.\ 
+Pritom učenje uspijeva jer većina napada nastoji što manje izmijeniti ulazne primjere.\ 
+Ipak, napadi s čistim oznakama (engl.\ \textit{clean-label attacks}) uobičajeno moraju više izmijeniti ulazne primjere kako bi uspjeli zatrovati model.\ 
+Ova značajna perturbacija ulaza vidljiva je i u prostoru samonadziranih značajki: primjeri zatrovani napadom s čistim oznakama prilično su udaljeni od mnogostrukosti (engl.\ \textit{manifold}) na kojoj leže čisti podatci.\ 
+Kako bi iskoristili ovu činjenicu, okvir VIBE uključuje korak pretprocesiranja čiji je cilj ukloniti primjere zatrovane napadom s čistim oznakama.\ 
+
+Konkretno, korak pretprocesiranja promatra mnogostrukost podataka u prostoru samonadziranih značajki te zatrovane primjere identificira kao najudaljeniju zajednicu.\ 
+Kako bi ovo postigli, prvo konstruiramo graf $k$ najbližih susjeda predstavljen matricom susjedstva $\bm{A}_k$.\ 
+Potom koristimo Leidenov algoritam~\cite{traag2019louvain} kako bismo podijelili graf najbližih susjeda $\bm{A}_k$ na $K + 1$ zajednicu.\ 
+Za svaku detektiranu zajednicu zatim računamo prosječnu udaljenost do preostalih $K$ zajednica te izdvajamo zajednicu s najvećom prosječnom udaljenosti.\ 
+Ako je prosječna udaljenost te zajednice veća od zadanog praga $\delta$, iz skupa podataka $\mathcal{D}$ uklanjamo primjere koji joj pripadaju.\ 
+
+\pagebreak
+
+U slučaju da je skup podataka $\mathcal{D}$ zatrovan napadom s čistim oznakama, najudaljenija zajednica odgovarat će zatrovanim primjerima.\ 
+S druge strane, ako skup $\mathcal{D}$ nije zatrovan, najudaljenija zajednica će obuhvaćati nekolicinu čistih primjera koji odstupaju od mnogostrukosti podataka.\ 
+Ipak, prosječna udaljenost najudaljenije zajednice u ovom slučaju bit će manja od praga $\delta$ pa stoga ti primjeri neće biti odbačeni.\ 
+Štoviše, čak i ako je prag $\delta$ loše odabran pa zbog toga odbacimo nekolicinu čistih primjera, naučeni model će podjednako dobro generalizirati~\cite{sabolic2025seal}.\
+
 %-------------------------------------------------------------------------------
 \chapter{Duboki konvolucijski modeli}
 \label{pog:cnn}
