@@ -481,7 +481,7 @@ U našem radu, fokusirat ćemo se na kontrastno samonadzirano učenje.\
 
 Kontrastno učenje jedno je od područja samonadziranog učenja.\ Ono podrazumijeva učenje izlučivanja korisnih reprezentacija tj.\ ugrađivanja ulaznih podataka na temelju parova podataka.\ 
 Ako su dobivena ugrađivanja normirana, a sličnost dvaju ugrađivanja možemo izračunati koristeći neku od standardnih metrika (na primjer, kosinusnu sličnost), tada govorimo o metričkim ugrađivanjima tj.\ ugrađivanjima u metrički prostor~\cite{chavez2001searching}.\ 
-Možemo reći da naučeni model preslikava ulazne slike na $(d - 1)$ dimenzionalnu hipersferu $S^{d - 1}$, pri čemu sličnost ugrađivanja odgovara semantičkoj sličnosti ulaza.\
+Možemo reći da naučeni model preslikava ulazne slike na $(d - 1)$-dimenzionalnu hipersferu $S^{d - 1}$, pri čemu sličnost ugrađivanja odgovara semantičkoj sličnosti ulaza.\
   
 Kod kontrastnog učenja razlikujemo sidro, pozitivne i negativne primjere.\ Trenutno promatrani podatak iz minigrupe nazivamo sidro, podatak sličan sidru nazivamo pozitivan primjer, a podatak različit od sidra nazivamo negativan primjer.\ 
 Budući da primjeri nisu označeni, pozitivne primjere najčešće dobivamo perturbacijom sidra, dok negativnim primjerima smatramo sve ostale podatke iz minigrupe.\ 
@@ -943,6 +943,92 @@ Pronalaskom vektora $\bm{u}$ i $\bm{v}$ koji zadovoljavaju dana ograničenja, pr
 %-------------------------------------------------------------------------------
 \chapter{VIBE}
 \label{pog:vibe}
+
+Okvir VIBE (engl.\ \textit{Variational inference for backdoor elimination})~\cite{sabolic2025seal} zasniva se na ideji da su podatci i zatrovane oznake realizacije uočenih slučajnih varijabli, dok su čiste oznake skrivene varijable.\ 
+Cilj okvira tada je naučiti model koji na izlazu daje vjerojatnost čistih oznaka, bez obzira na mogućnost da je skup podataka zatrovan.\ Kako bismo ovo postigli, model učimo koristeći algoritam EM.\ 
+Pritom u E koraku procjenjujemo čiste pseudooznake rješavajući problem optimalnog transporta s entropijskom regularizacijom, a u M koraku ažuriramo parametre modela koristeći gradijentni spust.\ 
+
+Neka je $\mathcal{D}_{clean} = \{(\bm{\tilde{x}}^i, l^i)\}_{i=1}^{N}$ čisti skup podataka, pri čemu je $\bm{\tilde{x}}^i \in X$ ulazni primjer, a $l^i \in Y$ čista oznaka.\ 
+Napadač modificira udio $\gamma$ čistog skupa podataka te time nastaje zatrovani skup $\mathcal{D} = \{(\bm{x}^i, y^i)\}_{i=1}^{N}$.\ Pritom ulazni primjer $\bm{x}^i \in X$ može sadržavati okidač, a oznaka $y^i \in Y$ može biti zatrovana.\ 
+Cilj okvira VIBE je naučiti model $h$ koji potencijalno zatrovanom ulaznom primjeru $\bm{x}^i$ dodjeljuje čistu oznaku $l^i$.\ 
+Naravno, čiste oznake $\bm{l}$ su skrivene, a dostupne su nam samo zatrovane oznake $\bm{y}$.\ 
+
+Uobičajene metode trovanja podataka modificiraju mali udio $\gamma$ čistog skupa jer žele izbjeći detekciju.\ Drugim riječima, za većinu podataka će zatrovane i čiste oznake biti identične.\
+Zbog ovoga, prirodan optimizacijski cilj za okvir VIBE je maksimizacija log-izglednosti skupa $\mathcal{D}$ uz pretpostavku o nezavisno i identično distribuiranim primjerima (IID pretpostavku):
+
+\begin{equation}
+  \ell_{VD}(\cdot|\mathcal{D}) = \log \prod_{i=1}^{N} p(y^i | \bm{x}^i) = \sum_{i=1}^{N} \log \sum_{l=1}^{K} p(y^i | l) p(l | \bm{x}^i)
+  \label{eq:vibe_initial}
+\end{equation}
+
+\pagebreak
+
+Pritom smo problem pojednostavili aproksimiranjem distribucije $p(y | l, \bm{x})$ distribucijom $p(y | l)$.\ Drugim riječima, uveli smo model šuma koji ne ovisi o konkretnom primjeru.\ 
+Kako bismo mogli optimirati zadani cilj, potrebno je definirati distribuciju $p(l | \bm{x})$ odnosno distribuciju $p(y | l)$.\
+
+\section{Parametrizacija distribucija}
+\label{sek:param}
+
+Model $h$ podijelit ćemo na okosnicu tj.\ ekstraktor značajki $g_{\bm{\theta}}$ te klasifikacijsku glavu.\ 
+Pritom ekstraktor značajki na ulazu dobiva primjer $\bm{x}^i$, a na izlazu daje ugrađivanje $\bm{v}^i = g_{\bm{\theta}}(\bm{x}^i)$ definirano na $(d - 1)$-dimenzionalnoj jediničnoj hipersferi $S^{d - 1}$.\ 
+Uvjetnu vjerojatnost ugrađivanja $\bm{v}^i$ s obzirom na čistu oznaku $l^i$ definirat ćemo kao von Mises-Fisherovu distribuciju (distribuciju vMF)~\cite{banerjee2005clustering}:
+
+\begin{equation}
+  p_{\bm{\phi}}(\bm{v}^i | l^i) = C_d(\kappa) \exp(\kappa \bm{\mu}_{l^i}^T \bm{v}^i)
+  \label{eq:p_v_l}
+\end{equation}
+
+Pri čemu vektor $\bm{\mu}_{l^i} \in S^{d - 1}$ određuje smjer središta distribucije na hipersferi, hiperparametar $\kappa$ određuje raspršenost distribucije, a $C_d(\kappa)$ je normalizacijska konstanta.\ 
+Ugrađivanje $\bm{v}^i$ jednoznačno je određeno primjerom $\bm{x}^i$, tako da vrijedi:
+
+\begin{equation}
+  p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i) = p_{\bm{\phi}, \bm{\pi}}(l^i | \bm{v}^i)
+  \label{eq:v_eq_x}
+\end{equation}
+
+Koristeći Bayesovu formulu, vjerojatnost $p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i)$ sada možemo definirati kao mješavinu distribucija vMF:
+
+\begin{equation}
+  p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i) = \frac{p_{\bm{\phi}}(\bm{v}^i | l^i) p_{\bm{\pi}}(l^i)}{\sum_{l'} p_{\bm{\phi}}(\bm{v}^i | l') p_{\bm{\pi}}(l')}
+                                                       = \frac{p_{\bm{\phi}}(\bm{v}^i | l^i) \bm{\pi}_{l^i}}{\sum_{l'} p_{\bm{\phi}}(\bm{v}^i | l') \bm{\pi}_{l'}}
+                                                       = \frac{\exp(\kappa \bm{\mu}_{l^i}^T \bm{v}^i + \log \bm{\pi}_{l^i})}{\sum_{l'} \exp(\kappa \bm{\mu}_{l'}^T \bm{v}^i + \log \bm{\pi}_{l'})}
+  \label{eq:p_l_x}
+\end{equation}
+
+Pritom koeficijenti miješanja $\bm{\pi}$ odgovaraju apriornoj distribuciji čistih oznaka $\bm{l}$.\ 
+Kako bismo osigurali da distribuciju $\bm{\pi}$ možemo učiti, definiramo ju kao $\bm{\pi} = \sigma (c \cdot \bm{\hat{\pi}})$, pri čemu je $\sigma$ funkcija softmax, $c$ hiperparametar temperature, a $\bm{\hat{\pi}}$ vektor parametara koje učimo.\ 
+Ovom formulacijom osiguravamo da se vektor $\bm{\pi}$ sumira u $1$.\
+
+Uočimo da dobivena uvjetna vjerojatnost $p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x})$ odgovara dubokom modelu s funkcijom softmax, $L_2$ normalizacijom pred-logita te skupom razrednih prototipova $\bm{\phi}$.\ 
+Parametri definiranog modela tada su: skup razrednih prototipova tj.\ skup čistih prototipova $\bm{\phi} = \{\bm{\mu}_1,\,...\,,\bm{\mu}_K\}$, koeficijenti miješanja $\bm{\pi}$ te parametri $\bm{\theta}$ ekstraktora značajki $g_{\bm{\theta}}$.\ 
+Uz ovu parametrizaciju, model $h$ koji na ulazu prima primjer $\bm{x}^i$ te na izlazu daje čistu oznaku $l^i$ možemo prikazati kao kompoziciju nekoliko funkcija:
+
+\begin{equation}
+  h = \arg \max \circ \operatorname{cos\text{-}sim}_{\bm{\phi}, \bm{\pi}} \circ g_{\bm{\theta}}
+  \label{eq:h_form}
+\end{equation}
+
+Pritom funkcija $\operatorname{cos\text{-}sim}_{\bm{\phi}, \bm{\pi}}$ računa kosinusnu sličnost između prototipova iz skupa $\bm{\phi}$ i ugrađivanja $\bm{v}^i$ otežanu parametrima $\bm{\pi}$.\ 
+
+Sada trebamo definirati distribuciju $p(y | l)$.\ Kako bismo to postigli, uvedimo još i skup zatrovanih prototipova $\bm{\psi} = \{\bm{\eta}_1,\,...\,,\bm{\eta}_K\}$ na istoj hipersferi $S^{d - 1}$.\ 
+Distribuciju $p(y | l)$ definirat ćemo kao normaliziranu kosinusnu sličnost između čistih i zatrovanih prototipova:
+
+\begin{equation}
+  p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) = \frac{\exp(\nu \bm{\mu}_{l^i}^T \bm{\eta}_{y^i})}{\sum_{y'} \exp(\nu \bm{\mu}_{l^i}^T \bm{\eta}_{y'})}
+  \label{eq:p_y_l}
+\end{equation}
+
+Pri čemu je $\nu$ hiperparametar temperature.\ Uočimo da koristeći naučenu distribuciju $p_{\bm{\phi}, \bm{\psi}}(y | l)$ možemo rekonstruirati pravila trovanja korištena za stvaranje zatrovanog skupa podataka $\mathcal{D}$.\ 
+Skup svih parametara modela označit ćemo s $\bm{\Omega} = \bm{\theta} \cup \bm{\pi} \cup \bm{\phi} \cup \bm{\psi}$.\ Nakon što smo parametrizirali obje potrebne distribucije, vrijeme je za definirati algoritam učenja.\
+
+\section{Optimizacija varijacijskog cilja}
+\label{sek:var_goal}
+
+\section{Konzistencijski gubitak}
+\label{sek:con_loss}
+
+\section{Pretprocesuiranje}
+\label{sek:preproc}
 
 %-------------------------------------------------------------------------------
 \chapter{Duboki konvolucijski modeli}
