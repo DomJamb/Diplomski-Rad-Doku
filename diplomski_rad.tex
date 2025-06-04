@@ -714,12 +714,12 @@ Uz uvrštavanje izraza za distribuciju $q^{(t + 1)}(Z)$, donju varijacijsku gran
     F(p(Z | X, \bm{\theta}^{(t)}), \bm{\theta}) &= \int p(Z | X, \bm{\theta}^{(t)}) \log \frac{p(X, Z | \bm{\theta})}{p(Z | X, \bm{\theta}^{(t)})} dZ \\
                          &= \int \left[ p(Z | X, \bm{\theta}^{(t)}) \log p(X, Z | \bm{\theta}) - p(Z | X, \bm{\theta}^{(t)}) \log p(Z | X, \bm{\theta}^{(t)}) \right] dZ \\
                          &= \mathbb{E}_{Z \sim p(\cdot | X, \bm{\theta}^{(t)})} \left[ \log p(X, Z | \bm{\theta}) \right] - \mathbb{E}_{Z \sim p(\cdot | X, \bm{\theta}^{(t)})} \left[\log p(Z | X, \bm{\theta}^{(t)}) \right] \\
-                         &= Q(\bm{\theta} | \bm{\theta}^{(t)}) + H(p(Z | X, \bm{\theta}^{(t)}))
+                         &= Q(\bm{\theta} | \bm{\theta}^{(t)}) + \operatorname{H}(p(Z | X, \bm{\theta}^{(t)}))
   \end{aligned}
   \label{eq:em_equality_of_e_step}
 \end{equation}
 
-Pri čemu $H(p(Z | X, \bm{\theta}^{(t)}))$ označava entropiju~\cite{renyi1961measures} distribucije $p(Z | X, \bm{\theta}^{(t)})$.\ Uočimo da je dobiveni izraz za donju varijacijsku granicu jednak izrazu $Q(\bm{\theta} | \bm{\theta}^{(t)})$ koji računamo u E koraku osnovne formulacije, ali uvećan za iznos entropije $H(p(Z | X, \bm{\theta}^{(t)}))$.\ 
+Pri čemu $\operatorname{H}(p(Z | X, \bm{\theta}^{(t)}))$ označava entropiju~\cite{renyi1961measures} distribucije $p(Z | X, \bm{\theta}^{(t)})$.\ Uočimo da je dobiveni izraz za donju varijacijsku granicu jednak izrazu $Q(\bm{\theta} | \bm{\theta}^{(t)})$ koji računamo u E koraku osnovne formulacije, ali uvećan za iznos entropije $\operatorname{H}(p(Z | X, \bm{\theta}^{(t)}))$.\ 
 Kada smo odredili distribuciju $q^{(t + 1)}(Z)$ koja maksimizira donju varijacijsku granicu, možemo prijeći na M korak.\ 
 
 M korak algoritma maksimizacije očekivanja sada maksimizira donju varijacijsku granicu $F(q^{(t + 1)}(Z), \bm{\theta})$ s obzirom na parametre $\bm{\theta}$ uz fiksiranu distribuciju $q^{(t + 1)}(Z)$ dobivenu u E koraku.\
@@ -727,13 +727,13 @@ Dakle, cilj je pronaći parametre $\bm{\theta}^{(t + 1)}$ koji maksimiziraju izr
 
 \begin{equation}
   \begin{aligned}
-    F(p(Z | X, \bm{\theta}^{(t)}), \bm{\theta}) &= Q(\bm{\theta} | \bm{\theta}^{(t)}) + H(p(Z | X, \bm{\theta}^{(t)})) \\ 
+    F(p(Z | X, \bm{\theta}^{(t)}), \bm{\theta}) &= Q(\bm{\theta} | \bm{\theta}^{(t)}) + \operatorname{H}(p(Z | X, \bm{\theta}^{(t)})) \\ 
                                                 &= Q(\bm{\theta} | \bm{\theta}^{(t)}) + const. \\
   \end{aligned}
   \label{eq:em_m_step_general}
 \end{equation}
 
-Pritom je član $H(p(Z | X, \bm{\theta}^{(t)}))$ konstantan s obzirom na trenutne parametre $\bm{\theta}$, tako da on ne utječe na tijek optimizacije.\
+Pritom je član $\operatorname{H}(p(Z | X, \bm{\theta}^{(t)}))$ konstantan s obzirom na trenutne parametre $\bm{\theta}$, tako da on ne utječe na tijek optimizacije.\
 Vidimo da je M korak općenite formulacije identičan M koraku osnovne formulacije - jedina razlika je prisutnost konstantnog člana u izrazu koji maksimiziramo.\ 
 Kao i kod osnovne formulacije algoritma maksimizacije očekivanja, dobivene parametre $\bm{\theta}^{(t + 1)}$ dalje možemo iskoristiti za provođenje E koraka sljedeće iteracije.\ 
 
@@ -818,35 +818,35 @@ Ovim skupom linearnih ograničenja definiran je politop~\cite{ziegler1993lecture
 Svako rješenje problema mora se nalaziti na zadanom politopu $\bm{Q}\left[ \bm{\mu}, \bm{\nu} \right]$.\ Problem optimalnog transporta tada možemo definirati kao potragu za matricom $\bm{Q}$ koja zadovoljava:
 
 \begin{equation}
-  \min_{\bm{Q}} tr(\bm{C}^T \bm{Q})
+  \min_{\bm{Q}} \operatorname{tr}(\bm{C}^T \bm{Q})
   \label{eq:ot_basic}
 \end{equation}
 
-Pritom $tr$ označava operaciju traga matrice, a $\bm{C}^T$ označava transponiranu matricu $\bm{C}$.\ Ovako formuliran problem možemo riješiti proizvoljnim algoritmom linearnog programiranja~\cite{dantzig2002linear}.\ 
+Pritom $\operatorname{tr}$ označava operaciju traga matrice, a $\bm{C}^T$ označava transponiranu matricu $\bm{C}$.\ Ovako formuliran problem možemo riješiti proizvoljnim algoritmom linearnog programiranja~\cite{dantzig2002linear}.\ 
 Matrica $\bm{Q}$ dobivena kao rješenje zadanog problema optimalnog transporta često će biti rijetka (engl.\ \textit{sparse}).\ 
 Ako želimo osigurati da rješenje $\bm{Q}$ što manje odgovara rijetkoj matrici, u problem možemo dodati komponentu entropijske regularizacije.\ 
 Problem optimalnog transporta s entropijskom regularizacijom~\cite{genevay2019entropy} možemo definirati jednadžbom:
 
 \begin{equation}
-  \min_{\bm{Q}} \left[ tr(\bm{C}^T \bm{Q}) - \frac{1}{\lambda} H(\bm{Q}) \right]
+  \min_{\bm{Q}} \left[ \operatorname{tr}(\bm{C}^T \bm{Q}) - \frac{1}{\lambda} \operatorname{H}(\bm{Q}) \right]
   \label{eq:ot_with_entropy}
 \end{equation}
 
-Pri čemu je $\lambda$ regularizacijski hiperparametar, a $H(\bm{Q})$ entropija matrice vjerojatnosti dana kao:
+Pri čemu je $\lambda$ regularizacijski hiperparametar, a $\operatorname{H}(\bm{Q})$ entropija matrice vjerojatnosti dana kao:
 
 \begin{equation}
-  H(\bm{Q}) = -\sum_{i = 1}^{m} \sum_{j = 1}^{n} \bm{Q}_{i,j} \log \bm{Q}_{i,j}
+  \operatorname{H}(\bm{Q}) = -\sum_{i = 1}^{m} \sum_{j = 1}^{n} \bm{Q}_{i,j} \log \bm{Q}_{i,j}
   \label{eq:ot_with_entropy}
 \end{equation}
 
-Ovisno o iznosu hiperparametra $\lambda$, član $- \frac{1}{\lambda} H(\bm{Q})$ može potaknuti gustoću matrice plana transporta $\bm{Q}$ te time spriječiti degeneraciju rješenja.\
+Ovisno o iznosu hiperparametra $\lambda$, član $- \frac{1}{\lambda} \operatorname{H}(\bm{Q})$ može potaknuti gustoću matrice plana transporta $\bm{Q}$ te time spriječiti degeneraciju rješenja.\
 Jedan od algoritama kojim možemo riješiti problem optimalnog transporta s entropijskom regularizacijom je algoritam Sinkhorn-Knopp (algoritam SK)~\cite{knight2008sinkhorn}.\ 
 
 \section{Algoritam Sinkhorn-Knopp}
 \label{sek:sk_alg}
 
 Sinkhornov teorem~\cite{sinkhorn1964relationship} govori da za svaku matricu s pozitivnim vrijednostima $\bm{A}$ dimenzija $n \times n$ postoje dijagonalne matrice $\bm{U}$ i $\bm{V}$ s pozitivnim vrijednostima takve da je matrica $\bm{U} \bm{A} \bm{V}$ dvostruko stohastička tj.\ da se svaki redak i stupac dobivene matrice sumiraju u $1$.\ 
-Pritom matrice možemo definirati kao $\bm{U} = diag(\bm{u})$ odnosno $\bm{V} = diag(\bm{v})$, pri čemu je $diag(\bm{u})$ dijagonalna matrica s vrijednostima vektora $\bm{u}$.\ 
+Pritom matrice možemo definirati kao $\bm{U} = \operatorname{diag}(\bm{u})$ odnosno $\bm{V} = \operatorname{diag}(\bm{v})$, pri čemu je $\operatorname{diag}(\bm{u})$ dijagonalna matrica s vrijednostima vektora $\bm{u}$.\ 
 Originalna namjena algoritma Sinkhorn-Knopp bila je proizvesti dvostruko stohastičku matricu $\bm{U} \bm{A} \bm{V}$ na temelju dane matrice $\bm{A}$.\ 
   
 Uočimo da matrice $\bm{U}$ i $\bm{V}$ zapravo skaliraju retke odnosno stupce matrice $\bm{A}$.\ Zadatak algoritma tada postaje pronaći pripadne vektore $\bm{u}$ i $\bm{v}$ koji ispravno skaliraju zadanu matricu.\ 
@@ -867,14 +867,14 @@ Osim za postizanje dvostruke stohastičnosti dane matrice, pokazano je da se alg
 Prisjetimo se danog problema.\ Uz vektore distribucija vjerojatnosti $\bm{\mu}$ i $\bm{\nu}$ definiranih nad prostorima $X$ odnosno $Y$ te matricu cijena transporta $\bm{C}$ dimenzija $m \times n$, cilj je pronaći matricu plana transporta $\bm{Q}$ koja se nalazi na politopu $\bm{Q}\left[ \bm{\mu}, \bm{\nu} \right]$ te za koju vrijedi:
 
 \begin{equation}
-  \min_{\bm{Q}} \left[ tr(\bm{C}^T \bm{Q}) - \frac{1}{\lambda} H(\bm{Q}) \right]
+  \min_{\bm{Q}} \left[ \operatorname{tr}(\bm{C}^T \bm{Q}) - \frac{1}{\lambda} \operatorname{H}(\bm{Q}) \right]
   \label{eq:ot_with_entropy_repeat}
 \end{equation}
 
-Pritom je $\lambda$ regularizacijski hiperparametar, a $H(\bm{Q})$ entropija matrice vjerojatnosti.\ Kako bismo izveli pravila za ažuriranje temeljena na algoritmu SK, definirajmo prvo Lagrangeovu funkciju~\cite{slater2013lagrange}:
+Pritom je $\lambda$ regularizacijski hiperparametar, a $\operatorname{H}(\bm{Q})$ entropija matrice vjerojatnosti.\ Kako bismo izveli pravila za ažuriranje temeljena na algoritmu SK, definirajmo prvo Lagrangeovu funkciju~\cite{slater2013lagrange}:
 
 \begin{equation}
-  \mathcal{L}(\bm{Q}, \bm{\alpha}, \bm{\beta}) = tr(\bm{C}^T \bm{Q}) - \frac{1}{\lambda} H(\bm{Q}) + \bm{\alpha}^T (\bm{Q} \bm{1}_n - \bm{\mu}) + \bm{\beta}^T (\bm{Q}^T \bm{1}_m - \bm{\nu})
+  \mathcal{L}(\bm{Q}, \bm{\alpha}, \bm{\beta}) = \operatorname{tr}(\bm{C}^T \bm{Q}) - \frac{1}{\lambda} \operatorname{H}(\bm{Q}) + \bm{\alpha}^T (\bm{Q} \bm{1}_n - \bm{\mu}) + \bm{\beta}^T (\bm{Q}^T \bm{1}_m - \bm{\nu})
   \label{eq:sk_lagrange}
 \end{equation}
 
@@ -906,7 +906,7 @@ Pritom član $\exp(-1)$ možemo ignorirati jer je on konstantan $\forall i,j$.\ 
 Dolazimo do formulacije iz Sinkhornovog teorema:
 
 \begin{equation}
-  \bm{Q} = diag(\bm{u})\,\bm{A}\,diag(\bm{v})
+  \bm{Q} = \operatorname{diag}(\bm{u})\,\bm{A}\,\operatorname{diag}(\bm{v})
   \label{eq:sk_q_formula}
 \end{equation}
 
@@ -914,8 +914,8 @@ Gledajući da se svako rješenje $\bm{Q}$ mora nalaziti na politopu $\bm{Q}\left
 
 \begin{equation}
   \begin{aligned}
-    diag(\bm{u})\,\bm{A}\,diag(\bm{v}) \bm{1}_n = \bm{\mu} \\
-    diag(\bm{v})\,\bm{A}^T\,diag(\bm{u}) \bm{1}_m = \bm{\nu} \\
+    \operatorname{diag}(\bm{u})\,\bm{A}\,\operatorname{diag}(\bm{v}) \bm{1}_n = \bm{\mu} \\
+    \operatorname{diag}(\bm{v})\,\bm{A}^T\,\operatorname{diag}(\bm{u}) \bm{1}_m = \bm{\nu} \\
   \end{aligned}
   \label{eq:sk_conditions}
 \end{equation}
@@ -1064,6 +1064,89 @@ Pokazuje se da korištenje samonadzirane inicijalizacije parametara ubrzava konv
 
 \subsection{E korak}
 \label{sub:e_step}
+
+Cilj E koraka algoritma maksimizacije očekivanja je pronaći distribuciju $q(l | \bm{x}, y)$ koja maksimizira donju varijacijsku granicu $\mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D})$ uz fiksirane vrijednosti parametara $\bm{\Omega}$.\ 
+Donju varijacijsku granicu uprosječenu preko $N$ primjera možemo zapisati kao:
+
+\begin{equation}
+  \begin{aligned}
+    \frac{1}{N} \mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D}) &= \frac{1}{N} \sum_{i=1}^{N} \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[\log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) + \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i) - \log q(l^i | \bm{x}^i, y^i) \right] \\
+                                                               &= \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \left[\log p_{\bm{\phi}, \bm{\psi}}(y^i | l) + \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) - \log q(l | \bm{x}^i, y^i) \right] \\ 
+                                                               &= \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \log \left[p_{\bm{\phi}, \bm{\psi}}(y^i | l) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) \right] \\ 
+                                                               &- \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \log \left[N \frac{1}{N} q(l | \bm{x}^i, y^i) \right] \\ 
+  \end{aligned}
+  \label{eq:vibe_e_step_init}
+\end{equation}
+
+Uvedimo sada matrice $\bm{P}$ i $\bm{Q}$ za koje vrijedi:
+
+\begin{equation}
+  \begin{aligned}
+    \bm{P}_{i, l} &= p_{\bm{\phi}, \bm{\psi}}(y^i | l) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) \\
+    \bm{Q}_{i, l} &= \frac{1}{N} q(l | \bm{x}^i, y^i)
+  \end{aligned}
+  \label{eq:vibe_matrices_p_q}
+\end{equation}
+
+Pritom član $\frac{1}{N}$ osigurava da je matrica $\bm{Q}$ ispravna matrica zajedničke vjerojatnosti.\ Cilj $\frac{1}{N} \mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D})$ sada možemo prikazati matričnim operacijama:
+
+\begin{equation}
+  \begin{aligned}
+    \frac{1}{N} \mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D}) &= \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \log \left[p_{\bm{\phi}, \bm{\psi}}(y^i | l) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) \right] \\ 
+                                                               &- \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \log \left[N \frac{1}{N} q(l | \bm{x}^i, y^i) \right] \\ 
+                                                               &= \sum_{i=1}^{N} \sum_{l=1}^{K} \bm{Q}_{i, l} \log \bm{P}_{i, l} - \sum_{i=1}^{N} \sum_{l=1}^{K} \bm{Q}_{i, l} \log \left[N \bm{Q}_{i, l} \right] \\ 
+                                                               &= \sum_{i=1}^{N} \sum_{l=1}^{K} \bm{Q}_{i, l} \log \bm{P}_{i, l} - \sum_{i=1}^{N} \sum_{l=1}^{K} \bm{Q}_{i, l} \log \bm{Q}_{i, l} - \sum_{i=1}^{N} \sum_{l=1}^{K} \bm{Q}_{i, l} \log N \\ 
+                                                               &= \operatorname{tr}(\bm{Q}^T \log \bm{P}) + \operatorname{H}(\bm{Q}) - \log N \\ 
+  \end{aligned}
+  \label{eq:vibe_e_step_matrices}
+\end{equation}
+
+Pri čemu $\operatorname{tr}$ označava operaciju traga matrice, a $\operatorname{H}(\bm{Q})$ entropiju matrice $\bm{Q}$ danu jednadžbom~\ref{eq:ot_with_entropy} .\ Član $\log N$ pritom možemo ignorirati jer je konstanta.\ 
+Uz uvođenje regularizacijskog hiperparametra $\lambda$ za koji vrijedi $\lambda > 1$, dobivamo:
+
+\begin{equation}
+  \begin{aligned}
+    \frac{1}{N} \mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D}) &= \operatorname{tr}(\bm{Q}^T \log \bm{P}) + \operatorname{H}(\bm{Q}) - \log N \\ 
+                                                               &\geq \operatorname{tr}(\bm{Q}^T \log \bm{P}) + \frac{1}{\lambda} \operatorname{H}(\bm{Q}) \\ 
+  \end{aligned}
+  \label{eq:vibe_e_step_final_eq}
+\end{equation}
+
+Maksimizacija dobivenog cilja ekvivalentna je pronalasku matrice $\bm{Q}$ za koju vrijedi:
+
+\begin{equation}
+    \min_{\bm{Q}} \left[-\operatorname{tr}(\bm{Q}^T \log \bm{P}) - \frac{1}{\lambda} \operatorname{H}(\bm{Q}) \right] \\ 
+  \label{eq:vibe_e_reversed}
+\end{equation}
+
+Uočimo da ovo odgovara problemu optimalnog transporta s entropijskom regularizacijom uz matricu cijena $-\log \bm{P}$.\ Pritom matrica $\bm{Q}$ mora zadovoljavati ograničenja:
+
+\begin{equation}
+  \begin{aligned}
+    \bm{Q} \bm{1}_K &= \frac{1}{N} \bm{1}_N \\
+    \bm{Q}^T \bm{1}_N &= \bm{\pi} \\
+  \end{aligned}
+\label{eq:vibe_q_matrix_restrictions}
+\end{equation}
+
+\pagebreak
+
+Rješenje ovog problema možemo pronaći algoritmom Sinkhorn-Knopp uz iterativno ažuriranje vektora $\bm{u}$ i $\bm{v}$ koristeći pravila:
+
+\begin{equation}
+  \begin{aligned}
+    \bm{u}^{(t + 1)} &= \frac{\bm{1}_N}{N \cdot \bm{P}^{-\lambda} \bm{v}^{(t)}} \\
+    \bm{v}^{(t + 1)} &= \frac{\bm{\pi}}{(\bm{P}^{-\lambda})^T \bm{u}^{(t)}} \\
+  \end{aligned}
+  \label{eq:vibe_sk_rules}
+\end{equation}
+
+Konačnu matricu vjerojatnosti $\bm{Q}$ tada dobivamo kao:
+
+\begin{equation}
+  \bm{Q} = \operatorname{diag}(\bm{u})\,\bm{P}^{-\lambda}\,\operatorname{diag}(\bm{v})
+  \label{eq:vibe_q_formula}
+\end{equation}
 
 \subsection{M korak}
 \label{sub:m_step}
