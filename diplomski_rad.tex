@@ -1148,8 +1148,36 @@ Konačnu matricu vjerojatnosti $\bm{Q}$ tada dobivamo kao:
   \label{eq:vibe_q_formula}
 \end{equation}
 
+Važno je napomenuti da algoritmom Sinkhorn-Knopp dobivamo matricu vjerojatnosti $\bm{Q}$ koja odgovara skupu podataka $\mathcal{D}$, a ne rješenje u zatvorenoj formi za distribuciju $q(l | \bm{x}, y)$.\ 
+Ipak, ovo nam ne predstavlja problem jer je matrica $\bm{Q}$ dovoljna za provođenje M koraka.\
+
 \subsection{M korak}
 \label{sub:m_step}
+
+Cilj M koraka algoritma maksimizacije očekivanja je pronaći parametre $\bm{\Omega}$ koji maksimiziraju donju varijacijsku granicu $\mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D})$ uz fiksiranu distribuciju $q(l | \bm{x}, y)$ odnosno matricu vjerojatnosti $\bm{Q}$.\ 
+Maksimizacija donje varijacijske granice ekvivalentna je minimizaciji cilja:
+
+\begin{equation}
+  \begin{aligned}
+    -\mathcal{L}_{VD}(\bm{\Omega}|\mathcal{D}) &= -\sum_{i=1}^{N} \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[\log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) + \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i) - \log q(l^i | \bm{x}^i, y^i) \right] \\
+                                               &= \sum_{i=1}^{N} \sum_{l=1}^{K} q(l | \bm{x}^i, y^i) \left[-\log p_{\bm{\phi}, \bm{\psi}}(y^i | l) - \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) + \log q(l | \bm{x}^i, y^i) \right] \\
+                                               &= \sum_{i=1}^{N} \left[ \sum_{l=1}^{K} -q(l | \bm{x}^i, y^i) \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) - \sum_{l=1}^{K} q(l | \bm{x}^i, y^i) \log p_{\bm{\phi}, \bm{\psi}}(y^i | l) - \operatorname{H}(q) \right] \\
+                                               &= \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) \right] - \operatorname{H}(q) \right] \\
+  \end{aligned}
+  \label{eq:vibe_m_step_init}
+\end{equation}
+
+Pritom $\mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(l | \bm{x}^i, y^i))$ označava funkciju gubitka unakrsne entropije između izlaza modela $p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i)$ i cilja $q(l | \bm{x}^i, y^i)$.\ 
+Član $\operatorname{H}(q)$ ne ovisi o parametrima $\bm{\Omega}$, tako da ga možemo izostaviti te dobivamo konačan cilj koji želimo minimizirati:
+
+\begin{equation}
+  \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) \right] \right]
+  \label{eq:vibe_m_step_final}
+\end{equation}
+
+Izraženi gubitak možemo minimizirati koristeći gradijentni spust, a sastoji se od dvije komponente.\ 
+Prva komponenta pritom odgovara standardnom nadziranom gubitku između izlaza modela $p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i)$ i pseudooznaka dobivenih na temelju distribucije $q(l | \bm{x}^i, y^i)$ procijenjene u E koraku.\ 
+S druge strane, druga komponenta gubitka odgovara rekonstrukciji zatrovanih oznaka $\bm{y}$ na temelju procijenjenih pseudooznaka $\bm{l}$.\ 
 
 \section{Konzistencijski gubitak}
 \label{sek:con_loss}
