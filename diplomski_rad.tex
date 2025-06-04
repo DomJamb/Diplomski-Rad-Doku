@@ -979,7 +979,7 @@ Uvjetnu vjerojatnost ugrađivanja $\bm{v}^i$ s obzirom na čistu oznaku $l^i$ de
 \end{equation}
 
 Pri čemu vektor $\bm{\mu}_{l^i} \in S^{d - 1}$ određuje smjer središta distribucije na hipersferi, hiperparametar $\kappa$ određuje raspršenost distribucije, a $C_d(\kappa)$ je normalizacijska konstanta.\ 
-Ugrađivanje $\bm{v}^i$ jednoznačno je određeno primjerom $\bm{x}^i$, tako da vrijedi:
+Primjer $\bm{x}^i$ jednoznačno određuje ugrađivanje $\bm{v}^i$, tako da vrijedi:
 
 \begin{equation}
   p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i) = p_{\bm{\phi}, \bm{\pi}}(l^i | \bm{v}^i)
@@ -1000,7 +1000,7 @@ Kako bismo osigurali da distribuciju $\bm{\pi}$ možemo učiti, definiramo ju ka
 Ovom formulacijom osiguravamo da se vektor $\bm{\pi}$ sumira u $1$.\
 
 Uočimo da dobivena uvjetna vjerojatnost $p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x})$ odgovara dubokom modelu s funkcijom softmax, $L_2$ normalizacijom pred-logita te skupom razrednih prototipova $\bm{\phi}$.\ 
-Parametri definiranog modela tada su: skup razrednih prototipova tj.\ skup čistih prototipova $\bm{\phi} = \{\bm{\mu}_1,\,...\,,\bm{\mu}_K\}$, koeficijenti miješanja $\bm{\pi}$ te parametri $\bm{\theta}$ ekstraktora značajki $g_{\bm{\theta}}$.\ 
+Parametri definiranog modela tada su: skup razrednih tj.\ čistih prototipova $\bm{\phi} = \{\bm{\mu}_1,\,...\,,\bm{\mu}_K\}$, koeficijenti miješanja $\bm{\pi}$ te parametri $\bm{\theta}$ ekstraktora značajki $g_{\bm{\theta}}$.\ 
 Uz ovu parametrizaciju, model $h$ koji na ulazu prima primjer $\bm{x}^i$ te na izlazu daje čistu oznaku $l^i$ možemo prikazati kao kompoziciju nekoliko funkcija:
 
 \begin{equation}
@@ -1019,13 +1019,13 @@ Distribuciju $p(y | l)$ definirat ćemo kao normaliziranu kosinusnu sličnost iz
 \end{equation}
 
 Pri čemu je $\nu$ hiperparametar temperature.\ Uočimo da koristeći naučenu distribuciju $p_{\bm{\phi}, \bm{\psi}}(y | l)$ možemo rekonstruirati pravila trovanja korištena za stvaranje zatrovanog skupa podataka $\mathcal{D}$.\ 
-Skup svih parametara modela označit ćemo s $\bm{\Omega} = \bm{\theta} \cup \bm{\pi} \cup \bm{\phi} \cup \bm{\psi}$.\ Nakon što smo parametrizirali obje potrebne distribucije, vrijeme je za definirati algoritam učenja.\
+Skup svih parametara modela označit ćemo s $\bm{\Omega} = \bm{\theta} \cup \bm{\pi} \cup \bm{\phi} \cup \bm{\psi}$.\ Nakon što smo parametrizirali obje potrebne distribucije, vrijeme je za definiranje algoritma učenja.\
 
 \section{Optimizacija varijacijskog cilja}
 \label{sek:var_goal}
 
 Nažalost, pokazuje se da direktna optimizacija cilja $\ell_{VD}$ ne osigurava ispravno učenje distribucije $p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x})$~\cite{mclachlan2008algorithm}.\ 
-Zbog ovoga, uvodimo zamjensku distribuciju $q(l | \bm{x}, y)$.\ Cilj $\ell_{VD}$ sada možemo zapisati kao:
+Kako bismo doskočili ovom problemu, uvodimo zamjensku distribuciju $q(l | \bm{x}, y)$.\ Cilj $\ell_{VD}$ sada možemo zapisati kao:
 
 \begin{equation}
   \begin{aligned}
@@ -1057,6 +1057,10 @@ Nakon toga, u M koraku ćemo uz fiksiranu distribuciju $q(l | \bm{x}, y)$ ažuri
   \caption{Prikaz učenja okvirom VIBE.\ U E koraku (desno) procjenjujemo pseudooznake tj.\ distribuciju $q(l | \bm{x}, y)$, a u M koraku (lijevo) ažuriramo parametre modela $\bm{\Omega}$.\ Preuzeto iz \cite{sabolic2025seal}.}
   \label{fig:vibe}
 \end{figure}
+
+Kako bismo osigurali da učenje algoritmom maksimizacije očekivanja konvergira k parametrima $\bm{\Omega}$ koji imaju dobru generalizacijsku moć, važno je prikladno inicijalizirati model.\ 
+Nasumična inicijalizacija parametara ne nudi nikakvu garanciju uspješnosti algoritma EM, tako da umjesto nje koristimo samonadziranu inicijalizaciju okvirom All4One.\ 
+Pokazuje se da korištenje samonadzirane inicijalizacije parametara ubrzava konvergenciju učenja, a i rezultira modelom koji bolje generalizira~\cite{sabolic2025seal}.\
 
 \subsection{E korak}
 \label{sub:e_step}
