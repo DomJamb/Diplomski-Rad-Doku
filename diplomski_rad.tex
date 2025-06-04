@@ -1171,7 +1171,7 @@ Pritom $\mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(
 Član $\operatorname{H}(q)$ ne ovisi o parametrima $\bm{\Omega}$, tako da ga možemo izostaviti te dobivamo konačan cilj koji želimo minimizirati:
 
 \begin{equation}
-  \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) \right] \right]
+  \mathcal{L}_{VIBE}(\bm{\Omega} | \mathcal{D}) = \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) \right] \right]
   \label{eq:vibe_m_step_final}
 \end{equation}
 
@@ -1182,7 +1182,61 @@ S druge strane, druga komponenta gubitka odgovara rekonstrukciji zatrovanih ozna
 \section{Konzistencijski gubitak}
 \label{sek:con_loss}
 
-\section{Pretprocesuiranje}
+Osnovna ideja konzistencijskog gubitka (engl.\ \textit{consistency loss})~\cite{berthelot2019mixmatch} je osigurati da model za slične ulaze daje slične izlaze.\ 
+Dodavanjem ove komponente, modelu možemo povećati invarijantnost na perturbacije ulaza, kao i potencijalno spriječiti prenaučenost.\ 
+Drugim riječima, konzistencijski gubitak može služiti kao regularizacijska tehnika.\ 
+
+Kako bismo definirali sami gubitak, prvo je potrebno uvesti pojam slabih i jakih augmentacija.\ 
+Kod uobičajenog učenja dubokih modela, većinom imamo definiran jedan skup augmentacija za učenje koji primjenjujemo na ulaze prije nego što ih damo modelu.\ 
+S druge strane, kod implementacije konzistencijskog gubitka definiramo dva pogleda (engl.\ \textit{views}) na ulazne podatke koristeći zasebne skupove augmentacija.\ 
+Pritom skup slabih augmentacija u manjoj mjeri perturbira ulaz, a skup jakih augmentacija u većoj mjeri mijenja isti taj ulaz.\ 
+
+Skup jakih augmentacija lako možemo dobiti dodavanjem augmentacije AutoAugment~\cite{cubuk2019autoaugment} u postojeći skup slabih augmentacija.\
+Augmentacija AutoAugment zapravo je strategija primjena niza pojedinih augmentacija specijalizirana za neki skup podataka (na primjer, za skup CIFAR10), a određena podržanim učenjem (engl.\ \textit{reinforcement learning})~\cite{kaelbling1996reinforcement}.\ 
+
+\pagebreak
+
+Nakon što smo odredili oba pogleda ulaznih podataka, iste dajemo kao ulaz modelu.\ Konzistencijski gubitak tada možemo definirati kao udaljenost između izlaza modela za slabo odnosno jako augmentiran ulaz.\ Pritom uobičajeno koristimo mjeru poput unakrsne entropije ili KL divergencije:
+
+\begin{equation}
+  \mathcal{L}_{con} = KL(p(y | \mathcal{A}_{W}(\bm{x})) || p(y | \mathcal{A}_{S}(\bm{x})))
+  \label{eq:con_loss}
+\end{equation}
+
+Pri čemu $p(y | \mathcal{A}_{W}(\bm{x}))$ označava izlaz modela za slabu augmentaciju ulaza $\mathcal{A}_{W}(\bm{x})$, a $p(y | \mathcal{A}_{S}(\bm{x}))$ označava izlaz modela za jaku augmentaciju $\mathcal{A}_{S}(\bm{x})$.\ 
+Važno je napomenuti da kod konzistencijskog gubitka uobičajeno kao cilj tj.\ učitelja (engl.\ \textit{teacher}) koristimo slabu augmentaciju, a kao učenika (engl.\ \textit{student}) koristimo jaku augmentaciju.\ 
+Sveukupni gubitak za zadani primjer $\bm{x}$ tada definiramo kao:
+
+\begin{equation}
+  \mathcal{L}_{total}(\bm{x}) = \mathcal{L}_{supervised}(\mathcal{A}_{S}(\bm{x})) + \sigma \mathcal{L}_{con}(\bm{x})
+  \label{eq:con_loss}
+\end{equation}
+
+Pritom hiperparametar $\sigma$ zovemo stopom konzistencije (engl.\ \textit{consistency rate}).\ Dodatno, uočimo da se nadzirani gubitak sada računa koristeći jaku augmentaciju ulaza $\mathcal{A}_{S}(\bm{x})$.\ 
+Dok algoritmi SOP+ te ILL među ostalom koriste i konzistencijski gubitak, osnovna inačica okvira VIBE ga ne koristi.\ 
+U našem radu istražujemo učinak dodavanja konzistencijskog gubitka u formulaciju gubitka okvira VIBE.\
+
+Konkretno, glavna izmjena okvira VIBE je u M koraku.\ Dok E korak za zadani skup podataka $\mathcal{D}$ aproksimira distribuciju $q(l | \bm{x}, y)$, M korak na temelju procijenjene distribucije optimira parametre $\bm{\Omega}$ koristeći gradijentni spust.\ 
+Pritom smo gubitak u M koraku definirali kao:
+
+\begin{equation}
+  \mathcal{L}_{VIBE}(\bm{\Omega} | \mathcal{D}) = \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) \right] \right]
+  \label{eq:vibe_m_step_loss}
+\end{equation}
+
+\pagebreak
+
+Uz korištenje jake augmentacije ulaza za izračun standardnog gubitka te dodavanje komponente konzistencijskog gubitka, konačni gubitak koji minimiziramo u M koraku proširene inačice okvira VIBE možemo definirati kao:
+
+\begin{equation}
+  \begin{aligned}
+    \mathcal{L}_{VIBE + CL}(\bm{\Omega} | \mathcal{D}) &= \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \mathcal{A}_{S}(\bm{x}^i)), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) \right] \right] \\
+                                                       &+ \sigma \sum_{i=1}^{N} KL(p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \mathcal{A}_{W}(\bm{x}^i)) || p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \mathcal{A}_{S}(\bm{x}^i)))
+  \end{aligned}
+  \label{eq:vibe_with_con_loss}
+\end{equation}
+
+\section{Pretprocesiranje}
 \label{sek:preproc}
 
 %-------------------------------------------------------------------------------
