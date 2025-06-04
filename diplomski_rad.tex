@@ -986,7 +986,7 @@ Ugrađivanje $\bm{v}^i$ jednoznačno je određeno primjerom $\bm{x}^i$, tako da 
   \label{eq:v_eq_x}
 \end{equation}
 
-Koristeći Bayesovu formulu, vjerojatnost $p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i)$ sada možemo definirati kao mješavinu distribucija vMF:
+Koristeći Bayesovu formulu, vjerojatnost $p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x})$ sada možemo definirati kao mješavinu distribucija vMF:
 
 \begin{equation}
   p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i) = \frac{p_{\bm{\phi}}(\bm{v}^i | l^i) p_{\bm{\pi}}(l^i)}{\sum_{l'} p_{\bm{\phi}}(\bm{v}^i | l') p_{\bm{\pi}}(l')}
@@ -1023,6 +1023,46 @@ Skup svih parametara modela označit ćemo s $\bm{\Omega} = \bm{\theta} \cup \bm
 
 \section{Optimizacija varijacijskog cilja}
 \label{sek:var_goal}
+
+Nažalost, pokazuje se da direktna optimizacija cilja $\ell_{VD}$ ne osigurava ispravno učenje distribucije $p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x})$~\cite{mclachlan2008algorithm}.\ 
+Zbog ovoga, uvodimo zamjensku distribuciju $q(l | \bm{x}, y)$.\ Cilj $\ell_{VD}$ sada možemo zapisati kao:
+
+\begin{equation}
+  \begin{aligned}
+    \ell_{VD}(\bm{\Omega}|\mathcal{D}) &= \sum_{i=1}^{N} \log \sum_{l=1}^{K} p_{\bm{\phi}, \bm{\psi}}(y^i | l) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) \frac{q(l | \bm{x}^i, y^i)}{q(l | \bm{x}^i, y^i)} \\
+                                 &= \sum_{i=1}^{N} \log \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \frac{p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i)}{q(l^i | \bm{x}^i, y^i)} \right]
+  \end{aligned}
+  \label{eq:vibe_added_q}
+\end{equation}
+
+Prisjetimo se da je logaritam konkavna funkcija.\ Primjenom Jensenove nejednakosti~\cite{mcshane1937jensen} dalje dobivamo:
+
+\begin{equation}
+  \begin{aligned}
+    \ell_{VD}(\bm{\Omega}|\mathcal{D}) &= \sum_{i=1}^{N} \log \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \frac{p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i)}{q(l^i | \bm{x}^i, y^i)} \right] \\
+                                 &\geq \sum_{i=1}^{N} \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[\log \frac{p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i)}{q(l^i | \bm{x}^i, y^i)} \right] \\
+                                 &= \sum_{i=1}^{N} \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[\log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) + \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i) - \log q(l^i | \bm{x}^i, y^i) \right] \\
+                                 &= \mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D})
+  \end{aligned}
+  \label{eq:vibe_jensen}
+\end{equation}
+
+Dobivena funkcija $\mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D})$ predstavlja donju varijacijsku granicu (ELBO) log-izglednosti $\ell_{VD}(\bm{\Omega}|\mathcal{D})$, a istu možemo optimirati algoritmom maksimizacije očekivanja.\ 
+Konkretno, u E koraku ćemo uz fiksirane vrijednosti parametara $\bm{\Omega}$ procijeniti distribuciju $q(l | \bm{x}, y)$ za skup podataka $\mathcal{D}$ rješavajući problem optimalnog transporta s entropijskom regularizacijom.\ 
+Nakon toga, u M koraku ćemo uz fiksiranu distribuciju $q(l | \bm{x}, y)$ ažurirati parametre modela $\bm{\Omega}$ koristeći gradijentni spust.\ 
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.6]{./Slike/vibe.png}
+  \caption{Prikaz učenja okvirom VIBE.\ U E koraku (desno) procjenjujemo pseudooznake tj.\ distribuciju $q(l | \bm{x}, y)$, a u M koraku (lijevo) ažuriramo parametre modela $\bm{\Omega}$.\ Preuzeto iz \cite{sabolic2025seal}.}
+  \label{fig:vibe}
+\end{figure}
+
+\subsection{E korak}
+\label{sub:e_step}
+
+\subsection{M korak}
+\label{sub:m_step}
 
 \section{Konzistencijski gubitak}
 \label{sek:con_loss}
