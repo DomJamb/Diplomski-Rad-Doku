@@ -1290,7 +1290,7 @@ U dubokom učenju, pod konvolucijom najčešće mislimo na operaciju unakrsne ko
 Operacija konvolucije izvrsna je za primjenu na podatcima rešetkaste strukture.\ Kako bismo ju mogli primijeniti na slike, izlaz operacije 2-dimenzionalne konvolucije definiramo kao:
 
 \begin{equation}
-  \bm{Y}_{i,j} = (\bm{X} * \bm{W})_{i,j} = \sum_{m=0}^{M} \sum_{n=0}^{N} \bm{X}_{i+m,j+n} \bm{W}_{m,n}
+  \bm{Y}_{i,j} = (\bm{X} * \bm{W})_{i,j} = \sum_{m=0}^{M-1} \sum_{n=0}^{N-1} \bm{X}_{i+m,j+n} \bm{W}_{m,n}
   \label{eq:conv_2d}
 \end{equation}
 
@@ -1333,8 +1333,48 @@ Dodatno, sloj sažimanja se na svaki kanal ulaza primjenjuje zasebno tj.\ nema i
 \section{Sloj normalizacije nad grupom}
 \label{sek:batch_norm}
 
+Osnovna ideja normalizacije nad grupom je da normalizacijom svake značajke zasebno možemo osigurati konzistentnu distribuciju ulaza u daljnji sloj modela.\ 
+Idealno, normalizacija bi se provodila koristeći cijeli skup podataka $\mathcal{D}$, no ovo zbog memorijskih zahtjeva najčešće nije moguće.\ Umjesto toga, ideja je normalizaciju provoditi na razini minigrupe $\mathcal{B}$.\ 
+Dodavanje slojeva normalizacije nad grupom u proizvoljni model može ubrzati konvergenciju, stabilizirati učenje te dopustiti učenje s višom stopom učenja (engl.\ \textit{learning rate})~\cite{ioffe2015batch}.\ 
+
+\pagebreak
+
+Neka je $\bm{x}_i$ i-ti vektor značajki iz minigrupe $\mathcal{B}$ koja sadrži $N$ vektora.\ Kako bismo mogli normalizirati značajke, prvo moramo izračunati procjene vektora srednjih vrijednosti $\bm{\mu}_{\mathcal{B}}$ i varijanci $\bm{\sigma}_{\mathcal{B}}^2$ na temelju trenutne minigrupe:
+
+\begin{equation}
+  \begin{aligned}
+    \bm{\mu}_{\mathcal{B}} &= \frac{1}{N} \sum_{i=1}^{N} \bm{x}_i \\
+    \bm{\sigma}_{\mathcal{B}}^2 &= \frac{1}{N} \sum_{i=1}^{N} (\bm{x}_i - \bm{\mu}_{\mathcal{B}})^2 \\
+  \end{aligned}
+  \label{eq:batch_norm_stats}
+\end{equation}
+
+Normaliziranu k-tu značajku $\hat{x}_i^{(k)}$ i-tog vektora značajki $\bm{x}_i$ definiramo jednadžbom:
+
+\begin{equation}
+  \hat{x}_i^{(k)} = \frac{x_i^{(k)} - \mu_{\mathcal{B}}^{(k)}}{\sqrt{(\sigma_{\mathcal{B}}^{(k)})^2 + \epsilon}}
+  \label{eq:batch_norm}
+\end{equation}
+
+Pritom je $\epsilon$ konstanta malog iznosa koju dodajemo zbog numeričke stabilnosti.\ Kako bismo povećali ekspresivnost, normalizirane značajke dodatno transformiramo:
+
+\begin{equation}
+  y_i^{(k)} = \gamma^{(k)} \hat{x}_i^{(k)} + \beta^{(k)}
+  \label{eq:batch_norm_scaling}
+\end{equation}
+
+Pri čemu je $y_i^{(k)}$ k-ta značajka i-tog izlaza $\bm{y}_i$ iz sloja normalizacije nad grupom, a $\bm{\gamma}$ i $\bm{\beta}$ su vektori parametara linearne transformacije koje učimo.\ 
+Kako bi sloj normalizacije nad grupom radio ispravno, potrebno je koristiti dovoljno velike minigrupe.\ 
+
+Opisani postupak koristi se tijekom učenja modela.\ Nakon što smo naučili i upogonili model, primjeri mu najčešće dolaze jedan po jedan (engl.\ \textit{online}).\ 
+Kako bi se nosili s ovom situacijom, sloj normalizacije nad grupom definira još jedan režim rada.\ 
+Konkretno, kada model koristimo za evaluaciju, više ne računamo statistike $\bm{\mu}_{\mathcal{B}}$ i $\bm{\sigma}_{\mathcal{B}}^2$.\ 
+Umjesto toga, za normalizaciju koristimo pomične prosjeke izračunatih statistika $\bm{\hat{\mu}}$ i $\bm{\hat{\sigma}}^2$.\ Alternativno, možemo koristiti i statistike izračunate za cijeli skup za učenje $\mathcal{D}$.\
+
+\pagebreak
+
 \section{Rezidualni modeli}
-\label{sek:batch_norm}
+\label{sek:residual}
 
 %-------------------------------------------------------------------------------
 \chapter{Skupovi podataka}
