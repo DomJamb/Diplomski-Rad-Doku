@@ -310,7 +310,7 @@ U našem radu, fokusiramo se na inkluzivno simetrično zašumljivanje.\
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.7]{./Slike/sym.png}
-  \caption{Prikaz inkluzivnog (gore) odnosno ekskluzivnog (dolje) simetričnog zašumljivanja za tri odabrana primjera iz skupa CIFAR10~\cite{krizhevsky2009learning}.\ Čiste oznake (lijevo) preslikavaju se na jednu od mogućih oznaka (sredina) i nastaju zašumljene oznake (desno).\ Vidimo da primjeri s istim čistim oznakama nemaju nužno i iste zašumljene oznake.}
+  \caption{Prikaz inkluzivnog (gore) odnosno ekskluzivnog (dolje) simetričnog zašumljivanja za tri odabrana primjera iz skupa CIFAR-10~\cite{krizhevsky2009learning}.\ Čiste oznake (lijevo) preslikavaju se na jednu od mogućih oznaka (sredina) i nastaju zašumljene oznake (desno).\ Vidimo da primjeri s istim čistim oznakama nemaju nužno i iste zašumljene oznake.}
   \label{fig:sym}
 \end{figure}
 
@@ -318,17 +318,17 @@ U našem radu, fokusiramo se na inkluzivno simetrično zašumljivanje.\
 \label{sub:asym}
 
 Kod asimetričnog zašumljivanja, prvo nasumično biramo zadani udio primjera zasebno za svaki razred.\ 
-Drugim riječima, ako je u pitanju skup CIFAR10~\cite{krizhevsky2009learning}, za svaki od $10$ razreda nasumično ćemo odabrati zadani udio primjera kojima ćemo potencijalno dodijeliti zašumljene oznake.\ 
+Drugim riječima, ako je u pitanju skup CIFAR-10~\cite{krizhevsky2009learning}, za svaki od $10$ razreda nasumično ćemo odabrati zadani udio primjera kojima ćemo potencijalno dodijeliti zašumljene oznake.\ 
 
 Nakon početnog odabira, svakom primjeru dodjeljujemo novu oznaku na temelju predodređenog preslikavanja.\ 
 Pritom je moguće da određeni razredi nemaju definirano preslikavanje u neki drugi razred, tako da odabranim primjerima iz tih razreda neće biti dodijeljene zašumljene oznake.\ 
-Preslikavanje na temelju kojeg se pojedinim primjerima dodjeljuje nova oznaka unaprijed je definirano za pojedine skupove podataka poput skupova MNIST~\cite{deng2012mnist}, CIFAR10 i CIFAR100~\cite{krizhevsky2009learning}.\ 
-Kod skupova s hijerarhijskim odnosom razreda poput skupa CIFAR100, preslikavanja su definirana nasumično unutar pojedinih grupa razreda.\ 
+Preslikavanje na temelju kojeg se pojedinim primjerima dodjeljuje nova oznaka unaprijed je definirano za pojedine skupove podataka poput skupova MNIST~\cite{deng2012mnist}, CIFAR-10 i CIFAR-100~\cite{krizhevsky2009learning}.\ 
+Kod skupova s hijerarhijskim odnosom razreda poput skupa CIFAR-100, preslikavanja su definirana nasumično unutar pojedinih grupa razreda.\ 
 
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.7]{./Slike/asym.png}
-  \caption{Prikaz preslikavanja razreda za skup CIFAR10.\ Odabranim primjerima se na temelju čistih oznaka (lijevo) dodjeljuju zašumljene oznake (desno).\ Pritom odabrani primjeri s istim čistim oznakama uvijek imaju i iste zašumljene oznake.}
+  \caption{Prikaz preslikavanja razreda za skup CIFAR-10.\ Odabranim primjerima se na temelju čistih oznaka (lijevo) dodjeljuju zašumljene oznake (desno).\ Pritom odabrani primjeri s istim čistim oznakama uvijek imaju i iste zašumljene oznake.}
   \label{fig:asym}
 \end{figure}
 
@@ -941,7 +941,7 @@ Pronalaskom vektora $\bm{u}$ i $\bm{v}$ koji zadovoljavaju dana ograničenja, pr
 \end{equation}
 
 %-------------------------------------------------------------------------------
-\chapter{VIBE}
+\chapter{Okvir VIBE}
 \label{pog:vibe}
 
 Okvir VIBE (engl.\ \textit{Variational inference for backdoor elimination})~\cite{sabolic2025seal} zasniva se na ideji da su podatci i zatrovane oznake realizacije uočenih slučajnih varijabli, dok su čiste oznake skrivene varijable.\ 
@@ -1062,7 +1062,7 @@ Kako bismo osigurali da učenje algoritmom maksimizacije očekivanja konvergira 
 Nasumična inicijalizacija parametara ne nudi nikakvu garanciju uspješnosti algoritma EM, tako da umjesto nje koristimo samonadziranu inicijalizaciju okvirom All4One.\ 
 Pokazuje se da korištenje samonadzirane inicijalizacije parametara ubrzava konvergenciju učenja, a i rezultira modelom koji bolje generalizira~\cite{sabolic2025seal}.\
 
-\subsection{E korak}
+\subsection{E korak učenja}
 \label{sub:e_step}
 
 Cilj E koraka algoritma maksimizacije očekivanja je pronaći distribuciju $q(l | \bm{x}, y)$ koja maksimizira donju varijacijsku granicu $\mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D})$ uz fiksirane vrijednosti parametara $\bm{\Omega}$.\ 
@@ -1151,7 +1151,7 @@ Konačnu matricu vjerojatnosti $\bm{Q}$ tada dobivamo kao:
 Važno je napomenuti da algoritmom Sinkhorn-Knopp dobivamo matricu vjerojatnosti $\bm{Q}$ koja odgovara skupu podataka $\mathcal{D}$, a ne rješenje u zatvorenoj formi za distribuciju $q(l | \bm{x}, y)$.\ 
 Ipak, ovo nam ne predstavlja problem jer je matrica $\bm{Q}$ dovoljna za provođenje M koraka.\
 
-\subsection{M korak}
+\subsection{M korak učenja}
 \label{sub:m_step}
 
 Cilj M koraka algoritma maksimizacije očekivanja je pronaći parametre $\bm{\Omega}$ koji maksimiziraju donju varijacijsku granicu $\mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D})$ uz fiksiranu distribuciju $q(l | \bm{x}, y)$ odnosno matricu vjerojatnosti $\bm{Q}$.\ 
@@ -1192,7 +1192,7 @@ S druge strane, kod implementacije konzistencijskog gubitka definiramo dva pogle
 Pritom skup slabih augmentacija u manjoj mjeri perturbira ulaz, a skup jakih augmentacija u većoj mjeri mijenja isti taj ulaz.\ 
 
 Skup jakih augmentacija lako možemo dobiti dodavanjem augmentacije AutoAugment~\cite{cubuk2019autoaugment} u postojeći skup slabih augmentacija.\
-Augmentacija AutoAugment zapravo je strategija primjena niza pojedinih augmentacija specijalizirana za neki skup podataka (na primjer, za skup CIFAR10), a određena podržanim učenjem (engl.\ \textit{reinforcement learning})~\cite{kaelbling1996reinforcement}.\ 
+Augmentacija AutoAugment zapravo je strategija primjena niza pojedinih augmentacija specijalizirana za neki skup podataka (na primjer, za skup CIFAR-10), a određena podržanim učenjem (engl.\ \textit{reinforcement learning})~\cite{kaelbling1996reinforcement}.\ 
 
 \pagebreak
 
@@ -1263,9 +1263,26 @@ Ipak, prosječna udaljenost najudaljenije zajednice u ovom slučaju bit će manj
 \label{pog:cnn}
 
 %-------------------------------------------------------------------------------
-\chapter{Skup podataka}
+\chapter{Skupovi podataka}
 \label{pog:skup}
 
+U okviru našeg rada, koristili smo nekoliko zatrovanih odnosno zašumljenih inačica skupa podataka CIFAR-10~\cite{krizhevsky2009learning}.\
+
+\section{Skup podataka CIFAR-10}
+\label{sek:cifar10}
+
+Skup podataka CIFAR-10 jedan je od najčešće korištenih skupova za učenje i evaluaciju različitih algoritama i modela dubokog učenja, a nastao je označavanjem podskupa skupa slika Tiny Images~\cite{krizhevsky2009learning}.\
+Podijeljen je na $50 000$ primjera u skupu za učenje i $10 000$ primjera u skupu za ispitivanje.\ 
+  
+Svaka slika je u boji, a dimenzije svih slika su $32 \times 32$.\ Pojedine slike mogu pripadati jednom od $10$ razreda.\ Pritom su razredi isključivi tj.\ ne postoje preklapanja.\ 
+Skup za učenje sadrži po $5000$ slika iz svakog razreda, a skup za ispitivanje sadrži po $1000$ slika iz svakog razreda.\ Drugim riječima, oba podskupa su balansirana.\ 
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.6]{./Slike/cifar10.png}
+  \caption{Prikaz po jedne slike za svaki razred iz skupa podataka CIFAR-10.}
+  \label{fig:cifar10}
+\end{figure}
 
 %-------------------------------------------------------------------------------
 \chapter{Eksperimenti}
