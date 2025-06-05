@@ -793,16 +793,16 @@ U okviru našeg rada, fokusirat ćemo se na Kantorovičevu formulaciju problema 
 \section{Općenita formulacija problema}
 \label{sek:transport}
 
-Neka su $\bm{\mu}$ i $\bm{\nu}$ vektori distribucija vjerojatnosti nad prostorima $X$ odnosno $Y$.\ Vektor $\bm{\mu}$ neka je duljine $m$, a vektor $\bm{\nu}$ neka je duljine $n$.\
+Neka su $\bm{\mu}$ i $\bm{\nu}$ vektori distribucija vjerojatnosti nad prostorima $X$ odnosno $Y$.\ Vektor $\bm{\mu}$ neka je duljine $M$, a vektor $\bm{\nu}$ neka je duljine $N$.\
 Cilj problema je pronaći optimalni plan transporta koji distribuciju $\bm{\mu}$ preslikava u distribuciju $\bm{\nu}$ uz što nižu ukupnu cijenu.\ 
 Cijenu transporta između točke $x \in X$ i točke $y \in Y$ označit ćemo s $\bm{C}_{x,y}$, pri čemu je $\bm{C}$ matrica cijena transporta.\ 
-Neki zadani plan transporta definirat ćemo matricom $\bm{Q}$.\ Važno je napomenuti da su matrice $\bm{C}$ i $\bm{Q}$ definirane nad prostorom $X \times Y$ odnosno dimenzija su $m \times n$.\ 
+Neki zadani plan transporta definirat ćemo matricom $\bm{Q}$.\ Važno je napomenuti da su matrice $\bm{C}$ i $\bm{Q}$ definirane nad prostorom $X \times Y$ odnosno dimenzija su $M \times N$.\ 
 Dodatno, svaki plan transporta mora zadovoljavati sljedeće uvjete:
 
 \begin{equation}
   \begin{aligned}
-    \bm{Q} \bm{1}_n &= \bm{\mu} \\
-    \bm{Q}^T \bm{1}_m &= \bm{\nu} \\
+    \bm{Q} \bm{1}_N &= \bm{\mu} \\
+    \bm{Q}^T \bm{1}_M &= \bm{\nu} \\
   \end{aligned}
   \label{eq:ot_plan_conds}
 \end{equation}
@@ -811,7 +811,7 @@ Drugim riječima, plan transporta $\bm{Q}$ mora se marginalizirati po stupcima u
 Ovim skupom linearnih ograničenja definiran je politop~\cite{ziegler1993lectures}:
 
 \begin{equation}
-  \bm{Q}\left[ \bm{\mu}, \bm{\nu} \right] = \{ \bm{Q} \in \mathbb{R}_{+}^{m \times n} | \bm{Q} \bm{1}_n = \bm{\mu}\,, \bm{Q}^T \bm{1}_m = \bm{\nu} \}
+  \bm{Q}\left[ \bm{\mu}, \bm{\nu} \right] = \{ \bm{Q} \in \mathbb{R}_{+}^{M \times N} | \bm{Q} \bm{1}_N = \bm{\mu}\,, \bm{Q}^T \bm{1}_M = \bm{\nu} \}
   \label{eq:ot_polytope}
 \end{equation}
 
@@ -835,7 +835,7 @@ Problem optimalnog transporta s entropijskom regularizacijom~\cite{genevay2019en
 Pri čemu je $\lambda$ regularizacijski hiperparametar, a $\operatorname{H}(\bm{Q})$ entropija matrice vjerojatnosti dana kao:
 
 \begin{equation}
-  \operatorname{H}(\bm{Q}) = -\sum_{i = 1}^{m} \sum_{j = 1}^{n} \bm{Q}_{i,j} \log \bm{Q}_{i,j}
+  \operatorname{H}(\bm{Q}) = -\sum_{i = 1}^{M} \sum_{j = 1}^{N} \bm{Q}_{i,j} \log \bm{Q}_{i,j}
   \label{eq:ot_with_entropy}
 \end{equation}
 
@@ -845,18 +845,18 @@ Jedan od algoritama kojim možemo riješiti problem optimalnog transporta s entr
 \section{Algoritam Sinkhorn-Knopp}
 \label{sek:sk_alg}
 
-Sinkhornov teorem~\cite{sinkhorn1964relationship} govori da za svaku matricu s pozitivnim vrijednostima $\bm{A}$ dimenzija $n \times n$ postoje dijagonalne matrice $\bm{U}$ i $\bm{V}$ s pozitivnim vrijednostima takve da je matrica $\bm{U} \bm{A} \bm{V}$ dvostruko stohastička tj.\ da se svaki redak i stupac dobivene matrice sumiraju u $1$.\ 
+Sinkhornov teorem~\cite{sinkhorn1964relationship} govori da za svaku matricu s pozitivnim vrijednostima $\bm{A}$ dimenzija $N \times N$ postoje dijagonalne matrice $\bm{U}$ i $\bm{V}$ s pozitivnim vrijednostima takve da je matrica $\bm{U} \bm{A} \bm{V}$ dvostruko stohastička tj.\ da se svaki redak i stupac dobivene matrice sumiraju u $1$.\ 
 Pritom matrice možemo definirati kao $\bm{U} = \operatorname{diag}(\bm{u})$ odnosno $\bm{V} = \operatorname{diag}(\bm{v})$, pri čemu je $\operatorname{diag}(\bm{u})$ dijagonalna matrica s vrijednostima vektora $\bm{u}$.\ 
 Originalna namjena algoritma Sinkhorn-Knopp bila je proizvesti dvostruko stohastičku matricu $\bm{U} \bm{A} \bm{V}$ na temelju dane matrice $\bm{A}$.\ 
   
 Uočimo da matrice $\bm{U}$ i $\bm{V}$ zapravo skaliraju retke odnosno stupce matrice $\bm{A}$.\ Zadatak algoritma tada postaje pronaći pripadne vektore $\bm{u}$ i $\bm{v}$ koji ispravno skaliraju zadanu matricu.\ 
 Kako bismo ovo postigli, kod algoritma SK alterniramo između ažuriranja vektora $\bm{u}$ na temelju suma pojedinih redaka odnosno vektora $\bm{v}$ na temelju suma pojedinih stupaca.\
-Konkretno, nakon inicijalizacije vektora na proizvoljne vrijednosti (na primjer, na vektore jedinica $\bm{1}_n$), u svakoj iteraciji ih ažuriramo koristeći sljedeće jednadžbe:
+Konkretno, nakon inicijalizacije vektora na proizvoljne vrijednosti (na primjer, na vektore jedinica $\bm{1}_N$), u svakoj iteraciji ih ažuriramo koristeći sljedeće jednadžbe:
 
 \begin{equation}
   \begin{aligned}
-    \bm{u}^{(t + 1)} &= \frac{\bm{1}_n}{\bm{A} \bm{v}^{(t)}} \\
-    \bm{v}^{(t + 1)} &= \frac{\bm{1}_n}{\bm{A}^T \bm{u}^{(t)}} \\
+    \bm{u}^{(t + 1)} &= \frac{\bm{1}_N}{\bm{A} \bm{v}^{(t)}} \\
+    \bm{v}^{(t + 1)} &= \frac{\bm{1}_N}{\bm{A}^T \bm{u}^{(t)}} \\
   \end{aligned}
   \label{eq:sk_basic_form}
 \end{equation}
@@ -864,7 +864,7 @@ Konkretno, nakon inicijalizacije vektora na proizvoljne vrijednosti (na primjer,
 Nakon dovoljnog broja iteracija, vektori $\bm{u}$ i $\bm{v}$ će konvergirati u očekivane vrijednosti, a konačnu dvostruko stohastičku matricu dobivamo kao $\bm{U} \bm{A} \bm{V}$.\ 
 Osim za postizanje dvostruke stohastičnosti dane matrice, pokazano je da se algoritam Sinkhorn-Knopp može koristiti i za rješavanje problema optimalnog transporta s entropijskom regularizacijom~\cite{cuturi2013sinkhorn}.\ 
 
-Prisjetimo se danog problema.\ Uz vektore distribucija vjerojatnosti $\bm{\mu}$ i $\bm{\nu}$ definiranih nad prostorima $X$ odnosno $Y$ te matricu cijena transporta $\bm{C}$ dimenzija $m \times n$, cilj je pronaći matricu plana transporta $\bm{Q}$ koja se nalazi na politopu $\bm{Q}\left[ \bm{\mu}, \bm{\nu} \right]$ te za koju vrijedi:
+Prisjetimo se danog problema.\ Uz vektore distribucija vjerojatnosti $\bm{\mu}$ i $\bm{\nu}$ definiranih nad prostorima $X$ odnosno $Y$ te matricu cijena transporta $\bm{C}$ dimenzija $M \times N$, cilj je pronaći matricu plana transporta $\bm{Q}$ koja se nalazi na politopu $\bm{Q}\left[ \bm{\mu}, \bm{\nu} \right]$ te za koju vrijedi:
 
 \begin{equation}
   \min_{\bm{Q}} \left[ \operatorname{tr}(\bm{C}^T \bm{Q}) - \frac{1}{\lambda} \operatorname{H}(\bm{Q}) \right]
@@ -874,7 +874,7 @@ Prisjetimo se danog problema.\ Uz vektore distribucija vjerojatnosti $\bm{\mu}$ 
 Pritom je $\lambda$ regularizacijski hiperparametar, a $\operatorname{H}(\bm{Q})$ entropija matrice vjerojatnosti.\ Kako bismo izveli pravila za ažuriranje temeljena na algoritmu SK, definirajmo prvo Lagrangeovu funkciju~\cite{slater2013lagrange}:
 
 \begin{equation}
-  \mathcal{L}(\bm{Q}, \bm{\alpha}, \bm{\beta}) = \operatorname{tr}(\bm{C}^T \bm{Q}) - \frac{1}{\lambda} \operatorname{H}(\bm{Q}) + \bm{\alpha}^T (\bm{Q} \bm{1}_n - \bm{\mu}) + \bm{\beta}^T (\bm{Q}^T \bm{1}_m - \bm{\nu})
+  \mathcal{L}(\bm{Q}, \bm{\alpha}, \bm{\beta}) = \operatorname{tr}(\bm{C}^T \bm{Q}) - \frac{1}{\lambda} \operatorname{H}(\bm{Q}) + \bm{\alpha}^T (\bm{Q} \bm{1}_N - \bm{\mu}) + \bm{\beta}^T (\bm{Q}^T \bm{1}_M - \bm{\nu})
   \label{eq:sk_lagrange}
 \end{equation}
 
@@ -914,8 +914,8 @@ Gledajući da se svako rješenje $\bm{Q}$ mora nalaziti na politopu $\bm{Q}\left
 
 \begin{equation}
   \begin{aligned}
-    \operatorname{diag}(\bm{u})\,\bm{A}\,\operatorname{diag}(\bm{v}) \bm{1}_n = \bm{\mu} \\
-    \operatorname{diag}(\bm{v})\,\bm{A}^T\,\operatorname{diag}(\bm{u}) \bm{1}_m = \bm{\nu} \\
+    \operatorname{diag}(\bm{u})\,\bm{A}\,\operatorname{diag}(\bm{v}) \bm{1}_N = \bm{\mu} \\
+    \operatorname{diag}(\bm{v})\,\bm{A}^T\,\operatorname{diag}(\bm{u}) \bm{1}_M = \bm{\nu} \\
   \end{aligned}
   \label{eq:sk_conditions}
 \end{equation}
@@ -1101,7 +1101,7 @@ Pritom član $\frac{1}{N}$ osigurava da je matrica $\bm{Q}$ ispravna matrica zaj
   \label{eq:vibe_e_step_matrices}
 \end{equation}
 
-Pri čemu $\operatorname{tr}$ označava operaciju traga matrice, a $\operatorname{H}(\bm{Q})$ entropiju matrice $\bm{Q}$ danu jednadžbom~\ref{eq:ot_with_entropy} .\ Član $\log N$ pritom možemo ignorirati jer je konstanta.\ 
+Pri čemu $\operatorname{tr}$ označava operaciju traga matrice, a $\operatorname{H}(\bm{Q})$ entropiju matrice $\bm{Q}$ danu jednadžbom~\ref{eq:ot_with_entropy} .\ Član $- \log N$ pritom možemo ignorirati jer je konstanta.\ 
 Uz uvođenje regularizacijskog hiperparametra $\lambda$ za koji vrijedi $\lambda > 1$, dobivamo:
 
 \begin{equation}
@@ -1188,7 +1188,7 @@ Drugim riječima, konzistencijski gubitak može služiti kao regularizacijska te
 
 Kako bismo definirali sami gubitak, prvo je potrebno uvesti pojam slabih i jakih augmentacija.\ 
 Kod uobičajenog učenja dubokih modela, većinom imamo definiran jedan skup augmentacija za učenje koji primjenjujemo na ulaze prije nego što ih damo modelu.\ 
-S druge strane, kod implementacije konzistencijskog gubitka definiramo dva pogleda (engl.\ \textit{views}) na ulazne podatke koristeći zasebne skupove augmentacija.\ 
+S druge strane, kod implementacije konzistencijskog gubitka definiramo dva pogleda (engl.\ \textit{view}) na ulazne podatke koristeći zasebne skupove augmentacija.\ 
 Pritom skup slabih augmentacija u manjoj mjeri perturbira ulaz, a skup jakih augmentacija u većoj mjeri mijenja isti taj ulaz.\ 
 
 Skup jakih augmentacija lako možemo dobiti dodavanjem augmentacije AutoAugment~\cite{cubuk2019autoaugment} u postojeći skup slabih augmentacija.\
@@ -1261,6 +1261,80 @@ Ipak, prosječna udaljenost najudaljenije zajednice u ovom slučaju bit će manj
 %-------------------------------------------------------------------------------
 \chapter{Duboki konvolucijski modeli}
 \label{pog:cnn}
+
+Arhitektura LeNet-5~\cite{lecun1989generalization} predstavlja jedan od prvih dubokih konvolucijskih modela~\cite{li2021survey}, a dizajnirana je s ciljem klasifikacije ručno pisanih znamenki iz skupa podataka MNIST~\cite{deng2012mnist}.\ 
+Ipak, duboki konvolucijski modeli postali su popularni tek razvojem duboke arhitekture AlexNet~\cite{krizhevsky2012imagenet} koja je 2012.\ godine pobijedila na natjecanju ImageNet ILSVRC~\cite{russakovsky2015imagenet} te time pokazala potencijal konvolucijskih mreža.\ 
+
+Pod duboki konvolucijski model općenito mislimo na model koji sadrži barem jedan konvolucijski sloj.\ 
+Osim konvolucijskih slojeva (engl.\ \textit{convolutional layer}), duboki modeli uobičajeno sadrže i slojeve sažimanja (engl.\ \textit{pooling layer})~\cite{boureau2010theoretical}, aktivacijske funkcije poput funkcije zglobnice (engl.\ \textit{rectified linear unit} - ReLU), slojeve normalizacije nad grupom (engl.\ \textit{batch normalization layer})~\cite{ioffe2015batch} te potpuno-povezane slojeve (engl.\ \textit{fully-connected layer}).\ 
+
+\section{Konvolucijski sloj}
+\label{sek:conv}
+
+Konvolucijski sloj dubokih modela zasniva se na operaciji konvolucije.\ Konvoluciju možemo definirati kao integral umnoška dviju funkcija, pri čemu je jedna reflektirana i posmaknuta:
+
+\begin{equation}
+  (f * g)(t) = \int_{-\infty}^{\infty} f(\tau) g(t - \tau) d\tau
+  \label{eq:conv_original}
+\end{equation}
+
+\pagebreak
+
+U dubokom učenju, pod konvolucijom najčešće mislimo na operaciju unakrsne korelacije (engl.\ \textit{cross-correlation}) kod koje izostavljamo reflektiranje jedne od funkcija:
+
+\begin{equation}
+  (f \star g)(t) = \int_{-\infty}^{\infty} f(\tau) g(t + \tau) d\tau
+  \label{eq:cross_corel}
+\end{equation}
+
+Operacija konvolucije izvrsna je za primjenu na podatcima rešetkaste strukture.\ Kako bismo ju mogli primijeniti na slike, izlaz operacije 2-dimenzionalne konvolucije definiramo kao:
+
+\begin{equation}
+  \bm{Y}_{i,j} = (\bm{X} * \bm{W})_{i,j} = \sum_{m=0}^{M} \sum_{n=0}^{N} \bm{X}_{i+m,j+n} \bm{W}_{m,n}
+  \label{eq:conv_2d}
+\end{equation}
+
+Pritom $\bm{X}$ predstavlja ulaznu sliku, a $\bm{Y}$ rezultat primjene 2-dimenzionalne konvolucije s jezgrom $\bm{W}$ dimenzija $M \times N$.\ Uočimo da ovdje zapravo primjenjujemo operaciju unakrsne korelacije.\
+Jezgra $\bm{W}$ predstavlja parametre koje možemo učiti gradijentnim spustom, a uobičajeno je kvadratnog oblika (na primjer, dimenzija $3 \times 3$).\ 
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.75]{./Slike/conv.png}
+  \caption{Prikaz primjene konvolucije uz jezgru veličine $3 \times 3$, korak iznosa $2$ te nadopunjavanje iznosa $1$.\ Nakon operacije konvolucije, na izlaz se dodatno primjenjuje operacija sažimanja maksimumom uz jezgru veličine $2 \times 2$.\ Preuzeto iz \cite{li2021survey}.}
+  \label{fig:conv}
+\end{figure}
+
+Osim veličine jezgre $K$, neki od hiperparametara konvolucijskih slojeva su korak (engl.\ \textit{stride}) $s$ te nadopunjavanje (engl.\ \textit{padding}) $p$.\ 
+Pritom korak određuje za koliko se elemenata horizontalno odnosno vertikalno jezgra $\bm{W}$ pomiče dok klizi po ulazu $\bm{X}$.\ 
+S druge strane, nadopunjavanjem možemo izbjeći smanjenje dimenzija izlaza naspram ulaza.\ Konkretno, primjenom jezgre veličine $K \times K$ uz korak iznosa $s$ na sliku dimenzija $H_{in} \times W_{in}$ s nadopunjavanjem iznosa $p$ dobivamo izlaz dimenzija:
+
+\begin{equation}
+  \begin{aligned}
+    H_{out} &= \lfloor \frac{H_{in} + 2p - K}{s} \rfloor + 1 \\
+    W_{out} &= \lfloor \frac{W_{in} + 2p - K}{s} \rfloor + 1\\ 
+  \end{aligned}
+  \label{eq:output_size}
+\end{equation}
+
+Ulaz i izlaz konvolucijskog sloja obično su dimenzija $C_{in} \times H_{in} \times W_{in}$ odnosno $C_{out} \times H_{out} \times W_{out}$.\ Pritom $C_{in}$ i $C_{out}$ označavaju broj kanala ulaza odnosno izlaza.\ 
+Parametri zadanog sloja tada su dimenzija $C_{out} \times C_{in} \times K \times K$.\ Ovo možemo zamisliti kao $C_{out}$ zasebnih jezgara (po jedna za svaki kanal izlaza) pri čemu je svaka jezgra dimenzija $C_{in} \times K \times K$.\ Jedan kanal izlaza tada dobivamo kao:
+
+\begin{equation}
+  \bm{Y}^{(d)} = \sum_{c=1}^{C_{in}} \bm{X}^{(c)} * \bm{W}^{(d, c)}
+  \label{eq:conv_multi}
+\end{equation}
+
+Pritom $\bm{X}^{(c)}$ označava c-ti kanal ulaza $\bm{X}$, a $\bm{W}^{(d, c)}$ c-ti kanal d-te jezgre koja odgovara d-tom kanalu izlaza $\bm{Y}^{(d)}$.\ 
+
+Sloj sažimanja funkcionira slično konvolucijskom sloju.\ Kao i kod konvolucije, i ovdje klizimo po ulazu te dobivamo okna dimenzija $K \times K$.\ Pritom je korak najčešće jednak dimenzijama okna.\ 
+Za razliku od konvolucijskog sloja, kod sloja sažimanja općenito ne postoji parametrizirana jezgra $\bm{W}$, već na svako okno primjenjujemo zadanu operaciju (na primjer, operaciju traženja maksimalne vrijednosti).\ 
+Dodatno, sloj sažimanja se na svaki kanal ulaza primjenjuje zasebno tj.\ nema interakcije između različitih kanala.\ 
+
+\section{Sloj normalizacije nad grupom}
+\label{sek:batch_norm}
+
+\section{Rezidualni modeli}
+\label{sek:batch_norm}
 
 %-------------------------------------------------------------------------------
 \chapter{Skupovi podataka}
