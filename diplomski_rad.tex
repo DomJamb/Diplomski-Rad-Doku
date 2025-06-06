@@ -1376,6 +1376,47 @@ Umjesto toga, za normalizaciju koristimo pomične prosjeke izračunatih statisti
 \section{Rezidualni modeli}
 \label{sek:residual}
 
+Prije uvođenja rezidualnih blokova~\cite{he2016deep}, duboki konvolucijski modeli bili su ograničeni dubinom.\ Konkretno, korištenje više od otprilike $20$ slojeva vodilo je do pogoršanja performansi modela~\cite{he2016deep}.\ 
+Jedan od razloga ovome je činjenica da kod modela s velikim brojem slojeva gradijent teško propagira do početnih slojeva.\ 
+Pritom može doći do problema nestajućih ili eksplodirajućih gradijenata (engl.\textit{vanishing/exploding gradients}).\
+
+Neka je $\bm{x}$ ulaz u sloj $l$.\ Kod modela bez rezidualnih blokova, sloj $l$ treba modelirati preslikavanje $H(\bm{x})$.\ 
+Osnovna ideja uvođenja rezidualnih blokova je reformulacija danog problema.\ Umjesto direktnog modeliranja funkcije $H(\bm{x})$, cilj postaje modelirati razliku između očekivanog izlaza $H(\bm{x})$ i danog ulaza $\bm{x}$.\ 
+Ovu razliku zovemo rezidual i označavamo s $F(\bm{x})$.\ Izlaz rezidualnog bloka tada postaje:
+
+\begin{equation}
+  H(\bm{x}) = F(\bm{x}) + P(\bm{x})
+  \label{eq:residual_formula}
+\end{equation}
+
+Pritom $P(\bm{x})$ označava projekciju ulaza $\bm{x}$ kako bi se isti mogao zbrojiti s rezidualom $F(\bm{x})$, a $H(\bm{x})$ označava izlaz rezidualnog bloka.\ 
+Dakle, rezidualni blok sastoji se od reziduala $F(\bm{x})$ te preskočne veze $P(\bm{x})$ (engl.\ \textit{skip connection}).\ 
+Rezidual $F(\bm{x})$ uobičajeno je modeliran nizom od nekoliko konvolucijskih slojeva u kombinaciji s nelinearnim aktivacijama i slojevima normalizacije nad grupom.\  
+
+Kada govorimo o rezidualnim blokovima, važno je istaknuti razliku između osnovne inačice i predaktivacijske (engl.\ \textit{pre-act}) inačice~\cite{he2016identity}.\ 
+Konkretno, dok osnovna inačica koristi slijed slojeva \texttt{Conv -> BatchNorm -> ReLU}, predaktivacijska inačica koristi slijed slojeva \texttt{BatchNorm -> ReLU -> Conv}.\ 
+Osim ovoga, osnovna inačica na zbroj reziduala $F(\bm{x})$ i projekcije ulaza $P(\bm{x})$ dodatno primjenjuje nelinearnu aktivaciju.\ 
+Predaktivacijska inačica uklanja konačnu primjenu nelinearne aktivacije kako bi se dodatno pospješio tok gradijenata~\cite{he2016identity}.\
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.75]{./Slike/residual.png}
+  \caption{Prikaz osnovne inačice (lijevo) i predaktivacijske inačice (desno) rezidualnog bloka.\ Rezidual $F(\bm{x})$ označen je iscrtkanom linijom.}
+  \label{fig:residual}
+\end{figure}
+
+\pagebreak
+
+Kod jednostavnih problema, već prvih nekoliko slojeva dubokog modela ima dovoljan kapacitet za modelirati potrebno rješenje.\ 
+Ako naša arhitektura ne koristi rezidualne blokove, svi daljnji slojevi bi trebali modelirati funkciju identiteta.\ 
+S druge strane, ako koristimo rezidualne blokove, težine svih daljnjih slojeva trebale bi konvergirati u vrijednost $0$.\ 
+Pokazuje se da je učenje "ugašenih" blokova značajno lakši problem od učenja funkcije identiteta~\cite{he2016deep}.\ 
+Zbog ovoga, korištenje rezidualnih blokova nam omogućava dizajn arhitektura s velikim brojem slojeva.\ 
+
+Obitelj arhitektura ResNet~\cite{he2016deep} jedna je od najpoznatijih obitelji arhitektura baziranih na korištenju rezidualnih blokova.\ 
+Pritom su najčešće korištene arhitekture s $18$, $34$, $50$, $101$ ili $152$ sloja, ali postoje i još dublje inačice poput arhitekture ResNet-200.\ 
+U okviru našeg rada, fokusiramo se na arhitekturu ResNet-18 koja se sastoji od $17$ konvolucijskih slojeva i $1$ potpuno-povezanog sloja.\ 
+
 %-------------------------------------------------------------------------------
 \chapter{Skupovi podataka}
 \label{pog:skup}
