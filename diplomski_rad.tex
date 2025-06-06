@@ -68,24 +68,24 @@ Dodatno, pokazuje se da duboki modeli uz dovoljan kapacitet mogu naučiti isprav
   
 Područje računalnog vida~\cite{voulodimos2018deep} bavi se razvojem algoritama i modela za brojne zadatke raspoznavanja i razumijevanja slika.\ Najčešći zadatak je klasifikacija slika - model na ulazu dobiva sliku, a na izlazu treba predvidjeti razred koji odgovara ulaznom primjeru.\ 
 Iako postoje brojni skupovi slikovnih podataka koji se mogu koristiti za učenje i evaluaciju modela, za konkretne zadatke u većini slučajeva trebamo prikupiti i označiti vlastite slike.\ 
-Pritom postoji nekoliko čestih opasnosti: prisutnost zatrovanih podataka~\cite{biggio2012poisoning} ili zašumljenih oznaka~\cite{gupta2019dealing}.\ 
+Pritom postoji nekoliko čestih opasnosti: napadi umetanjem stražnjih vrata~\cite{gao2020backdoor} ili prisutnost zašumljenih oznaka~\cite{gupta2019dealing}.\ 
 
 \pagebreak
 
-Kada govorimo o trovanju podataka, maliciozni agent u skup podataka dodaje zatrovane podatke s ciljem manipulacije izlaza naučenog modela za određene ulaze.\ 
+Kada govorimo o napadima umetanjem stražnjih vrata (engl.\ \textit{backdoor attack}), maliciozni agent u skup podataka dodaje zatrovane podatke s ciljem manipulacije izlaza naučenog modela za određene ulaze.\ 
 S druge strane, anotator podataka bez zlih namjera određenim podatcima može pridijeliti netočne oznake, time dodajući podatke sa zašumljenim oznakama u skup.\ 
-Kroz vrijeme, razvili su se brojni algoritmi za obranu modela od zatrovanih podataka~\cite{li2021anti, huang2022backdoor, gao2023backdoor}, kao i za učenje na zašumljenim oznakama~\cite{liu2022robust, chen2024imprecise}.\ Ipak, većina radova se fokusira na samo jedan od ovih problema, a ne na razvoj algoritma koji se može nositi s oba problema.\ 
+Kroz vrijeme, razvili su se brojni algoritmi za obranu modela od napada umetanjem stražnjih vrata~\cite{li2021anti, huang2022backdoor, gao2023backdoor}, kao i za učenje na zašumljenim oznakama~\cite{liu2022robust, chen2024imprecise}.\ Ipak, većina radova se fokusira na samo jedan od ovih problema, a ne na razvoj algoritma koji se može nositi s oba problema.\ 
   
-Cilj ovog rada je reproducirati i poboljšati rezultate okvira za obranu od zatrovanih podataka imena VIBE (engl.\ \textit{Variational inference for backdoor elimination})~\cite{sabolic2025seal}.\ 
-Osim ovoga, cilj je i primijeniti VIBE na problem zašumljenih oznaka.\ Pritom VIBE evaluiramo na nekoliko čestih vrsta trovanja odnosno zašumljivanja oznaka kako bi se osigurala robusnost okvira.\ 
+Cilj ovog rada je reproducirati i poboljšati rezultate okvira za obranu od napada umetanjem stražnjih vrata imena VIBE (engl.\ \textit{Variational inference for backdoor elimination})~\cite{sabolic2025seal}.\ 
+Osim ovoga, cilj je i primijeniti VIBE na problem zašumljenih oznaka.\ Pritom VIBE evaluiramo na nekoliko čestih vrsta napada odnosno metoda zašumljivanja oznaka kako bi se osigurala robusnost okvira.\ 
 Dodatno, cilj je usporediti VIBE sa stanjem tehnike (engl.\ \textit{state of the art - SotA}) za problem zašumljenih oznaka.\
 %-------------------------------------------------------------------------------
-\chapter{Problem zatrovanih podataka}
-\label{pog:zatrovani}
+\chapter{Napadi umetanjem stražnjih vrata}
+\label{pog:napadi}
 
-Cilj dodavanja zatrovanih podataka~\cite{biggio2012poisoning} u skup je ugrađivanje stražnjih vrata (engl.\ \textit{backdoor}) u naučeni model.\ Ako napad uspije, napadač može kontrolirati izlaz modela koristeći suptilne izmjene ulaznog primjera.\ 
-Općenito govoreći, stvaranje zatrovanih podataka podrazumijeva dodavanje vizualnog okidača na ulazni primjer, kao i prikladnu izmjenu oznaka.\ Pritom napadač radi izmjenu određenog udjela podataka, dok preostali podatci ostaju neizmjenjeni.\ 
-Hiperparametar koji opisuje udio zatrovanih podataka zvat ćemo stopom trovanja (engl. \textit{poisoning rate}).\ Pojedine metode trovanja podataka razlikuju se po načinu dodavanja okidača tj.\ načinu izmjene ulaznih primjera, kao i po načinu izmjene oznaka.\ 
+Cilj napada umetanjem stražnjih vrata~\cite{gao2020backdoor} je dodavanjem zatrovanih podataka ugraditi stražnja vrata u naučeni model.\ Ako napad uspije, napadač može kontrolirati izlaz modela koristeći suptilne izmjene ulaznog primjera.\ 
+Općenito govoreći, napad umetanjem stražnjih vrata podrazumijeva dodavanje vizualnog okidača na ulazni primjer, kao i prikladnu izmjenu oznaka.\ Pritom napadač radi izmjenu određenog udjela podataka, dok preostali podatci ostaju neizmjenjeni.\ 
+Hiperparametar koji opisuje udio zatrovanih podataka zvat ćemo stopom trovanja (engl. \textit{poisoning rate}).\ Pojedini napadi razlikuju se po načinu dodavanja okidača tj.\ načinu izmjene ulaznih primjera, kao i po načinu izmjene oznaka.\ 
   
 Kada govorimo o načinu izmjene ulaznih primjera, možemo napraviti podjelu na lokalne i globalne izmjene primjera.\ Kod lokalnih izmjena, mijenja se samo određeno područje slike, najčešće dodavanjem zadanog okidača na to područje~\cite{gu2019badnets}.\ 
 S druge strane, kod globalnih izmjena se mijenja cijela slika koristeći različite tehnike poput miješanja slike s okidačem~\cite{chen2020backdoor} ili transformiranja slike na temelju zadanog deformacijskog polja~\cite{nguyen2021wanet}.\ 
@@ -94,17 +94,17 @@ Osim korištenja jednog okidača za sve zatrovane podatke, određeni napadi kori
 Većinu napada možemo svrstati u jedan od dva načina izmjena oznaka: \textit{all-to-one} i \textit{all-to-all} izmjena oznaka~\cite{doan2022marksman}.\ 
 Kod \textit{all-to-one} metode, primjeri dobivaju zatrovanu oznaku jednog proizvoljno odabranog razreda neovisno o originalnim oznakama pojedinih primjera.\ 
 S druge strane, kod \textit{all-to-all} metode, primjeri dobivaju zasebne zatrovane oznake ovisno o originalnim oznakama.\ 
-Osim ova dva načina izmjena oznaka, određeni napadi uopće ne mijenjaju oznake zatrovanih primjera, već se oslanjaju isključivo na jače izmjene ulaznih primjera.\ Ovakve napade zovemo napadi s čistim oznakama (engl. \textit{clean-label attacks})~\cite{barni2019new}.\
+Određeni napadi uopće ne mijenjaju oznake zatrovanih primjera, već se oslanjaju isključivo na jače izmjene ulaznih primjera.\ Ovakve napade zovemo napadi s čistim oznakama (engl. \textit{clean-label attacks})~\cite{barni2019new}.\
   
 Uspješnost pojedinog napada mjerimo metrikom imena stopa uspješnosti napada (engl.\ \textit{attack success rate} - ASR).\ Ovu mjeru definiramo kao točnost modela mjerenu isključivo na zatrovanim primjerima.\ 
-Cilj algoritama za obranu od zatrovanih podataka je naučiti čisti model na zatrovanom skupu.\ Drugim riječima, glavni cilj obrane je naučiti model koji ima izvrsne performanse na čistim podatcima, ali i što nižu stopu uspješnosti napada.\ 
+Cilj algoritama za obranu od napada umetanjem stražnjih vrata je naučiti čisti model na zatrovanom skupu.\ Drugim riječima, glavni cilj obrane je naučiti model koji ima izvrsne performanse na čistim podatcima, ali i što nižu stopu uspješnosti napada.\ 
 
-\section{Primjeri metoda trovanja podataka}
-\label{sek:primjeri_trovanja}
+\section{Implementacije napada}
+\label{sek:impl_napada}
 
-U ovome radu, fokusiramo se na tri metode trovanja podataka: napade BadNets~\cite{gu2019badnets}, Blend~\cite{chen2020backdoor} te WaNet~\cite{nguyen2021wanet}.\
+U ovome radu, fokusiramo se na tri napada umetanjem stražnjih vrata: napade BadNets~\cite{gu2019badnets}, Blend~\cite{chen2020backdoor} te WaNet~\cite{nguyen2021wanet}.\
   
-\subsection{Napad BadNets}
+\subsection{BadNets}
 \label{sub:badnets}
 
 Napad BadNets uobičajeno dodaje jedan zadani okidač na svaki odabrani ulazni primjer.\ Okidač možemo shvatiti kao uzorak piksela koji se dodaje na specifično mjesto na slici.\ 
@@ -120,7 +120,7 @@ Kod napada BadNets, izmjene oznaka su najčešće tipa \textit{all-to-one}, ali 
 
 \pagebreak
   
-\subsection{Napad Blend}
+\subsection{Blend}
 \label{sub:blend}
 
 Napad Blend provodi miješanje zadanog okidača sa svakim odabranim ulaznim primjerom.\ Pritom je jačina napada određena hiperparametrom $\alpha$ koji nazivamo jačina miješanja (engl.\ \textit{blending strength}).\ 
@@ -140,7 +140,7 @@ Pri čemu $\bm{x}$ označava ulazni primjer, $\bm{t}$ okidač, a $\bm{\tilde{x}}
   \label{fig:blend}
 \end{figure}
   
-\subsection{Napad WaNet}
+\subsection{WaNet}
 \label{sub:wanet}
 
 Napad WaNet provodi geometrijsku transformaciju svakog odabranog ulaznog primjera koristeći nasumično generirano deformacijsko polje.\ Deformacijsko polje svakom pikselu odredišne slike dodjeljuje vektor pomaka prema pikselu izvorne slike.\
@@ -160,21 +160,21 @@ Kao i kod napada Blend, kod napada WaNet su izmjene oznaka uobičajeno tipa \tex
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.6]{./Slike/imagenet1k_uzorak_wanet.png}
-  \caption{Primjer primjene napada WaNet.\ Izvorna slika (lijevo) transformira se koristeći deformacijsko polje uz $k = 8$ i $s = 4$ kako bi nastala zatrovana slika (desno).\ Hiperparametri $k$ i $s$ su uvećani kako bi učinak trovanja bio uočljiviji.}
+  \caption{Primjer primjene napada WaNet.\ Izvorna slika (lijevo) transformira se koristeći deformacijsko polje uz $k = 8$ i $s = 4$ kako bi nastala zatrovana slika (desno).\ Hiperparametri $k$ i $s$ su uvećani kako bi učinak napada bio uočljiviji.}
   \label{fig:wanet}
 \end{figure}
 
-\section{Primjeri algoritama za obranu od zatrovanih podataka}
-\label{sek:primjeri_obrana_trovanje}
+\section{Obrane od napada}
+\label{sek:obrane}
 
-U ovome radu, rezultate okvira VIBE uspoređujemo s rezultatima triju algoritama za obranu od zatrovanih podataka: \textit{Anti-backdoor learning} (ABL)~\cite{li2021anti}, \textit{Decoupling based defense} (DBD)~\cite{huang2022backdoor} te \textit{Adaptively splitting dataset-based defense} (ASD)~\cite{gao2023backdoor}.\
+U ovome radu, rezultate okvira VIBE uspoređujemo s rezultatima triju obrana od napada umetanjem stražnjih vrata: \textit{Anti-backdoor learning} (ABL)~\cite{li2021anti}, \textit{Decoupling based defense} (DBD)~\cite{huang2022backdoor} te \textit{Adaptively splitting dataset-based defense} (ASD)~\cite{gao2023backdoor}.\
 
-\subsection{Obrana ABL}
+\subsection{ABL}
 \label{sub:abl}
 
-Algoritam \textit{Anti-backdoor learning} (ABL) sastoji se od dva glavna koraka: izoliranje zatrovanih podataka (engl.\ \textit{backdoor isolation}) i odučavanje trovanja (engl. \textit{backdoor unlearning}).\ 
+Algoritam \textit{Anti-backdoor learning} (ABL) sastoji se od dva glavna koraka: izoliranje stražnjih vrata (engl.\ \textit{backdoor isolation}) i odučavanje stražnjih vrata (engl. \textit{backdoor unlearning}).\ 
 Osnovna ideja ove obrane je da se nakon određenog broja epoha učenja uz posebno definiran gubitak izolira određeni broj primjera za koje se smatra da su zatrovani.\  
-Nakon prvog koraka, ti se primjeri koriste za odučavanje trovanja, dok se preostali primjeri koriste za standardno učenje.\ 
+Nakon prvog koraka, ti se primjeri koriste za odučavanje stražnjih vrata, dok se preostali primjeri koriste za standardno učenje.\ 
   
 Konkretno, cilj prvog koraka je zadržati vrijednost gubitka svakog pojedinog primjera oko praga $\gamma$.\
 Kako bi ovo postigli, autori predlažu korištenje gradijentnog uspona u slučaju da gubitak primjera padne ispod praga, dok se inače koristi gradijentni spust.\ Gubitak u prvom koraku možemo prikazati jednadžbom:
@@ -190,8 +190,8 @@ Ideja je da će gubitak za zatrovane primjere veoma brzo pasti ispod praga te ć
 Nakon zadanog broja epoha, izolira se udio $p$ primjera s najnižim gubitkom i proglašava potencijalnim zatrovanim skupom.\ Važno je napomenuti da bismo prvi korak ABL-a mogli zamijeniti proizvoljnim algoritmom detekcije zatrovanih primjera.\ 
   
 U drugom koraku, učenje se u svakoj epohi provodi zasebno za procijenjeni čisti odnosno zatrovani skup.\ 
-Dok se učenje na čistom skupu provodi uz standardni gradijentni spust, učenje na zatrovanom skupu provodi se uz gradijentni uspon kako bi model odučili od trovanja.\ 
-Ovo je moguće zato što je trovanje najčešće realizirano uz samo jedan ciljni razred tj.\ uz \textit{all-to-one} način izmjene oznaka.\ Gubitak u drugom koraku možemo prikazati jednadžbom:
+Dok se učenje na čistom skupu provodi uz standardni gradijentni spust, učenje na zatrovanom skupu provodi se uz gradijentni uspon kako bi model odučili od stražnjih vrata.\ 
+Ovo je moguće zato što je napad najčešće realiziran uz samo jedan ciljni razred tj.\ uz \textit{all-to-one} način izmjene oznaka.\ Gubitak u drugom koraku možemo prikazati jednadžbom:
 
 \begin{equation}
   \mathcal{L}_2 = \mathbb{E}_{(\bm{x}, y) \sim \hat{\mathcal{D}}_c} \left[ \ell(f_{\bm{\theta}}(\bm{x}), y) \right] - \mathbb{E}_{(\bm{x}, y) \sim \hat{\mathcal{D}}_b} \left[ \ell(f_{\bm{\theta}}(\bm{x}), y) \right]
@@ -200,10 +200,10 @@ Ovo je moguće zato što je trovanje najčešće realizirano uz samo jedan ciljn
 
 Pritom $\hat{\mathcal{D}}_c$ označava procijenjeni čisti skup, a $\hat{\mathcal{D}}_b$ procijenjeni zatrovani skup.\
 
-\subsection{Obrana DBD}
+\subsection{DBD}
 \label{sub:dbd}
 
-Algoritam \textit{Decoupling based defense} (DBD) problem učenja modela na zatrovanim podatcima razdvaja na tri koraka.\ 
+Algoritam \textit{Decoupling based defense} (DBD) obranu od napada umetanjem stražnjih vrata razdvaja na tri koraka.\ 
 Pritom DBD model tretira kao dvije povezane cjeline: ekstraktor značajki (engl.\ \textit{feature extractor}) te klasifikator (najčešće nekoliko potpuno-povezanih slojeva).\  
 Ekstraktor značajki za ulazni primjer na izlazu daje vektor značajki tj.\ ugrađivanje (engl.\ \textit{embedding}) u latentnom metričkom prostoru.\ 
 S druge strane, klasifikator za ugrađivanje na ulazu predviđa jednu od mogućih oznaka.\
@@ -217,7 +217,7 @@ S druge strane, klasifikator za ugrađivanje na ulazu predviđa jednu od mogući
   
 U prvom koraku, DBD uči ekstraktor značajki koristeći proizvoljan algoritam samonadziranog učenja~\cite{jaiswal2020survey} na slikama bez oznaka.\ 
 Budući da algoritmi samonadziranog učenja uobičajeno uključuju korištenje jakih augmentacija ulaznih primjera, kvaliteta okidača kod zatrovanih primjera bit će narušena.\ 
-Dodatno, jer se model u ovoj fazi uči bez oznaka, u prvom koraku nije moguće zatrovati ekstraktor značajki.\ Drugim riječima, na kraju prvog koraka imat ćemo naučen čisti ekstraktor značajki.\ 
+Dodatno, jer se model u ovoj fazi uči bez oznaka, u prvom koraku nije moguće ugraditi stražnja vrata u ekstraktor značajki.\ Drugim riječima, na kraju prvog koraka imat ćemo naučen čisti ekstraktor značajki.\ 
 
 U drugom koraku, parametri ekstraktora značajki su zamrznuti, a klasifikator učimo koristeći klasično nadzirano učenje na podatcima s oznakama.\ 
 Pritom kao funkciju gubitka koristimo simetričnu unakrsnu entropiju - pokazano je da korištenje iste rezultira višim gubitkom kod zatrovanih primjera~\cite{wang2019symmetric}.\ 
@@ -227,14 +227,14 @@ Kod algoritma DBD, ova podjela se radi na temelju iznosa gubitka: udio $\alpha$ 
 
 Treći korak koristi podjelu na čisti i zatrovani skup kako bi dodatno ugodio parametre cijelog modela.\ 
 Konkretno, zatrovanom skupu uklanjamo oznake te potom model učimo koristeći proizvoljni algoritam polunadziranog učenja~\cite{van2020survey}.\ 
-Na kraju ovog koraka, imat ćemo naučen cjelokupni model otporan na zatrovane primjere.\ 
+Na kraju ovog koraka, imat ćemo naučen cjelokupni model otporan na napade umetanjem stražnjih vrata.\ 
 
 \pagebreak
 
-\subsection{Obrana ASD}
+\subsection{ASD}
 \label{sub:asd}
 
-Algoritam \textit{Adaptively splitting dataset-based defense} (ASD) problem učenja modela na zatrovanim podatcima razdvaja na tri koraka.\ 
+Algoritam \textit{Adaptively splitting dataset-based defense} (ASD) obranu od napada umetanjem stražnjih vrata razdvaja na tri koraka.\ 
 Tijekom sva tri koraka, održavaju se dva skupa podataka: čisti i zagađeni skup.\ Pritom se u čistom skupu nalaze podatci za koje je velika vjerojatnost da su čisti, dok se u zagađenom skupu nalaze zatrovani podatci, kao i preostali čisti podatci.\ 
 Kroz učenje, čisti skup se povećava dodavanjem primjera iz zagađenog skupa.\ Konačno, na kraju učenja bi zagađeni skup trebao sadržavati isključivo zatrovane podatke.\ 
 Parametri modela uvijek se ažuriraju na temelju proizvoljnog polunadziranog gubitka, pri čemu se zagađeni skup koristi za učenje bez oznaka.\   
@@ -268,34 +268,34 @@ Pritom $f_{\bm{\theta}}$ označava glavni model s parametrima $\bm{\theta}$, a $
 Konačno, udio $\gamma$ primjera s najmanjim smanjenjem gubitka dodajemo u čisti skup.\ Intuicija iza ove podjele je da su zatrovani podatci lagani za naučiti, tako da već nakon jedne epohe nadziranog učenja isti imaju veoma nizak gubitak, dok teški čisti primjeri i dalje imaju visok gubitak.\ 
 Važno je napomenuti da se virtualni model koristi isključivo za provođenje podjele na temelju smanjenja gubitka.\ 
 Ovu podjelu zovemo meta-podjela (engl.\ \textit{meta-split}) jer je pristup s učenjem virtualnog modela inspiriran područjem meta-učenja (engl.\ \textit{meta-learning})~\cite{vilalta2002perspective}.\
-Na kraju trećeg koraka, u čistom skupu će se nalaziti gotovo svi čisti primjeri, a dobiveni model će imati izvrsne performanse uz otpornost na zatrovane primjere.\
+Na kraju trećeg koraka, u čistom skupu će se nalaziti gotovo svi čisti primjeri, a dobiveni model će imati izvrsne performanse uz otpornost na napade umetanjem stražnjih vrata.\
 
 %-------------------------------------------------------------------------------
-\chapter{Problem zašumljenih oznaka}
-\label{pog:zasumljeni}
+\chapter{Zašumljene oznake}
+\label{pog:zasumljene}
 
 Proces stvaranja skupa vizualnih podataka otprilike možemo podijeliti u tri koraka.\ U prvom koraku, potrebno je definirati skup razreda tj.\ oznaka koje mogu biti dodijeljene svakom primjeru.\ 
 Tijekom drugog koraka, cilj nam je prikupiti što veći skup slika, pritom pazeći na to da slike precizno prikazuju situacije s kojima će se naš model susretati.\ Dodatno, veoma je važno da je prikupljeni skup što raznovrsniji kako bi model mogao naučiti dobro generalizirati.\ 
 Konačno, u trećem koraku anotatori označavaju slike na temelju definiranog skupa oznaka.\ Drugi i treći korak ovog procesa mogu se provoditi jedan za drugim, ali i paralelno - nakon što se prikupi određen broj slika, taj skup se šalje na označavanje, a istovremeno je moguće prikupiti još slika.\ 
   
 Iako anotatori podataka prolaze kroz brojne edukacije kako bi se što bolje upoznali s pravilima na temelju kojih će označavati podatke, određeni podatci su prirodom teži od drugih pa može doći do pogrešnog označavanja.\ 
-Problem zašumljenih oznaka sličan je problemu zatrovanih podataka po tome što se kod oba problema model mora nositi s pogrešnim oznakama.\ Ipak, kod problema zašumljenih oznaka podrazumijevamo da su ulazne slike netaknute tj.\ da ne postoji nikakva izmjena ulaza.\ 
+Prisutnost zašumljenih oznaka slična je napadima umetanjem stražnjih vrata po tome što se kod oba problema model mora nositi s pogrešnim oznakama.\ Ipak, kod problema zašumljenih oznaka podrazumijevamo da su ulazne slike netaknute tj.\ da ne postoji nikakva izmjena ulaza.\ 
 Dodatno, kod problema zašumljenih oznaka ne postoji konkretan cilj - podatci sa zašumljenim oznakama nastaju slučajno, bez ikakvih loših namjera.\ 
   
-Dok je kod zatrovanih podataka problem prelako učenje poveznice između prisutnosti okidača i određenog ciljnog razreda, kod podataka sa zašumljenim oznakama je problem činjenica da model uz dovoljan kapacitet može naučiti oznake čak i ako su one nasumično generirane~\cite{zhang2016understanding}.\ 
+Dok je kod napada umetanjem stražnjih vrata problem prelako učenje poveznice između prisutnosti okidača i određenog ciljnog razreda, kod podataka sa zašumljenim oznakama je problem činjenica da model uz dovoljan kapacitet može naučiti oznake čak i ako su one nasumično generirane~\cite{zhang2016understanding}.\ 
 Drugim riječima, ako nismo oprezni, lako je doći do prenaučenosti (engl.\ \textit{overfitting}) modela.\ Naravno, ovakav model će loše generalizirati na ispravno označenim podatcima.\ 
   
 Kako bismo mogli usporediti performanse različitih algoritama za učenje na zašumljenim oznakama, najčešće određenom udjelu čistog skupa podataka dodajemo sintetičke zašumljene oznake.\ 
 Hiperparametar koji opisuje udio podataka sa zašumljenim oznakama zvat ćemo stopa šuma (engl. \textit{noise rate}).\ Nakon učenja na zašumljenim podatcima, performanse modela evaluiramo na čistom, ali i na u potpunosti zašumljenom skupu.\ 
 Cilj algoritama za učenje na zašumljenim oznakama tada je zadržati performanse modela učenog na zašumljenim podatcima što bližima performansama modela učenog na čistim podatcima.\ 
 
-\section{Primjeri metoda zašumljivanja oznaka}
-\label{sek:primjeri_zasumljivanja}
+\section{Metode zašumljivanja}
+\label{sek:metode_zasumljivanja}
 
 U ovome radu, fokusiramo se na dvije metode zašumljivanja oznaka: simetrično (engl.\ \textit{symmetric}) i asimetrično (engl.\ \textit{asymmetric}) zašumljivanje~\cite{cordeiro2020survey}.\
 
 \subsection{Simetrično zašumljivanje}
-\label{sub:sym}
+\label{sub:sim}
 
 Kod simetričnog zašumljivanja, nasumično biramo zadani udio primjera iz čistog skupa podataka te istima dodjeljujemo nasumično generirane nove oznake.\ 
 Ovu metodu zašumljivanja također zovemo i uniformno zašumljivanje jer svaki razred ima jednaku vjerojatnost postati nova oznaka za neki zadani primjer.\ 
@@ -315,7 +315,7 @@ U našem radu, fokusiramo se na inkluzivno simetrično zašumljivanje.\
 \end{figure}
 
 \subsection{Asimetrično zašumljivanje}
-\label{sub:asym}
+\label{sub:asim}
 
 Kod asimetričnog zašumljivanja, prvo nasumično biramo zadani udio primjera zasebno za svaki razred.\ 
 Drugim riječima, ako je u pitanju skup CIFAR-10~\cite{krizhevsky2009learning}, za svaki od $10$ razreda nasumično ćemo odabrati zadani udio primjera kojima ćemo potencijalno dodijeliti zašumljene oznake.\ 
@@ -334,18 +334,18 @@ Kod skupova s hijerarhijskim odnosom razreda poput skupa CIFAR-100, preslikavanj
 
 \pagebreak
 
-\section{Primjeri algoritama za učenje na zašumljenim oznakama}
-\label{sek:primjeri_obrana_zasumljivanje}
+\section{Učenje na zašumljenim oznakama}
+\label{sek:ucenje_na_zasumljenim}
 
 U ovome radu, rezultate prilagođenog okvira VIBE uspoređujemo s rezultatima dvaju algoritama za učenje na podatcima sa zašumljenim oznakama: \textit{Sparse over-parameterization} (SOP)~\cite{liu2022robust} te \textit{Imprecise label learning} (ILL)~\cite{chen2024imprecise}.\ 
 
-\subsection{Algoritam SOP}
+\subsection{SOP}
 \label{sub:sop}
 
 Osnovna ideja algoritma \textit{Sparse over-parameterization} (SOP) bazira se na činjenici da su primjeri sa zašumljenim oznakama u većini slučajeva rijetki.\ 
 Jedan od mogućih načina za učenje modela na zašumljenim oznakama tada je modeliranje šuma za pojedine primjere koristeći rijetke vektore.\ 
 
-Konkretno, za svaki primjer $(\bm{x}_i, y_i)$ iz skupa podataka $\mathcal{D}$ definiramo rijetki vektor $\bm{s}_i$ koji služi kao odstupanje između uočene (potencijalno zatrovane) oznake $\bm{y}_i^{OH}$ i čiste (skrivene) oznake $\bm{l}_i^{OH}$.\ 
+Konkretno, za svaki primjer $(\bm{x}_i, y_i)$ iz skupa podataka $\mathcal{D}$ definiramo rijetki vektor $\bm{s}_i$ koji služi kao odstupanje između uočene (potencijalno zašumljene) oznake $\bm{y}_i^{OH}$ i čiste (skrivene) oznake $\bm{l}_i^{OH}$.\ 
 Pritom $\bm{y}_i^{OH}$ označava jednojedinično kodiranu (engl.\ \textit{one-hot encoding}) oznaku $y$.\ Uobičajeno, učenje modela se svodi na potragu za parametrima $\bm{\theta}$ koji minimiziraju gubitak definiran jednadžbom:
 
 \begin{equation}
@@ -395,7 +395,7 @@ Inačicu algoritma koja dodatno koristi ove dvije komponente gubitka zovemo SOP+
 
 \pagebreak
 
-\subsection{Algoritam ILL}
+\subsection{ILL}
 \label{sub:ill}
 
 Algoritam \textit{Imprecise label learning} (ILL) obuhvaća i pokušava riješiti nekoliko problema vezanih uz nesavršenosti oznaka: učenje na djelomičnim oznakama (engl.\ \textit{partial label learning})~\cite{tian2023partial}, polunadzirano učenje te učenje na zašumljenim oznakama.\ 
@@ -477,7 +477,7 @@ Kod autoasocijativnog samonadziranog učenja, osnovni zadatak je rekonstruirati 
 U našem radu, fokusirat ćemo se na kontrastno samonadzirano učenje.\ 
 
 \section{Kontrastno samonadzirano učenje}
-\label{sek:contrastive}
+\label{sek:kontrastno}
 
 Kontrastno učenje jedno je od područja samonadziranog učenja.\ Ono podrazumijeva učenje izlučivanja korisnih reprezentacija tj.\ ugrađivanja ulaznih podataka na temelju parova podataka.\ 
 Ako su dobivena ugrađivanja normirana, a sličnost dvaju ugrađivanja možemo izračunati koristeći neku od standardnih metrika (na primjer, kosinusnu sličnost), tada govorimo o metričkim ugrađivanjima tj.\ ugrađivanjima u metrički prostor~\cite{chavez2001searching}.\ 
@@ -505,10 +505,10 @@ Gubitak N parova također je poznat i kao infoNCE gubitak~\cite{oord2018represen
 Pritom $\bm{z}_{a}$ označava ugrađivanje sidra $\bm{x}_{a}$, $\bm{z}_{p}$ ugrađivanje pozitivnog primjera $\bm{x}_{p}$, $\bm{z}_{ni}$ ugrađivanje i-tog negativnog primjera $\bm{x}_{ni}$ iz minigrupe, a $\tau$ hiperparametar temperature.\ 
 Oznaka $\langle ... \rangle$ označava skalarni produkt vektora unutar zagrada.\
   
-U algoritmu za obranu od zatrovanih podataka VIBE, samonadzirana inicijalizacija parametara modela veoma je važan korak koji osigurava uspješnost obrane.\ 
+U okviru za obranu od napada umetanjem stražnjih vrata VIBE, samonadzirana inicijalizacija parametara modela veoma je važan korak koji osigurava uspješnost obrane.\ 
 Pritom za inicijalizaciju koristimo okvir All4One~\cite{estepa2023all4one} koji se bazira na kontrastnom samonadziranom učenju.\
 
-\section{Okvir All4One}
+\section{All4One}
 \label{sek:all4one}
 
 Okvir All4One kombinira tri zasebna pristupa kontrastiranju kako bi naučeni modeli postizali što bolje rezultate.\ 
@@ -546,7 +546,7 @@ Naspram osnovne inačice kontrastnog učenja, kontrastiranje najbližih susjeda 
 \pagebreak
 
 \subsection{Kontrastiranje centroida}
-\label{sub:centroids}
+\label{sub:centroidi}
   
 Ipak, pokazano je da modeli učeni kontrastiranjem najbližih susjeda mogu postići još bolje performanse ako se pritom koristi više od jednog najbližeg susjeda~\cite{koohpayegani2021mean}.\ 
 Nažalost, učenje s više od jednog najbližeg susjeda značajno povećava trajanje učenja jer se funkcija cilja treba evaluirati za svakog susjeda pojedinačno.\ 
@@ -577,7 +577,7 @@ Ovaj postupak provodimo zasebno za skup $NN^1$ odnosno skup $NN^2$ kako bismo do
 \end{equation}
 
 \subsection{Kontrastiranje značajki}
-\label{sub:features}
+\label{sub:znacajke}
   
 Kontrastiranje značajki veoma se razlikuje od uobičajenih pristupa kontrastnom učenju.\ Kod ovog pristupa, ideja je direktno kontrastirati značajke ugrađivanja.\ 
 Kako bismo ovo postigli, potrebno je izračunati korelacijsku matricu značajki za svaku minigrupu.\ Tada je cilj naučiti parametre modela koji korelacijsku matricu značajki što više približavaju prema jediničnoj matrici.\ 
@@ -588,17 +588,18 @@ Dodatno, korelacijsku matricu $\bm{CC}^2$ dobivamo uz zamjenu grana tj.\ zamjenu
 Kada smo izračunali obje korelacijske matrice, gubitak za zadanu minigrupu možemo definirati jednadžbom:
 
 \begin{equation}
-  \mathcal{L}_{feature} = \frac{1}{2} \sqrt{\frac{1}{2D}\sum_{i=1}^{D}((1 - \bm{CC}_{i,i}^1)^2 + (1 - \bm{CC}_{i,i}^2)^2)} + \frac{1}{2} \sqrt{\frac{1}{2D(D - 1)}\sum_{i=1}^{D}\sum_{j \neq i}^{D}((\bm{CC}_{i,j}^1)^2 + (\bm{CC}_{i,j}^2)^2)}
+  \begin{aligned}
+    \mathcal{L}_{feature} &= \frac{1}{2} \sqrt{\frac{1}{2D}\sum_{i=1}^{D}((1 - \bm{CC}_{i,i}^1)^2 + (1 - \bm{CC}_{i,i}^2)^2)} \\ 
+                          &+ \frac{1}{2} \sqrt{\frac{1}{2D(D - 1)}\sum_{i=1}^{D}\sum_{j \neq i}^{D}((\bm{CC}_{i,j}^1)^2 + (\bm{CC}_{i,j}^2)^2)}
+  \end{aligned}
   \label{eq:feature_loss}
 \end{equation}
 
 Pritom $D$ označava broj značajki tj.\ dimenzionalnost vektora ugrađivanja.\ Vidimo da će gubitak biti to manji što su korelacijske matrice bliže jediničnoj matrici.\ 
 Prvi član gubitka pokušava povećati invarijantnost pojedinih značajki na augmentacije ulaznih slika, dok drugi član pokušava smanjiti međusobnu redundantnost značajki.\ 
 
-\pagebreak
-
 \subsection{Kombinirano kontrastiranje}
-\label{sub:all4one_combined}
+\label{sub:kombinirano_kontrastiranje}
 
 Dok prethodni algoritmi samonadziranog učenja većinom koriste samo jednu vrstu kontrastiranja (na primjer, samo kontrastiranje najbližih susjeda), okvir All4One kombinira sva tri navedena pristupa.\ 
 Konkretno, gubitak koji želimo minimizirati možemo definirati jednadžbom:
@@ -633,8 +634,8 @@ Kao i gradijentni spust, i algoritam EM je iterativne prirode, ali se pritom sva
 Pokazuje se da algoritam EM osigurava monotoni rast nepotpune log-izglednosti parametara $\log p(X | \bm{\theta})$, ali pritom ne postoji garancija da će algoritam konvergirati u globalni maksimum~\cite{wu1983convergence}.\
 Drugim riječima, moguće je da dobiveni parametri $\bm{\theta}$ odgovaraju lokalnom maksimumu nepotpune log-izglednosti, tako da se preporučuje koristiti heurističke pristupe poput ponovnog pokretanja algoritma s nasumično odabranim početnim vrijednostima parametara $\bm{\theta}$.\ 
 
-\section{Osnovna formulacija algoritma}
-\label{sek:basic_em}
+\section{Osnovna ideja}
+\label{sek:osnovni_em}
 
 Osnovna ideja algoritma EM je jednostavna.\ Tijekom učenja, u svakoj iteraciji prvo provodimo E korak, a nakon njega provodimo M korak.\ 
 Gledajući da ne znamo vrijednosti skrivenih varijabli $Z$, kao ni vrijednosti optimalnih parametara $\bm{\theta}$, učenje možemo započeti uz nasumično odabrane vrijednosti parametara $\bm{\theta}^{(0)}$.\ 
@@ -656,10 +657,10 @@ Općenito, jednu iteraciju algoritma EM sažeto možemo prikazati kao:
   \label{eq:em_alg_basic}
 \end{equation}
 
-Pokažimo sada općenitu formulaciju algoritma maksimizacije očekivanja.\
+Pokažimo sada detaljniji izvod algoritma maksimizacije očekivanja.\
 
-\section{Općenita formulacija algoritma}
-\label{sek:general_em}
+\section{Izvod algoritma}
+\label{sek:izvod_em}
 
 Glavni cilj algoritma EM je pronalazak parametara $\bm{\theta}$ koji maksimiziraju log-izglednost $\log p(X | \bm{\theta})$ uz postojanje skrivenih varijabli $Z$.\ Koristeći Bayesovu formulu, vjerojatnost $p(X | \bm{\theta})$ možemo prikazati kao:
 
@@ -719,7 +720,7 @@ Uz uvrštavanje izraza za distribuciju $q^{(t + 1)}(Z)$, donju varijacijsku gran
   \label{eq:em_equality_of_e_step}
 \end{equation}
 
-Pri čemu $\operatorname{H}(p(Z | X, \bm{\theta}^{(t)}))$ označava entropiju~\cite{renyi1961measures} distribucije $p(Z | X, \bm{\theta}^{(t)})$.\ Uočimo da je dobiveni izraz za donju varijacijsku granicu jednak izrazu $Q(\bm{\theta} | \bm{\theta}^{(t)})$ koji računamo u E koraku osnovne formulacije, ali uvećan za iznos entropije $\operatorname{H}(p(Z | X, \bm{\theta}^{(t)}))$.\ 
+Pri čemu $\operatorname{H}(p(Z | X, \bm{\theta}^{(t)}))$ označava entropiju~\cite{renyi1961measures} distribucije $p(Z | X, \bm{\theta}^{(t)})$.\ Uočimo da je dobiveni izraz za donju varijacijsku granicu jednak izrazu $Q(\bm{\theta} | \bm{\theta}^{(t)})$, ali uvećan za iznos entropije $\operatorname{H}(p(Z | X, \bm{\theta}^{(t)}))$.\ 
 Kada smo odredili distribuciju $q^{(t + 1)}(Z)$ koja maksimizira donju varijacijsku granicu, možemo prijeći na M korak.\ 
 
 M korak algoritma maksimizacije očekivanja sada maksimizira donju varijacijsku granicu $F(q^{(t + 1)}(Z), \bm{\theta})$ s obzirom na parametre $\bm{\theta}$ uz fiksiranu distribuciju $q^{(t + 1)}(Z)$ dobivenu u E koraku.\
@@ -734,8 +735,8 @@ Dakle, cilj je pronaći parametre $\bm{\theta}^{(t + 1)}$ koji maksimiziraju izr
 \end{equation}
 
 Pritom je član $\operatorname{H}(p(Z | X, \bm{\theta}^{(t)}))$ konstantan s obzirom na trenutne parametre $\bm{\theta}$, tako da on ne utječe na tijek optimizacije.\
-Vidimo da je M korak općenite formulacije identičan M koraku osnovne formulacije - jedina razlika je prisutnost konstantnog člana u izrazu koji maksimiziramo.\ 
-Kao i kod osnovne formulacije algoritma maksimizacije očekivanja, dobivene parametre $\bm{\theta}^{(t + 1)}$ dalje možemo iskoristiti za provođenje E koraka sljedeće iteracije.\ 
+Vidimo da je izvedeni M korak identičan M koraku osnovne ideje - jedina razlika je prisutnost konstantnog člana u izrazu koji maksimiziramo.\ 
+Dobivene parametre $\bm{\theta}^{(t + 1)}$ dalje možemo iskoristiti za provođenje E koraka sljedeće iteracije.\ 
 
 % Kod algoritma koordinatnog uspona u dvije dimenzije, u svakoj iteraciji prvo fiksiramo jednu dimenziju i optimiramo drugu, a potom fiksiramo drugu dimenziju te optimiramo prvu.\ 
 % Vidimo da algoritam EM slijedi istu ideju: u E koraku fiksiramo parametre $\bm{\theta}^{(t)}$ i optimiramo distribuciju $q(Z)$, a u M koraku fiksiramo distribuciju $q(Z)^{(t + 1)}$ te optimiramo parametre $\bm{\theta}^{(t + 1)}$.\ 
@@ -790,8 +791,8 @@ Ova formulacija ekvivalentna je problemu uparivanja bipartitnog grafa (engl.\ \t
 S druge strane, kod Kantorovičeve formulacije problema, optimalni plan transporta možemo prikazati matricom zajedničke vjerojatnosti uz nekoliko dodatnih ograničenja.\ 
 U okviru našeg rada, fokusirat ćemo se na Kantorovičevu formulaciju problema optimalnog transporta, kao i jedno moguće rješenje istoga.\
 
-\section{Općenita formulacija problema}
-\label{sek:transport}
+\section{Općenita formulacija}
+\label{sek:opcenito_transport}
 
 Neka su $\bm{\mu}$ i $\bm{\nu}$ vektori distribucija vjerojatnosti nad prostorima $X$ odnosno $Y$.\ Vektor $\bm{\mu}$ neka je duljine $M$, a vektor $\bm{\nu}$ neka je duljine $N$.\
 Cilj problema je pronaći optimalni plan transporta koji distribuciju $\bm{\mu}$ preslikava u distribuciju $\bm{\nu}$ uz što nižu ukupnu cijenu.\ 
@@ -836,7 +837,7 @@ Pri čemu je $\lambda$ regularizacijski hiperparametar, a $\operatorname{H}(\bm{
 
 \begin{equation}
   \operatorname{H}(\bm{Q}) = -\sum_{i = 1}^{M} \sum_{j = 1}^{N} \bm{Q}_{i,j} \log \bm{Q}_{i,j}
-  \label{eq:ot_with_entropy}
+  \label{eq:matrix_entropy}
 \end{equation}
 
 Ovisno o iznosu hiperparametra $\lambda$, član $- \frac{1}{\lambda} \operatorname{H}(\bm{Q})$ može potaknuti gustoću matrice plana transporta $\bm{Q}$ te time spriječiti degeneraciju rješenja.\
@@ -941,7 +942,7 @@ Pronalaskom vektora $\bm{u}$ i $\bm{v}$ koji zadovoljavaju dana ograničenja, pr
 \end{equation}
 
 %-------------------------------------------------------------------------------
-\chapter{Okvir VIBE}
+\chapter{VIBE}
 \label{pog:vibe}
 
 Okvir VIBE (engl.\ \textit{Variational inference for backdoor elimination})~\cite{sabolic2025seal} zasniva se na ideji da su podatci i zatrovane oznake realizacije uočenih slučajnih varijabli, dok su čiste oznake skrivene varijable.\ 
@@ -953,7 +954,7 @@ Napadač modificira udio $\gamma$ čistog skupa podataka te time nastaje zatrova
 Cilj okvira VIBE je naučiti model $h$ koji potencijalno zatrovanom ulaznom primjeru $\bm{x}^i$ dodjeljuje čistu oznaku $l^i$.\ 
 Naravno, čiste oznake $\bm{l}$ su skrivene, a dostupne su nam samo zatrovane oznake $\bm{y}$.\ 
 
-Uobičajene metode trovanja podataka modificiraju mali udio $\gamma$ čistog skupa jer žele izbjeći detekciju.\ Drugim riječima, za većinu podataka će zatrovane i čiste oznake biti identične.\
+Uobičajeni napadi umetanjem stražnjih vrata modificiraju mali udio $\gamma$ čistog skupa jer žele izbjeći detekciju.\ Drugim riječima, za većinu podataka će zatrovane i čiste oznake biti identične.\
 Zbog ovoga, prirodan optimizacijski cilj za okvir VIBE je maksimizacija log-izglednosti skupa $\mathcal{D}$ uz pretpostavku o nezavisno i identično distribuiranim primjerima (IID pretpostavku):
 
 \begin{equation}
@@ -1022,7 +1023,7 @@ Pri čemu je $\nu$ hiperparametar temperature.\ Uočimo da koristeći naučenu d
 Skup svih parametara modela označit ćemo s $\bm{\Omega} = \bm{\theta} \cup \bm{\pi} \cup \bm{\phi} \cup \bm{\psi}$.\ Nakon što smo parametrizirali obje potrebne distribucije, vrijeme je za definiranje algoritma učenja.\
 
 \section{Optimizacija varijacijskog cilja}
-\label{sek:var_goal}
+\label{sek:var_cilj}
 
 Nažalost, pokazuje se da direktna optimizacija cilja $\ell_{VD}$ ne osigurava ispravno učenje distribucije $p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x})$~\cite{mclachlan2008algorithm}.\ 
 Kako bismo doskočili ovom problemu, uvodimo zamjensku distribuciju $q(l | \bm{x}, y)$.\ Cilj $\ell_{VD}$ sada možemo zapisati kao:
@@ -1062,8 +1063,8 @@ Kako bismo osigurali da učenje algoritmom maksimizacije očekivanja konvergira 
 Nasumična inicijalizacija parametara ne nudi nikakvu garanciju uspješnosti algoritma EM, tako da umjesto nje koristimo samonadziranu inicijalizaciju okvirom All4One.\ 
 Pokazuje se da korištenje samonadzirane inicijalizacije parametara ubrzava konvergenciju učenja, a i rezultira modelom koji bolje generalizira~\cite{sabolic2025seal}.\
 
-\subsection{E korak učenja}
-\label{sub:e_step}
+\subsection{E korak}
+\label{sub:e_korak}
 
 Cilj E koraka algoritma maksimizacije očekivanja je pronaći distribuciju $q(l | \bm{x}, y)$ koja maksimizira donju varijacijsku granicu $\mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D})$ uz fiksirane vrijednosti parametara $\bm{\Omega}$.\ 
 Donju varijacijsku granicu uprosječenu preko $N$ primjera možemo zapisati kao:
@@ -1151,8 +1152,8 @@ Konačnu matricu vjerojatnosti $\bm{Q}$ tada dobivamo kao:
 Važno je napomenuti da algoritmom Sinkhorn-Knopp dobivamo matricu vjerojatnosti $\bm{Q}$ koja odgovara skupu podataka $\mathcal{D}$, a ne rješenje u zatvorenoj formi za distribuciju $q(l | \bm{x}, y)$.\ 
 Ipak, ovo nam ne predstavlja problem jer je matrica $\bm{Q}$ dovoljna za provođenje M koraka.\
 
-\subsection{M korak učenja}
-\label{sub:m_step}
+\subsection{M korak}
+\label{sub:m_korak}
 
 Cilj M koraka algoritma maksimizacije očekivanja je pronaći parametre $\bm{\Omega}$ koji maksimiziraju donju varijacijsku granicu $\mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D})$ uz fiksiranu distribuciju $q(l | \bm{x}, y)$ odnosno matricu vjerojatnosti $\bm{Q}$.\ 
 Maksimizacija donje varijacijske granice ekvivalentna je minimizaciji cilja:
@@ -1180,7 +1181,7 @@ Prva komponenta pritom odgovara standardnom nadziranom gubitku između izlaza mo
 S druge strane, druga komponenta gubitka odgovara rekonstrukciji zatrovanih oznaka $\bm{y}$ na temelju procijenjenih pseudooznaka $\bm{l}$.\ 
 
 \section{Konzistencijski gubitak}
-\label{sek:con_loss}
+\label{sek:kon_gubitak}
 
 Osnovna ideja konzistencijskog gubitka (engl.\ \textit{consistency loss})~\cite{berthelot2019mixmatch} je osigurati da model za slične ulaze daje slične izlaze.\ 
 Dodavanjem ove komponente, modelu možemo povećati invarijantnost na perturbacije ulaza, kao i potencijalno spriječiti prenaučenost.\ 
@@ -1209,7 +1210,7 @@ Sveukupni gubitak za zadani primjer $\bm{x}$ tada definiramo kao:
 
 \begin{equation}
   \mathcal{L}_{total}(\bm{x}) = \mathcal{L}_{supervised}(\mathcal{A}_{S}(\bm{x})) + \sigma \mathcal{L}_{con}(\bm{x})
-  \label{eq:con_loss}
+  \label{eq:loss_with_con_loss}
 \end{equation}
 
 Pritom hiperparametar $\sigma$ zovemo stopom konzistencije (engl.\ \textit{consistency rate}).\ Dodatno, uočimo da se nadzirani gubitak sada računa koristeći jaku augmentaciju ulaza $\mathcal{A}_{S}(\bm{x})$.\ 
@@ -1237,11 +1238,11 @@ Uz korištenje jake augmentacije ulaza za izračun standardnog gubitka te dodava
 \end{equation}
 
 \section{Pretprocesiranje}
-\label{sek:preproc}
+\label{sek:pretproc}
 
 Okvir VIBE algoritmom maksimizacije očekivanja implicitno prepravlja oznake zatrovanih primjera te ih potom koristi za učenje.\ 
 Pritom učenje uspijeva jer većina napada nastoji što manje izmijeniti ulazne primjere.\ 
-Ipak, napadi s čistim oznakama (engl.\ \textit{clean-label attacks}) uobičajeno moraju više izmijeniti ulazne primjere kako bi uspjeli zatrovati model.\ 
+Ipak, napadi s čistim oznakama (engl.\ \textit{clean-label attacks}) uobičajeno moraju više izmijeniti ulazne primjere kako bi uspjeli ugraditi stražnja vrata u model.\ 
 Ova značajna perturbacija ulaza vidljiva je i u prostoru samonadziranih značajki: primjeri zatrovani napadom s čistim oznakama prilično su udaljeni od mnogostrukosti (engl.\ \textit{manifold}) na kojoj leže čisti podatci.\ 
 Kako bi iskoristili ovu činjenicu, okvir VIBE uključuje korak pretprocesiranja čiji je cilj ukloniti primjere zatrovane napadom s čistim oznakama.\ 
 
@@ -1331,7 +1332,7 @@ Za razliku od konvolucijskog sloja, kod sloja sažimanja općenito ne postoji pa
 Dodatno, sloj sažimanja se na svaki kanal ulaza primjenjuje zasebno tj.\ nema interakcije između različitih kanala.\ 
 
 \section{Sloj normalizacije nad grupom}
-\label{sek:batch_norm}
+\label{sek:norm_nad_grupom}
 
 Osnovna ideja normalizacije nad grupom je da normalizacijom svake značajke zasebno možemo osigurati konzistentnu distribuciju ulaza u daljnji sloj modela.\ 
 Idealno, normalizacija bi se provodila koristeći cijeli skup podataka $\mathcal{D}$, no ovo zbog memorijskih zahtjeva najčešće nije moguće.\ Umjesto toga, ideja je normalizaciju provoditi na razini minigrupe $\mathcal{B}$.\ 
@@ -1423,7 +1424,7 @@ U okviru našeg rada, fokusiramo se na arhitekturu ResNet-18 koja se sastoji od 
 
 U okviru našeg rada, koristili smo nekoliko zatrovanih odnosno zašumljenih inačica skupa podataka CIFAR-10~\cite{krizhevsky2009learning}.\
 
-\section{Skup podataka CIFAR-10}
+\section{CIFAR-10}
 \label{sek:cifar10}
 
 Skup podataka CIFAR-10 jedan je od najčešće korištenih skupova za učenje i evaluaciju različitih algoritama i modela dubokog učenja, a nastao je označavanjem podskupa skupa slika Tiny Images~\cite{krizhevsky2009learning}.\
