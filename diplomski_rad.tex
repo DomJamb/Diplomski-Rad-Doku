@@ -1444,6 +1444,57 @@ Skup za učenje sadrži po $5000$ slika iz svakog razreda, a skup za ispitivanje
 \chapter{Eksperimenti}
 \label{pog:eksperimenti}
 
+Eksperimente koje smo provodili u okviru našeg rada možemo podijeliti na dvije cjeline: eksperimenti sa zašumljenim oznakama te eksperimenti s napadima umetanjem stražnjih vrata.\ 
+
+\section{Zašumljene oznake}
+\label{sek:eksp_zasumljene}
+
+Eksperimente sa zašumljenim oznakama provodili smo na zašumljenim inačicama skupa CIFAR-10.\ 
+Pritom smo koristili inkluzivno simetrično zašumljivanje uz stopu šuma iznosa $20\%$, $50\%$ te $80\%$, kao i asimetrično zašumljivanje uz stopu šuma iznosa $40\%$.\ 
+Za svaku kombinaciju metode zašumljivanja i stope šuma, stvorili smo jednu inačicu zašumljenog skupa CIFAR-10.\ Dodatno, različite pristupe smo evaluirali i na učenju na čistom skupu CIFAR-10.\ 
+U svim eksperimentima, učili smo model arhitekture ResNet-18.\ Ključna mjera dobrote za eksperimente sa zašumljenim oznakama nam je točnost na čistom skupu za testiranje.\
+
+Općenito uspoređujemo pet pristupa: nadzirano učenje (engl.\ \textit{cross-entropy} - CE), nadzirano učenje s konzistencijskim gubitkom (engl.\ \textit{cross-entropy with consistency loss} - CE + CL), nadogradnju algoritma \textit{Sparse over-parameterization} (SOP+), algoritam \textit{Imprecise label learning} (ILL) te okvir \textit{Variational inference for backdoor elimination} s dodanim konzistencijskim gubitkom (VIBE).\ 
+
+Kod nadziranog učenja odnosno nadziranog učenja s konzistencijskim gubitkom, nasumično inicijalizirani model smo učili $300$ epoha uz optimizator SGD s početnom stopom učenja iznosa $0.05$.\ 
+Pritom smo koristili moment (engl.\ \textit{momentum})~\cite{sutskever2013importance} iznosa $0.9$, kao i propadanje težina (engl.\ \textit{weight decay})~\cite{krogh1991simple} iznosa $5 \cdot 10^{-4}$.\ 
+Kako bi se stopa učenja kroz vrijeme smanjivala, koristili smo višekoračnu strategiju (engl.\ \textit{multistep scheduler}) uz hiperparametar $\gamma$ iznosa $0.1$ te smanjivanje stope učenja pri dostizanju $150.$ odnosno $180.$ epohe.\ 
+Skup podataka bio je podijeljen na mini-grupe veličine $128$.\ U slučaju nadziranog učenja s konzistencijskim gubitkom, koristili smo konstantnu stopu konzistencije iznosa $1$.\ 
+Jake augmentacije uključuju slabe augmentacije, augmentaciju AutoAugment te augmentaciju nasumičnog brisanja (engl.\ \textit{random erasing})~\cite{zhong2020random}.\ 
+Dodatno, kod nadziranog učenja s konzistencijskim gubitkom model učimo $300$ epoha na čistom skupu odnosno $200$ epoha na zašumljenim skupovima.\ Ovo je ujedno i jedini hiperparametar čiji iznos ne fiksiramo na jednu vrijednost za sve eksperimente.\ 
+
+U slučaju algoritma SOP+, hiperparametri odgovaraju onima iz originalnog rada~\cite{liu2022robust}, ali uz korištenje arhitekture ResNet-18 umjesto arhitekture predaktivacijskog ResNet-18.\ Nasumično inicijalizirani model učili smo $300$ epoha uz optimizator SGD s početnom stopom učenja iznosa $0.02$.\ 
+Koristili smo moment iznosa $0.9$ te propadanje težina iznosa $5 \cdot 10^{-4}$.\ Umjesto višekoračne strategije, ovdje smo koristili strategiju kosinusnog kaljenja (engl.\ \textit{cosine annealing scheduler}) bez restarta te uz minimalnu stopu učenja iznosa $2 \cdot 10^{-4}$.\ Skup podataka ponovno je podijeljen na mini-grupe veličine $128$.\ 
+Vektore parametara $\{\bm{u}_i, \bm{v}_i\}_{i=1}^N$ inicijalizirali smo nasumično iz normalne distribucije sa srednjom vrijednošću iznosa $0$ te standardnom devijacijom iznosa $1 \cdot 10^{-8}$, a učili smo ih uz optimizator SGD sa stopom učenja iznosa $1$ te faktorom skaliranja stope učenja iznosa $10$.\ 
+Pritom za optimizator vektora $\{\bm{u}_i, \bm{v}_i\}_{i=1}^N$ nismo koristili moment ni propadanje težina.\
+Koristili smo konstantnu stopu konzistencije iznosa $0.9$, kao i konstantnu stopu ravnoteže razreda iznosa $0.1$.\ 
+Jake augmentacije kod algoritma SOP+ uključuju slabe augmentacije, augmentaciju AutoAugment te augmentaciju izrezivanja (engl.\ \textit{cutout})~\cite{devries2017improved}.\ 
+
+Kod algoritma ILL, hiperparametri ponovno odgovaraju onima iz originalnog rada~\cite{chen2024imprecise}, ali uz korištenje arhitekture ResNet-18 umjesto arhitekture predaktivacijskog ResNet-18.\ 
+Kao i kod algoritma SOP+, nasumično inicijalizirani model smo učili 300 epoha uz optimizator SGD s početnom stopom učenja iznosa $0.02$.\ 
+Pritom smo koristili moment iznosa $0.9$, ali i propadanje težina iznosa $1 \cdot 10^{-3}$ te propadanje slojeva (engl.\ \textit{layer decay})~\cite{ishii2017layer} iznosa $1$.\ 
+Za smanjivanje stope učenja, koristili smo strategiju kosinusnog kaljenja bez restarta te uz minimalnu stopu učenja iznosa $2 \cdot 10^{-4}$.\
+Skup podataka ponovno je bio podijeljen na mini-grupe veličine $128$.\ Koristili smo konstantnu stopu konzistencije iznosa $1$.\
+Jake augmentacije kod algoritma ILL uključuju slabe augmentacije, augmentaciju AutoAugment te augmentaciju nasumičnog brisanja.\
+
+Konačno, kod okvira VIBE s dodanim konzistencijskim gubitkom, model inicijaliziran okvirom All4One smo učili $30 000$ iteracija (približno $77$ epoha) uz optimizator SGD s početnom stopom učenja iznosa $0.01$.\ 
+Koristili smo moment iznosa $0.9$, kao i propadanje težina iznosa $5 \cdot 10^{-4}$.\ Kao i kod algoritama SOP+ te ILL, koristili smo strategiju kosinusnog kaljenja bez restarta, ali uz minimalnu stopu učenja iznosa $0$.\ 
+Skup podataka bio je podijeljen na mini-grupe veličine $256$.\ Hiperparametar raspršenosti von Mises-Fisherove distribucije $\kappa$ postavili smo na iznos $10$, jednako kao i hiperparametar temperature $\nu$ korišten pri izračunu distribucije $p(y | l)$.\ 
+Pojedine vektore iz skupa čistih prototipova $\bm{\phi}$ odnosno skupa zašumljenih prototipova $\bm{\psi}$ inicijalizirali smo kao centroide pripadnih razreda.\ Parametre $\bm{\hat{\pi}}$ inicijalizirali smo nasumično iz jedinične normalne distribucije.\ 
+Hiperparametar temperature $c$ korišten za izračun koeficijenata miješanja $\bm{\pi}$ postavili smo na iznos $0.02$.\ E korak učenja provodili smo svakih $1000$ iteracija, pritom koristeći Sinkhorn-Knopp algoritam uz regularizacijski hiperparametar $\lambda$ iznosa $25$ te maksimalan broj iteracija iznosa $10 000$.\ 
+Koristili smo konstantnu stopu konzistencije iznosa $5$.\ Kao i kod nadziranog učenja s konzistencijskim gubitkom te algoritma ILL, jake augmentacije uključuju slabe augmentacije, augmentaciju AutoAugment te augmentaciju nasumičnog brisanja.\ 
+
+Ako za pojedini eksperiment nisu eksplicitno navedene vrijednosti određenih hiperparametara, u pitanju su upravo opisane vrijednosti.\ 
+Na primjer, ako za određeni eksperiment učenja okvirom VIBE ne istaknemo korištenu veličinu mini-grupe, podrazumijevamo već navedenu veličinu $256$.\
+
+\subsection{Usporedba sa stanjem tehnike}
+\label{sub:usporedba_zasumljene}
+
+\section{Napadi umetanjem stražnjih vrata}
+\label{sek:eksp_napadi}
+
+\subsection{Usporedba sa stanjem tehnike}
+\label{sub:usporedba_napadi}
 
 %--- ZAKLJUČAK / CONCLUSION ----------------------------------------------------
 \chapter{Zaključak}
