@@ -1451,8 +1451,8 @@ Eksperimente koje smo provodili u okviru našeg rada možemo podijeliti na dvije
 
 Eksperimente sa zašumljenim oznakama provodili smo na zašumljenim inačicama skupa CIFAR-10.\ 
 Pritom smo koristili inkluzivno simetrično zašumljivanje uz stopu šuma iznosa $20\%$, $50\%$ te $80\%$, kao i asimetrično zašumljivanje uz stopu šuma iznosa $40\%$.\ 
-Za svaku kombinaciju metode zašumljivanja i stope šuma, stvorili smo jednu inačicu zašumljenog skupa CIFAR-10.\ Dodatno, različite pristupe smo evaluirali i na učenju na čistom skupu CIFAR-10.\ 
-U svim eksperimentima, učili smo model arhitekture ResNet-18.\ Ključna mjera dobrote za eksperimente sa zašumljenim oznakama nam je točnost na čistom skupu za testiranje.\
+Za svaku kombinaciju metode zašumljivanja i stope šuma, stvorili smo jednu inačicu zašumljenog skupa CIFAR-10.\ Dodatno, različite pristupe smo evaluirali i pri učenju na čistom skupu CIFAR-10.\ 
+U svim eksperimentima, učili smo model arhitekture ResNet-18.\ Ključna mjera dobrote za eksperimente sa zašumljenim oznakama nam je točnost na čistom skupu za ispitivanje.\
 
 Općenito uspoređujemo pet pristupa: nadzirano učenje (engl.\ \textit{cross-entropy} - CE), nadzirano učenje s konzistencijskim gubitkom (engl.\ \textit{cross-entropy with consistency loss} - CE + CL), nadogradnju algoritma \textit{Sparse over-parameterization} (SOP+), algoritam \textit{Imprecise label learning} (ILL) te okvir \textit{Variational inference for backdoor elimination} s dodanim konzistencijskim gubitkom (VIBE).\ 
 
@@ -1489,6 +1489,96 @@ Na primjer, ako za određeni eksperiment učenja okvirom VIBE ne istaknemo kori�
 
 \subsection{Usporedba sa stanjem tehnike}
 \label{sub:usporedba_zasumljene}
+
+Prije svega, pogledajmo kako se različiti opisani algoritmi ponašaju pri učenju na čistim podatcima.\ 
+U tablici~\ref{tbl:usporedba_ciste}, stupac \textit{Algoritam} predstavlja algoritam korišten za učenje modela na čistom skupu CIFAR-10.\ 
+Stupac \textit{Točnost [\%]} predstavlja točnost naučenog modela na čistom skupu za ispitivanje skupa CIFAR-10.\ Najbolji rezultat je podebljan.\ 
+
+\pagebreak
+
+\begin{table}[htb]
+  \caption{Točnost modela učenih na čistom skupu CIFAR-10.}
+  \label{tbl:usporedba_ciste}
+  \centering
+  \begin{tabular}{l||c}
+  Algoritam & Točnost [\%] \\ \hline \hline
+  CE & 95.30 \\
+  CE + CL & 96.30 \\ \hline
+  SOP+ & 96.70 \\
+  ILL & \textbf{96.75} \\ \hline
+  VIBE & 96.10 \\
+  \end{tabular}
+\end{table}
+
+Kao što možemo vidjeti, algoritam ILL postiže najveću točnost pri učenju na čistom skupu CIFAR-10.\ Algoritam SOP+ postiže podjednake performanse kao i algoritam ILL, dok okvir VIBE postiže za $0.65\%$ manju točnost.\ 
+Usporedbom redaka CE i CE + CL, vidimo da dodavanje konzistencijskog gubitka povećava točnost nadziranog učenja za $1\%$.\ Zanimljivo je da algoritmi ILL te SOP+ postižu bolje performanse čak i od nadziranog učenja s konzistencijskim gubitkom.\ 
+S druge strane, okvir VIBE postiže neznatno nižu točnost u usporedbi s nadziranim učenjem s konzistencijskim gubitkom.\ 
+
+Pogledajmo sada točnost različitih modela pri učenju na podatcima sa simetrično zašumljenim oznakama.\ 
+U tablici~\ref{tbl:usporedba_simetricne}, stupac \textit{Algoritam} predstavlja algoritam korišten za učenje modela na skupu CIFAR-10 sa simetrično zašumljenim oznakama.\ 
+Znak $*$ prije imena algoritma označava rezultat preuzet iz originalnog rada pripadnog algoritma, dok manjak znaka označava reprodukciju rezultata na temelju originalnog repozitorija algoritma.\
+Stupci \textit{20\%}, \textit{50\%} i \textit{80\%} predstavljaju različite stope šuma.\ Drugim riječima, svaki stupac odgovara jednoj zašumljenoj inačici skupa CIFAR-10 uz zadanu stopu šuma.\ 
+Pojedine vrijednosti u tablici predstavljaju točnost odgovarajućeg modela na čistom skupu za ispitivanje skupa CIFAR-10.\ Najbolji rezultat za svaku zašumljenu inačicu skupa je podebljan.\
+Vrijednosti preuzete iz originalnih radova nisu uzete u obzir pri označavanju najboljih rezultata.\ 
+
+\begin{table}[htb]
+  \caption{Točnost modela učenih na simetrično zašumljenim inačicama skupa CIFAR-10.}
+  \label{tbl:usporedba_simetricne}
+  \centering
+  \begin{tabular}{l||ccc}
+  Algoritam & 20\% & 50\% & 80\% \\ \hline \hline
+  CE & 83.80 & - & - \\
+  CE + CL & 95.40 & - & - \\ \hline
+  SOP+ & \textbf{96.26} & 95.58 & 93.11 \\
+  *SOP+ & 96.30 & 95.50 & 94.00 \\
+  ILL & 96.22 & \textbf{95.67} & 93.75 \\
+  *ILL & 96.78 & 96.60 & 94.31 \\ \hline
+  VIBE & 95.70 & 94.80 & \textbf{94.40} \\
+  \end{tabular}
+\end{table}
+
+Vidimo da za različite stope šuma različiti algoritmi postižu najveću točnost.\ 
+Konkretno, uz stopu šuma iznosa $20\%$, algoritam SOP+ postiže najveću točnost.\ Algoritam ILL podjednake je točnosti, dok okvir VIBE postiže za $0.56\%$ manju točnost.\ 
+Iako se nadzirano učenje pokazuje kao najlošije u ovom postavu, zanimljivo je da dodavanjem konzistencijskog gubitka možemo postići točnost za samo $0.86\%$ manju od točnosti stanja tehnike.\ 
+Drugim riječima, iako standardno nadzirano učenje ne postiže visoku točnost pri učenju na skupu sa zašumljenim oznakama, jednostavnim dodavanjem konzistencijskog gubitka možemo drastično povećati točnost naučenog modela.\ 
+
+Uz stopu šuma iznosa $40\%$, algoritam ILL postiže najveću točnost.\ Algoritam SOP+ u ovom slučaju je podjednake točnosti, dok okvir VIBE postiže za $0.87\%$ nižu točnost.\ Ovaj postav predstavlja najgori slučaj za okvir VIBE u usporedbi sa stanjem tehnike.\ 
+Kada govorimo o postavu uz stopu šuma iznosa $80\%$, okvir VIBE postiže najveću točnost.\ Pritom isti postiže točnost za $1.29\%$ veću od točnosti algoritma SOP+, kao i za $0.65\%$ veću od točnosti algoritma ILL.\ 
+Zanimljivo je da rezultati stanja tehnike za ovaj postav odudaraju od rezultata iz originalnih radova za $0.89\%$ u slučaju algoritma SOP+, odnosno za $0.56\%$ u slučaju algoritma ILL.\
+
+Uočimo da povećanjem stope šuma s $20\%$ na $80\%$ kod okvira VIBE gubimo samo $1.3\%$ točnosti, dok kod algoritama SOP+ te ILL gubimo $3.15\%$ odnosno $2.47\%$ točnosti.\ 
+Robusnost okvira VIBE na povećanje stope šuma, kao i postizanje najboljih performansi u usporedbi sa stanjem tehnike pri visokoj stopi šuma, potencijalno su posljedica samonadzirane inicijalizacije parametara modela korištenjem okvira All4One.\ 
+Konkretno, samonadzirana inicijalizacija parametara mogla bi povećati važnost semantike slika u usporedbi s važnošću pridijeljenih oznaka te time doprinijeti učenju robusnog modela.\
+
+Pogledajmo još i točnost različitih modela pri učenju na podatcima s asimetrično zašumljenim oznakama.\ 
+U tablici~\ref{tbl:usporedba_asimetricne}, stupac \textit{Algoritam} predstavlja algoritam korišten za učenje modela na skupu CIFAR-10 s asimetrično zašumljenim oznakama uz stopu šuma iznosa $40\%$.\ 
+Stupac \textit{Točnost [\%]} predstavlja točnost naučenog modela na čistom skupu za ispitivanje skupa CIFAR-10.\ Najbolji rezultat je podebljan.\ 
+
+\pagebreak
+
+\begin{table}[htb]
+  \caption{Točnost modela učenih na asimetrično zašumljenom skupu CIFAR-10.}
+  \label{tbl:usporedba_asimetricne}
+  \centering
+  \begin{tabular}{l||c}
+  Algoritam & Točnost [\%] \\ \hline \hline
+  CE & 76.80 \\
+  CE + CL & 92.20 \\ \hline
+  SOP+ & 93.74 \\
+  *SOP+ & 93.80 \\
+  ILL & 85.75 \\ 
+  *ILL & 94.75 \\ \hline
+  VIBE & \textbf{95.10} \\
+  \end{tabular}
+\end{table}
+
+Vidimo da u ovom slučaju okvir VIBE postiže najveću točnost.\ Konkretno, točnost okvira VIBE je za $1.36\%$ veća od točnosti algoritma SOP+, kao i za $9.35\%$ veća od točnosti algoritma ILL.\ 
+Točnost algoritma ILL ovdje drastično odstupa od točnosti navedene u originalnom radu.\ Pokazuje se da je algoritam ILL nestabilan u teškim postavima - različita pokretanja učenja mogu rezultirati modelima s veoma različitim performansama.\ 
+Dodatno, vidimo da i u ovom slučaju dodavanje konzistencijskog gubitka nadziranom učenju značajno povećava točnost.\ Štoviše, dodavanjem konzistencijskog gubitka ovdje postižemo povećanje točnosti iznosa čak $15.4\%$.\ 
+Dobiveni rezultati sugeriraju da bismo problem zašumljenih oznaka potencijalno mogli riješiti fino podešenim nadziranim učenjem s konzistencijskim gubitkom.\ 
+
+Dok algoritmi SOP+ i ILL postižu najbolje performanse u postavima sa simetričnim zašumljivanjem uz nisku stopu šuma, okvir VIBE postiže najbolje performanse u teškim postavima tj. pri simetričnom zašumljivanju uz stopu šuma iznosa $80\%$, kao i pri asimetričnom zašumljivanju uz stopu šuma iznosa $40\%$.\ 
+Dodatno, dodavanjem konzistencijskog gubitka nadziranom učenju možemo postići rezultate veoma bliske rezultatima algoritama za učenje na podatcima sa zašumljenim oznakama.\ 
 
 \section{Napadi umetanjem stražnjih vrata}
 \label{sek:eksp_napadi}
