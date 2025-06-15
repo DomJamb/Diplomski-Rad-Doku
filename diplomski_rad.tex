@@ -1711,7 +1711,7 @@ U prethodnim eksperimentima, stopu konzistencije smo fiksirali na iznos $1$.\ Po
 U tablici~\ref{tbl:usporedba_con_rate}, stupac \textit{Stopa konzistencije} predstavlja korištenu (konstantnu) stopu konzistencije, dok stupac \textit{Točnost [\%]} ponovno predstavlja točnost naučenog modela na čistom skupu za ispitivanje skupa CIFAR-10.\ 
 
 \begin{table}[htb]
-  \caption{Točnost modela učenih okvirom VIBE s konzistencijskim gubitkom ovisno o iznosu stope konzistencije.}
+  \caption{Točnost modela učenih okvirom VIBE s konzistencijskim gubitkom ovisno o stopi konzistencije.}
   \label{tbl:usporedba_con_rate}
   \centering
   \begin{tabular}{l||c}
@@ -1765,7 +1765,7 @@ Ipak, algoritmi SOP+ te ILL u skupu jakih augmentacija dodatno imaju i augmentac
 Potaknuti tom činjenicom, u skup jakih augmentacija smo dodali augmentaciju nasumičnog brisanja.\ Pogledajmo sada kako se točnost modela učenih okvirom VIBE s augmentacijom nasumičnog brisanja mijenja ovisno o iznosu stope konzistencije.\ 
 
 \begin{table}[htb]
-  \caption{Točnost modela učenih okvirom VIBE s augmentacijom nasumičnog brisanja ovisno o iznosu stope konzistencije.}
+  \caption{Točnost modela učenih okvirom VIBE s augmentacijom nasumičnog brisanja ovisno o stopi konzistencije.}
   \label{tbl:usporedba_con_rate_rand_erase}
   \centering
   \begin{tabular}{l||c}
@@ -1796,7 +1796,7 @@ Najbolji rezultat za svaku inačicu skupa je podebljan.\
 \pagebreak
 
 \begin{table}[htb]
-  \caption{Točnost modela učenih okvirom VIBE s konzistencijskim gubitkom na različitim inačicama skupa CIFAR-10 ovisno o iznosu stope konzistencije.}
+  \caption{Točnost modela učenih okvirom VIBE s konzistencijskim gubitkom na različitim inačicama skupa CIFAR-10 ovisno o stopi konzistencije.}
   \label{tbl:usporedba_con_rate_razl_skupovi}
   \centering
   \begin{tabular}{l||ccc}
@@ -1810,6 +1810,55 @@ Najbolji rezultat za svaku inačicu skupa je podebljan.\
 
 Za sve tri inačice skupa podataka CIFAR-10, modeli učeni uz stopu konzistencije iznosa $5$ postižu najvišu točnost.\ 
 Dakle, izgleda da odabir iznosa stope konzistencije ne ovisi nužno o konkretnoj inačici skupa podataka.\ Na temelju ovih rezultata, potvrđujemo fiksiranje stope konzistencije na iznos $5$ te time dolazimo do konačne konfiguracije hiperparametara koju smo koristili pri usporedbi sa stanjem tehnike.\ 
+
+\subsection{Validacija formulacije gubitka stanja tehnike}
+\label{sub:validacija_zasumljene_sota}
+
+Algoritmi SOP+ te ILL koriste formulacije gubitka s nekoliko zasebnih komponenti.\ 
+Potaknuti validacijom hiperparametara za okvir VIBE, odlučili smo istražiti utjecaj prisutnosti pojedinih komponenti gubitka na performanse algoritma SOP+ odnosno algoritma ILL.\ 
+
+Konkretno, algoritam SOP+ osim osnovnog gubitka dodatno koristi konzistencijski gubitak i gubitak ravnoteže razreda.\ Pritom oba gubitka imaju zasebne hiperparametre: stopu konzistencije odnosno stopu ravnoteže razreda.\ 
+U osnovnoj konfiguraciji algoritma SOP+, stopa konzistencije je postavljena na iznos $0.9$, dok je stopa ravnoteže razreda postavljena na iznos $0.1$.\ 
+Za provođenje eksperimenata, koristimo simetrično zašumljen skup CIFAR-10 uz stopu šuma iznosa $20\%$ te prethodno opisanu konfiguraciju algoritma.\ 
+U tablici~\ref{tbl:usporedba_sop_gubitak}, stupac \textit{Stopa konzistencije} predstavlja korištenu stopu konzistencije, stupac \textit{Stopa ravnoteže razreda} predstavlja korištenu stopu ravnoteže razreda, a stupac \textit{Točnost [\%]} ponovno predstavlja točnost modela na čistom skupu za ispitivanje skupa CIFAR-10.\ 
+
+\pagebreak
+
+\begin{table}[htb]
+  \caption{Točnost modela učenih algoritmom SOP+ ovisno o stopi konzistencije te stopi ravnoteže razreda.}
+  \label{tbl:usporedba_sop_gubitak}
+  \centering
+  \begin{tabular}{ll||c}
+  Stopa konzistencije & Stopa ravnoteže razreda & Točnost [\%] \\ \hline \hline
+  0.9 & 0 & \textbf{96.39} \\
+  1 & 0 & 96.28 \\ \hline
+  0 & 0.1 & 93.93 \\
+  0 & 1 & 93.91 \\ \hline
+  0.9 & 0.1 & 96.26 \\
+  \end{tabular}
+\end{table}
+
+Vidimo da model učen uz stopu konzistencije iznosa $0.9$ te bez komponente gubitka ravnoteže razreda postiže najvišu točnost iznosa $96.39\%$.\ 
+Model učen uz osnovnu konfiguraciju postiže neznatno nižu točnost, dok model učen uz stopu ravnoteže razreda iznosa $0.1$ te bez komponente konzistencijskog gubitka postiže točnost za $2.46\%$ nižu od točnosti najboljeg modela.\ 
+Možemo zaključiti da je za uspješnost algoritma SOP+ veoma važan konzistencijski gubitak, dok gubitak ravnoteže razreda ne mijenja znatno performanse naučenih modela.\ 
+Štoviše, uklanjanjem gubitka ravnoteže razreda bismo potencijalno mogli malo povećati uspješnost algoritma.\ Naravno, postoji mogućnost da je ova komponenta važna kod težih postava zašumljivanja ili kod težih skupova podataka.\ 
+
+Algoritam ILL osim osnovnog gubitka dodatno koristi i konzistencijski gubitak.\ Za razliku od algoritma SOP+, stopa konzistencije je kod algoritma ILL fiksirana na iznos $1$.\ 
+Kao i prije, učenje provodimo na simetrično zašumljenom skupu CIFAR-10 uz stopu šuma iznosa $20\%$.\ Pritom koristimo ranije opisanu konfiguraciju hiperparametara algoritma ILL.\ 
+
+\begin{table}[htb]
+  \caption{Točnost modela učenih algoritmom ILL ovisno o stopi konzistencije.}
+  \label{tbl:usporedba_ill_gubitak}
+  \centering
+  \begin{tabular}{l||c}
+  Stopa konzistencije & Točnost [\%] \\ \hline \hline
+  0 & \textbf{96.28} \\
+  1 & 96.22 \\ 
+  \end{tabular}
+\end{table}
+
+Vidimo da model učen bez komponente konzistencijskog gubitka postiže najvišu točnost.\ Ipak, razlika u točnosti je neznatna: samo $0.06\%$.\ 
+Možemo zaključiti da konzistencijski gubitak nije značajan za algoritam ILL.\ Ipak, kao i kod algoritma SOP+, ne možemo isključiti mogućnost da je komponenta konzistencijskog gubitka značajna kod težih postava zašumljivanja ili kod težih skupova podataka.
 
 \section{Napadi umetanjem stražnjih vrata}
 \label{sek:eksp_napadi}
