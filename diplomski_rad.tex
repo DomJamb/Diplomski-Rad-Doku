@@ -1624,7 +1624,7 @@ Dodatno, možemo uočiti da povećanje stope učenja općenito smanjuje konačnu
 \pagebreak
 
 Dodavanje komponente konzistencijskog gubitka trebalo bi povećati točnost modela.\ Za izračun konzistencijskog gubitka, koristili smo KL divergenciju između izlaza modela za slabo odnosno jako augmentirane ulaze.\ 
-Pritom jake augmentacije uključuju slabe augmentacije te augmentaciju AutoAugment, a stopa konzistencije je postavljena na iznos $1$.\ Pogledajmo kako se točnost modela učenog okvirom VIBE s konzistencijskim gubitkom mijenja ovisno o broju iteracija učenja te iznosu stope učenja.\ 
+Pritom jake augmentacije uključuju slabe augmentacije te augmentaciju AutoAugment, a stopa konzistencije je postavljena na iznos $1$.\ Pogledajmo kako se točnost modela učenih okvirom VIBE s konzistencijskim gubitkom mijenja ovisno o broju iteracija učenja te iznosu stope učenja.\ 
 
 \begin{table}[htb]
   \caption{Točnost modela učenih okvirom VIBE s konzistencijskim gubitkom ovisno o broju iteracija te stopi učenja.}
@@ -1688,7 +1688,7 @@ Kako bismo povećali robusnost na potencijalno lošiji odabir stope učenja, odl
 Korištenjem strategije izmjene odnosno smanjenja stope učenja možemo pospješiti konvergenciju učenja, kao i poboljšati generalizacijsku moć naučenih modela.\ 
 Dok algoritmi SOP+ te ILL koriste strategiju kosinusnog kaljenja, osnovna konfiguracija okvira VIBE ne uključuje nijednu strategiju izmjene stope učenja.\ 
 Kako bismo potencijalno poboljšali točnost naučenih modela, odlučili smo koristiti strategiju kosinusnog kaljenja bez restarta.\ 
-Pogledajmo kako se točnost modela učenog okvirom VIBE s konzistencijskim gubitkom i strategijom kosinusnog kaljenja mijenja ovisno o broju iteracija učenja te iznosu stope učenja.\ 
+Pogledajmo kako se točnost modela učenih okvirom VIBE s konzistencijskim gubitkom i strategijom kosinusnog kaljenja mijenja ovisno o broju iteracija učenja te iznosu stope učenja.\ 
 
 \begin{table}[htb]
   \caption{Točnost modela učenih okvirom VIBE s konzistencijskim gubitkom i strategijom kosinusnog kaljenja ovisno o broju iteracija te stopi učenja.}
@@ -1811,7 +1811,7 @@ Najbolji rezultat za svaku inačicu skupa je podebljan.\
 Za sve tri inačice skupa podataka CIFAR-10, modeli učeni uz stopu konzistencije iznosa $5$ postižu najvišu točnost.\ 
 Dakle, izgleda da odabir iznosa stope konzistencije ne ovisi nužno o konkretnoj inačici skupa podataka.\ Na temelju ovih rezultata, potvrđujemo fiksiranje stope konzistencije na iznos $5$ te time dolazimo do konačne konfiguracije hiperparametara koju smo koristili pri usporedbi sa stanjem tehnike.\ 
 
-\subsection{Validacija formulacije gubitka stanja tehnike}
+\subsection{Validacija gubitka stanja tehnike}
 \label{sub:validacija_zasumljene_sota}
 
 Algoritmi SOP+ te ILL koriste formulacije gubitka s nekoliko zasebnih komponenti.\ 
@@ -1859,6 +1859,75 @@ Kao i prije, učenje provodimo na simetrično zašumljenom skupu CIFAR-10 uz sto
 
 Vidimo da model učen bez komponente konzistencijskog gubitka postiže najvišu točnost.\ Ipak, razlika u točnosti je neznatna: samo $0.06\%$.\ 
 Možemo zaključiti da konzistencijski gubitak nije značajan za algoritam ILL.\ Ipak, kao i kod algoritma SOP+, ne možemo isključiti mogućnost da je komponenta konzistencijskog gubitka značajna kod težih postava zašumljivanja ili kod težih skupova podataka.
+
+\subsection{Validacija gubitka nadziranog učenja}
+\label{sub:validacija_zasumljene_nadzirano}
+
+Pokazali smo da dodavanje konzistencijskog gubitka nadziranom učenju značajno poboljšava performanse naučenih modela kada je u pitanju učenje na skupu sa zašumljenim oznakama.\ 
+Ovu pojavu vrijedi detaljnije istražiti.\ Konkretno, zanima nas kako zadana formulacija gubitka utječe na performanse pri učenju na različitim inačicama skupa podataka CIFAR-10.\ 
+Pritom stopu učenja fiksiramo na iznos $0.05$, a broj epoha učenja variramo.\ Preostali hiperparametri odgovaraju prethodno opisanoj konfiguraciji.\ 
+
+Prije svega, pogledajmo kako se točnost modela učenih nadziranim učenjem bez konzistencijskog gubitka na različitim inačicama skupa CIFAR-10 mijenja ovisno o broju epoha učenja.\ 
+U tablici~\ref{tbl:usporedba_nadzirano}, stupac \textit{Broj epoha} predstavlja korišteni broj epoha učenja, dok svaki stupac iz grupe stupaca \textit{Inačica skupa podataka} predstavlja jednu inačicu skupa CIFAR-10.\ 
+Konkretno, stupac \textit{Čisto} označava čisti skup CIFAR-10, stupac \textit{Simetrično, 20\%} označava simetrično zašumljenu inačicu skupa uz stopu šuma iznosa $20\%$, a stupac \textit{Asimetrično, 40\%} označava asimetrično zašumljenu inačicu skupa uz stopu šuma iznosa $40\%$.\ 
+Kao i inače, rezultat za svaku inačicu skupa je podebljan.\ 
+
+\begin{table}[htb]
+  \caption{Točnost modela učenih nadziranim učenjem na različitim inačicama skupa CIFAR-10 ovisno o broju epoha.}
+  \label{tbl:usporedba_nadzirano}
+  \centering
+  \begin{tabular}{l||ccc}
+  & \multicolumn{3}{c}{Inačica skupa podataka} \\ \hline
+  Broj epoha & Čisto & Simetrično, 20\% & Asimetrično, 40\% \\ \hline \hline
+  200 & 95.1 & 83.6 & 75.8 \\
+  300 & \textbf{95.3} & \textbf{83.8} & \textbf{76.8} \\
+  \end{tabular}
+\end{table}
+
+Možemo vidjeti da točnost modela učenih nadziranim učenjem bez konzistencijskog gubitka drastično pada kada su u skupu za učenje prisutni podatci sa zašumljenim oznakama.\ 
+Konkretno, učenje na asimetrično zašumljenoj inačici skupa CIFAR-10 uz stopu šuma iznosa $40\%$ rezultira modelom čija je točnost za $18.5\%$ niža od točnosti modela učenog na čistom skupu.\ 
+Dodatno, vidimo da učenje veći broj epoha rezultira boljim modelom neovisno o konkretnoj inačici skupa podataka.\ 
+
+Dodajmo sada komponentu konzistencijskog gubitka.\ Pritom stopu konzistencije fiksiramo na iznos $1$, a jake augmentacije definiramo kao slabe augmentacije uz dodanu augmentaciju AutoAugment.\ 
+Pogledajmo sada kako se točnost modela učenih nadziranim učenjem s konzistencijskim gubitkom na različitim inačicama skupa CIFAR-10 mijenja ovisno o broju epoha učenja.\ 
+
+\begin{table}[htb]
+  \caption{Točnost modela učenih nadziranim učenjem s konzistencijskim gubitkom na različitim inačicama skupa CIFAR-10 ovisno o broju epoha.}
+  \label{tbl:usporedba_nadzirano_con_loss}
+  \centering
+  \begin{tabular}{l||ccc}
+  & \multicolumn{3}{c}{Inačica skupa podataka} \\ \hline
+  Broj epoha & Čisto & Simetrično, 20\% & Asimetrično, 40\% \\ \hline \hline
+  200 & 95.7 & \textbf{93.5} & \textbf{89.9} \\
+  300 & \textbf{96.2} & 89.6 & 83.0 \\
+  \end{tabular}
+\end{table}
+
+Vidimo da dodavanje konzistencijskog gubitka povećava točnost modela na svim inačicama skupa CIFAR-10.\ 
+Pri učenju na čistom skupu, učenje veći broj epoha rezultira višom točnošću.\ S druge strane, učenje na zašumljenim inačicama skupa rezultira višom točnošću kada odaberemo manji broj epoha.\ 
+Dakle, ako želimo osigurati veću robusnost na prisutnost zašumljenih oznaka, bolje je model učiti manji broj epoha.\ 
+Iako ćemo ovim pristupom imati malo nižu točnost pri učenju na čistom skupu, točnost modela pri učenju na zašumljenim inačicama skupa bit će značajno viša.\ 
+Konkretno, kraćim učenjem možemo smanjiti razliku u točnosti modela učenog na čistom skupu te modela učenog na asimetrično zašumljenoj inačici skupa s $18.5\%$ na $5.8\%$, ali ćemo ovo platiti $0.5\%$ nižom točnošću pri učenju na čistom skupu.\  
+
+Gledajući da je dodavanje augmentacije nasumičnog brisanja povećalo performanse okvira VIBE, odlučili smo primijeniti ovu promjenu i na nadzirano učenje.\ 
+Konačno, pogledajmo kako se točnost modela učenih nadziranim učenjem s augmentacijom nasumičnog brisanja na različitim inačicama skupa CIFAR-10 mijenja ovisno o broju epoha učenja.\ 
+
+\begin{table}[htb]
+  \caption{Točnost modela učenih nadziranim učenjem s augmentacijom nasumičnog brisanja na različitim inačicama skupa CIFAR-10 ovisno o broju epoha.}
+  \label{tbl:usporedba_nadzirano_con_loss_rand_erase}
+  \centering
+  \begin{tabular}{l||ccc}
+  & \multicolumn{3}{c}{Inačica skupa podataka} \\ \hline
+  Broj epoha & Čisto & Simetrično, 20\% & Asimetrično, 40\% \\ \hline \hline
+  200 & 95.9 & \textbf{95.4} & \textbf{92.2} \\
+  300 & \textbf{96.3} & 93.3 & 89.8 \\
+  \end{tabular}
+\end{table}
+
+Možemo vidjeti da dodavanje augmentacije nasumičnog brisanja u skup jakih augmentacija također povećava točnost modela na svim inačicama skupa CIFAR-10.\ 
+Kao i kod prethodnog eksperimenta, učenje na čistom skupu rezultira višom točnošću uz veći broj epoha, dok je pri učenju na zašumljenim inačicama skupa situacija obrnuta.\ 
+Odabirom učenja $200$ epoha, razliku u točnosti modela učenog na čistom skupu te modela učenog na asimetrično zašumljenoj inačici skupa dodatno smanjujemo s $5.8\%$ na $3.7\%$, ali uz cijenu $0.4\%$ niže točnosti pri učenju na čistom skupu.\ 
+Drugim riječima, korištenjem nadziranog učenja s konzistencijskim gubitkom te augmentacijom nasumičnog brisanja u skupu jakih augmentacija možemo postići prihvatljivu robusnost na prisutnost zašumljenih oznaka, ali i povećati točnost naučenog modela u slučaju učenja na čistom skupu CIFAR-10.\ 
 
 \section{Napadi umetanjem stražnjih vrata}
 \label{sek:eksp_napadi}
