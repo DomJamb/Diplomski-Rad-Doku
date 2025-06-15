@@ -1452,19 +1452,19 @@ Eksperimente koje smo provodili u okviru našeg rada možemo podijeliti na dvije
 Eksperimente sa zašumljenim oznakama provodili smo na zašumljenim inačicama skupa CIFAR-10.\ 
 Pritom smo koristili inkluzivno simetrično zašumljivanje uz stopu šuma iznosa $20\%$, $50\%$ te $80\%$, kao i asimetrično zašumljivanje uz stopu šuma iznosa $40\%$.\ 
 Za svaku kombinaciju metode zašumljivanja i stope šuma, stvorili smo jednu inačicu zašumljenog skupa CIFAR-10.\ Dodatno, različite pristupe smo evaluirali i pri učenju na čistom skupu CIFAR-10.\ 
-U svim eksperimentima, učili smo model arhitekture ResNet-18.\ Ključna mjera dobrote za eksperimente sa zašumljenim oznakama nam je točnost na čistom skupu za ispitivanje.\
+U svim eksperimentima, učili smo model arhitekture ResNet-18.\ Ključna mjera dobrote za eksperimente sa zašumljenim oznakama je točnost na čistom skupu za ispitivanje.\
 
 Općenito uspoređujemo pet pristupa: nadzirano učenje (engl.\ \textit{cross-entropy} - CE), nadzirano učenje s konzistencijskim gubitkom (engl.\ \textit{cross-entropy with consistency loss} - CE + CL), nadogradnju algoritma \textit{Sparse over-parameterization} (SOP+), algoritam \textit{Imprecise label learning} (ILL) te okvir \textit{Variational inference for backdoor elimination} s dodanim konzistencijskim gubitkom (VIBE).\ 
 
 Kod nadziranog učenja odnosno nadziranog učenja s konzistencijskim gubitkom, nasumično inicijalizirani model smo učili $300$ epoha uz optimizator SGD s početnom stopom učenja iznosa $0.05$.\ 
 Pritom smo koristili moment (engl.\ \textit{momentum})~\cite{sutskever2013importance} iznosa $0.9$, kao i propadanje težina (engl.\ \textit{weight decay})~\cite{krogh1991simple} iznosa $5 \cdot 10^{-4}$.\ 
 Kako bi se stopa učenja kroz vrijeme smanjivala, koristili smo višekoračnu strategiju (engl.\ \textit{multistep scheduler}) uz hiperparametar $\gamma$ iznosa $0.1$ te smanjivanje stope učenja pri dostizanju $150.$ odnosno $180.$ epohe.\ 
-Skup podataka bio je podijeljen na mini-grupe veličine $128$.\ U slučaju nadziranog učenja s konzistencijskim gubitkom, koristili smo konstantnu stopu konzistencije iznosa $1$.\ 
+Skup podataka bio je podijeljen na minigrupe veličine $128$.\ U slučaju nadziranog učenja s konzistencijskim gubitkom, koristili smo konstantnu stopu konzistencije iznosa $1$.\ 
 Jake augmentacije uključuju slabe augmentacije, augmentaciju AutoAugment te augmentaciju nasumičnog brisanja (engl.\ \textit{random erasing})~\cite{zhong2020random}.\ 
 Dodatno, kod nadziranog učenja s konzistencijskim gubitkom model učimo $300$ epoha na čistom skupu odnosno $200$ epoha na zašumljenim skupovima.\ Ovo je ujedno i jedini hiperparametar čiji iznos ne fiksiramo na jednu vrijednost za sve eksperimente.\ 
 
 U slučaju algoritma SOP+, hiperparametri odgovaraju onima iz originalnog rada~\cite{liu2022robust}, ali uz korištenje arhitekture ResNet-18 umjesto arhitekture predaktivacijskog ResNet-18.\ Nasumično inicijalizirani model učili smo $300$ epoha uz optimizator SGD s početnom stopom učenja iznosa $0.02$.\ 
-Koristili smo moment iznosa $0.9$ te propadanje težina iznosa $5 \cdot 10^{-4}$.\ Umjesto višekoračne strategije, ovdje smo koristili strategiju kosinusnog kaljenja (engl.\ \textit{cosine annealing scheduler}) bez restarta te uz minimalnu stopu učenja iznosa $2 \cdot 10^{-4}$.\ Skup podataka ponovno je podijeljen na mini-grupe veličine $128$.\ 
+Koristili smo moment iznosa $0.9$ te propadanje težina iznosa $5 \cdot 10^{-4}$.\ Umjesto višekoračne strategije, ovdje smo koristili strategiju kosinusnog kaljenja (engl.\ \textit{cosine annealing scheduler}) bez restarta te uz minimalnu stopu učenja iznosa $2 \cdot 10^{-4}$.\ Skup podataka ponovno je podijeljen na minigrupe veličine $128$.\ 
 Vektore parametara $\{\bm{u}_i, \bm{v}_i\}_{i=1}^N$ inicijalizirali smo nasumično iz normalne distribucije sa srednjom vrijednošću iznosa $0$ te standardnom devijacijom iznosa $1 \cdot 10^{-8}$, a učili smo ih uz optimizator SGD sa stopom učenja iznosa $1$ te faktorom skaliranja stope učenja iznosa $10$.\ 
 Pritom za optimizator vektora $\{\bm{u}_i, \bm{v}_i\}_{i=1}^N$ nismo koristili moment ni propadanje težina.\
 Koristili smo konstantnu stopu konzistencije iznosa $0.9$, kao i konstantnu stopu ravnoteže razreda iznosa $0.1$.\ 
@@ -1474,18 +1474,18 @@ Kod algoritma ILL, hiperparametri ponovno odgovaraju onima iz originalnog rada~\
 Kao i kod algoritma SOP+, nasumično inicijalizirani model smo učili 300 epoha uz optimizator SGD s početnom stopom učenja iznosa $0.02$.\ 
 Pritom smo koristili moment iznosa $0.9$, ali i propadanje težina iznosa $1 \cdot 10^{-3}$ te propadanje slojeva (engl.\ \textit{layer decay})~\cite{ishii2017layer} iznosa $1$.\ 
 Za smanjivanje stope učenja, koristili smo strategiju kosinusnog kaljenja bez restarta te uz minimalnu stopu učenja iznosa $2 \cdot 10^{-4}$.\
-Skup podataka ponovno je bio podijeljen na mini-grupe veličine $128$.\ Koristili smo konstantnu stopu konzistencije iznosa $1$.\
+Skup podataka ponovno je bio podijeljen na minigrupe veličine $128$.\ Koristili smo konstantnu stopu konzistencije iznosa $1$.\
 Jake augmentacije kod algoritma ILL uključuju slabe augmentacije, augmentaciju AutoAugment te augmentaciju nasumičnog brisanja.\
 
 Konačno, kod okvira VIBE s dodanim konzistencijskim gubitkom, model inicijaliziran okvirom All4One smo učili $30 000$ iteracija (približno $77$ epoha) uz optimizator SGD s početnom stopom učenja iznosa $0.01$.\ 
 Koristili smo moment iznosa $0.9$, kao i propadanje težina iznosa $5 \cdot 10^{-4}$.\ Kao i kod algoritama SOP+ te ILL, koristili smo strategiju kosinusnog kaljenja bez restarta, ali uz minimalnu stopu učenja iznosa $0$.\ 
-Skup podataka bio je podijeljen na mini-grupe veličine $256$.\ Hiperparametar raspršenosti von Mises-Fisherove distribucije $\kappa$ postavili smo na iznos $10$, jednako kao i hiperparametar temperature $\nu$ korišten pri izračunu distribucije $p(y | l)$.\ 
+Skup podataka bio je podijeljen na minigrupe veličine $256$.\ Hiperparametar raspršenosti von Mises-Fisherove distribucije $\kappa$ postavili smo na iznos $10$, jednako kao i hiperparametar temperature $\nu$ korišten pri izračunu distribucije $p(y | l)$.\ 
 Pojedine vektore iz skupa čistih prototipova $\bm{\phi}$ odnosno skupa zašumljenih prototipova $\bm{\psi}$ inicijalizirali smo kao centroide pripadnih razreda.\ Parametre $\bm{\hat{\pi}}$ inicijalizirali smo nasumično iz jedinične normalne distribucije.\ 
 Hiperparametar temperature $c$ korišten za izračun koeficijenata miješanja $\bm{\pi}$ postavili smo na iznos $0.02$.\ E korak učenja provodili smo svakih $1000$ iteracija, pritom koristeći Sinkhorn-Knopp algoritam uz regularizacijski hiperparametar $\lambda$ iznosa $25$ te maksimalan broj iteracija iznosa $10 000$.\ 
 Koristili smo konstantnu stopu konzistencije iznosa $5$.\ Kao i kod nadziranog učenja s konzistencijskim gubitkom te algoritma ILL, jake augmentacije uključuju slabe augmentacije, augmentaciju AutoAugment te augmentaciju nasumičnog brisanja.\ 
 
 Ako za pojedini eksperiment nisu eksplicitno navedene vrijednosti određenih hiperparametara, u pitanju su upravo opisane vrijednosti.\ 
-Na primjer, ako za određeni eksperiment učenja okvirom VIBE ne istaknemo korištenu veličinu mini-grupe, podrazumijevamo već navedenu veličinu $256$.\
+Na primjer, ako za određeni eksperiment učenja okvirom VIBE ne istaknemo korištenu veličinu minigrupe, podrazumijevamo već navedenu veličinu $256$.\
 
 \subsection{Usporedba sa stanjem tehnike}
 \label{sub:usporedba_zasumljene}
@@ -1597,7 +1597,7 @@ Dodatno, početna konfiguracija ne uključuje nijednu strategiju izmjene stope u
 Izmjene hiperparametara prije svega smo validirali učenjem modela na skupu CIFAR-10 sa simetrično zašumljenim oznakama i stopom šuma iznosa $20\%$.\ 
 Dodatno, kako bismo provjerili robusnost određenih izmjena, provodili smo i popratne eksperimente učenja na skupu CIFAR-10 s asimetrično zašumljenim oznakama i stopom šuma iznosa $40\%$.\ 
 Ako u postavu za određeni eksperiment nije eksplicitno navedena metoda zašumljivanja, u pitanju je simetrično zašumljivanje uz stopu šuma iznosa $20\%$.\
-U oba slučaja, ključna mjera dobrote nam je točnost na čistom skupu za ispitivanje skupa CIFAR-10.\ 
+U oba slučaja, ključna mjera dobrote je točnost na čistom skupu za ispitivanje skupa CIFAR-10.\ 
 
 Prije svega, pogledajmo kako se točnost modela učenih okvirom VIBE mijenja ovisno o broju iteracija učenja te iznosu stope učenja.\ 
 U tablici~\ref{tbl:usporedba_lr_num_iter}, stupac \textit{Broj iteracija} predstavlja broj iteracija učenja modela, dok stupci iz grupe \textit{Stopa učenja} označavaju različite korištene stope učenja.\ 
@@ -1932,8 +1932,103 @@ Drugim riječima, korištenjem nadziranog učenja s konzistencijskim gubitkom te
 \section{Napadi umetanjem stražnjih vrata}
 \label{sek:eksp_napadi}
 
+Eksperimente s napadima umetanjem stražnjih vrata provodili smo na zatrovanim inačicama skupa CIFAR-10.\ 
+Pritom smo koristili napade BadNets, Blend i WaNet uz stopu trovanja iznosa $10\%$ te \textit{all-to-one} izmjenu oznaka uz ciljni razred \texttt{airplane}.\ 
+Kod napada BadNets, kao okidač smo koristili kvadratni uzorak dimenzija $2 \times 2$ smješten u gornjem lijevom kutu slike.\ 
+S druge strane, kod napada Blend smo kao okidač koristili sliku \textit{Hello Kitty} vidljivu na prethodnom primjeru~\ref{fig:blend} uz jačinu miješanja iznosa $0.1$.\ 
+Konačno, kod napada WaNet smo koristili hiperparametar $k$ iznosa $4$ te hiperparametar $s$ iznosa $1$.\
+Za svaki napad, stvorili smo jednu inačicu zatrovanog skupa CIFAR-10.\ U svim eksperimentima, učili smo model arhitekture ResNet-18.\ 
+Ključne mjere dobrote za eksperimente s napadima umetanjem stražnjih vrata su točnost na čistom skupu za ispitivanje te stopa uspješnosti napada (ASR) izračunata na potpuno zatrovanoj inačici skupa za ispitivanje.\ 
+Pritom želimo maksimizirati točnost, ali i minimizirati stopu uspješnosti napada.\ 
+
+Općenito uspoređujemo pet pristupa: algoritam \textit{Anti-backdoor learning} (ABL), algoritam \textit{Decoupling based defense} (DBD), algoritam \textit{Adaptively splitting dataset-based defense} (ASD), osnovnu inačicu okvira VIBE te okvir VIBE s konzistencijskim gubitkom (VIBE + CL).\ 
+Za algoritme ABL, DBD i ASD smo zbog jednostavnosti preuzeli rezultate iz originalnog rada okvira VIBE~\cite{sabolic2025seal}.\ Pritom konfiguracije hiperparametara pojedinih algoritama odgovaraju konfiguracijama iz originalnih radova~\cite{li2021anti, huang2022backdoor, gao2023backdoor}.\ 
+
+Kod osnovne inačice okvira VIBE, model inicijaliziran okvirom All4One smo učili $30000$ iteracija uz optimizator SGD s početnom stopom učenja iznosa $1 \cdot 10^{-3}$.\ Koristili smo moment iznosa $0.9$, kao i propadanje težina iznosa $5 \cdot 10^{-4}$.\ 
+Pritom nismo koristili nijednu strategiju izmjene stope učenja.\ Skup podataka bio je podijeljen na minigrupe veličine $256$.\ 
+Hiperparametar raspršenosti von Mises-Fisherove distribucije $\kappa$ fiksirali smo na iznos $10$, jednako kao i hiperparametar temperature $\nu$ korišten pri izračunu distribucije $p(y | l)$.\ 
+Pojedine vektore iz skupa čistih prototipova $\bm{\phi}$ odnosno skupa zatrovanih prototipova $\bm{\psi}$ inicijalizirali smo kao centroide pripadnih razreda.\ Parametre $\bm{\hat{\pi}}$ inicijalizirali smo nasumično iz jedinične normalne distribucije.\ 
+Hiperparametar temperature $c$ korišten za izračun koeficijenata miješanja $\bm{\pi}$ postavili smo na iznos $0.02$.\ E korak učenja provodili smo svakih $1000$ iteracija, pritom koristeći Sinkhorn-Knopp algoritam uz regularizacijski hiperparametar $\lambda$ iznosa $25$ te maksimalan broj iteracija iznosa $10 000$.\ 
+
+Konfiguracija hiperparametara okvira VIBE s konzistencijskim gubitkom jednaka je konfiguraciji osnovne inačice okvira, ali uz nekoliko dodanih hiperparametara.\ 
+Konkretno, koristili smo konstantnu stopu konzistencije iznosa $1$, a jake augmentacije uključuju slabe augmentacije, augmentaciju AutoAugment te augmentaciju nasumičnog brisanja.\ 
+
+Kao i prije, ako za pojedini eksperiment nisu eksplicitno navedene vrijednosti određenih hiperparametara, u pitanju su upravo opisane vrijednosti.\ 
+
 \subsection{Usporedba sa stanjem tehnike}
 \label{sub:usporedba_napadi}
+
+Prije svega, pogledajmo uspješnost opisanih algoritama obrane pri učenju na inačici skupa CIFAR-10 zatrovanoj napadom BadNets.\ 
+U tablici~\ref{tbl:usporedba_badnets}, stupac \textit{Algoritam} predstavlja korišteni algoritam obrane od napada umetanjem stražnjih vrata.\ 
+Stupac \textit{Točnost [\%]} predstavlja točnost modela na čistom skupu za ispitivanje skupa CIFAR-10, a stupac \textit{ASR [\%]} predstavlja stopu uspješnosti napada izračunatu na potpuno zatrovanoj inačici skupa za ispitivanje.\ 
+Najbolji rezultati za oba stupca su podebljani.\ 
+
+\begin{table}[htb]
+  \caption{Točnost modela učenih na inačici skupa CIFAR-10 zatrovanoj napadom BadNets.}
+  \label{tbl:usporedba_badnets}
+  \centering
+  \begin{tabular}{l||cc}
+  Algoritam & Točnost [\%] & ASR [\%]\\ \hline \hline
+  ABL & 93.8 & 1.1 \\
+  DBD & 92.4 & 1.0 \\
+  ASD & 92.1 & 3.0 \\ \hline
+  VIBE & 94.4 & 0.6 \\
+  VIBE + CL & \textbf{94.8} & \textbf{0.5} \\
+  \end{tabular}
+\end{table}
+
+\pagebreak
+
+Možemo vidjeti da osnovna inačica okvira VIBE postiže višu točnost, ali i nižu stopu uspješnosti napada u usporedbi s preostalim algoritmima obrane.\ 
+Pritom vrijedi napomenuti da algoritam ABL postiže višu točnost te podjednaku ili nižu stopu uspješnosti napada od algoritama DBD i ASD.\ 
+Dodavanjem komponente konzistencijskog gubitka, dodatno poboljšavamo performanse okvira VIBE.\ Konkretno, postižemo povećanje točnosti iznosa $0.4\%$, kao i smanjenje stope uspješnosti napada iznosa $0.1\%$.\ 
+Pogledajmo sada uspješnost opisanih algoritama obrane pri učenju na inačici skupa CIFAR-10 zatrovanoj napadom Blend.\ 
+
+\begin{table}[htb]
+  \caption{Točnost modela učenih na inačici skupa CIFAR-10 zatrovanoj napadom Blend.}
+  \label{tbl:usporedba_blend}
+  \centering
+  \begin{tabular}{l||cc}
+  Algoritam & Točnost [\%] & ASR [\%]\\ \hline \hline
+  ABL & 91.9 & 1.6 \\
+  DBD & 92.2 & 1.7 \\
+  ASD & 93.4 & 1.0 \\ \hline
+  VIBE & 94.4 & 3.1 \\
+  VIBE + CL & \textbf{94.5} & \textbf{0.7} \\
+  \end{tabular}
+\end{table}
+
+U ovom slučaju, osnovna inačica okvira VIBE postiže višu točnost, ali ne i nižu stopu uspješnosti napada u usporedbi s preostalim algoritmima obrane.\ 
+Konkretno, algoritam ASD postiže za $2.1\%$ nižu stopu uspješnosti napada u usporedbi s osnovnom inačicom okvira VIBE.\ 
+Kao i u prethodnom eksperimentu, dodavanjem konzistencijskog gubitka poboljšavamo performanse okvira VIBE.\ Pritom postižemo povećanje točnosti iznosa $0.1\%$, ali i smanjenje stope uspješnosti napada iznosa čak $2.4\%$.\ 
+Uz ovo poboljšanje, okvir VIBE s konzistencijskim gubitkom postiže najbolje performanse u usporedbi s preostalim algoritmima.\ 
+Pogledajmo još i uspješnost navedenih algoritama obrane pri učenju na inačici skupa CIFAR-10 zatrovanoj napadom WaNet.\ 
+
+\begin{table}[htb]
+  \caption{Točnost modela učenih na inačici skupa CIFAR-10 zatrovanoj napadom WaNet.}
+  \label{tbl:usporedba_wanet}
+  \centering
+  \begin{tabular}{l||cc}
+  Algoritam & Točnost [\%] & ASR [\%]\\ \hline \hline
+  ABL & 84.1 & 2.2 \\
+  DBD & 91.2 & \textbf{0.4} \\
+  ASD & 93.3 & 1.2 \\ \hline
+  VIBE & 94.5 & 1.0 \\
+  VIBE + CL & \textbf{94.8} & 0.6 \\
+  \end{tabular}
+\end{table}
+
+\pagebreak
+
+Kao i u prethodnom eksperimentu, osnovna inačica okvira VIBE postiže višu točnost, ali ne i nižu stopu uspješnosti napada u usporedbi s preostalim algoritmima obrane.\ 
+U ovom slučaju, algoritam DBD postiže za $0.6\%$ nižu stopu uspješnosti napada u usporedbi s osnovnom inačicom okvira VIBE.\ 
+Dodavanjem komponente konzistencijskog gubitka, ponovno poboljšavamo performanse okvira VIBE.\ Konkretno, postižemo povećanje točnosti iznosa $0.4\%$, kao i smanjenje stope uspješnosti napada iznosa $0.4\%$.\ 
+Iako okvir VIBE s konzistencijskim gubitkom u ovom eksperimentu ima najvišu točnost, algoritam DBD i dalje postiže najnižu stopu uspješnosti napada.\ 
+
+Dakle, zaključujemo da dodavanje konzistencijskog gubitka okviru VIBE vodi do povećanja točnosti, kao i do smanjenja stope uspješnosti napada.\ 
+Pritom je smanjenje najveće kod napada Blend za koji osnovni okvir VIBE ima relativno visoku stopu uspješnosti napada.\ 
+Kada govorimo o napadima BadNets te WaNet, poboljšanja performansi su prisutna, ali ne i toliko značajna kao kod napada Blend.\ 
+Općenito, okvir VIBE s konzistencijskim gubitkom postiže performanse podjednake ili bolje u usporedbi s algoritmima ABL, DBD te ASD.\
 
 %--- ZAKLJUČAK / CONCLUSION ----------------------------------------------------
 \chapter{Zaključak}
