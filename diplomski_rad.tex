@@ -2030,6 +2030,39 @@ Pritom je smanjenje najveće kod napada Blend za koji osnovni okvir VIBE ima rel
 Kada govorimo o napadima BadNets te WaNet, poboljšanja performansi su prisutna, ali ne i toliko značajna kao kod napada Blend.\ 
 Općenito, okvir VIBE s konzistencijskim gubitkom postiže performanse podjednake ili bolje u usporedbi s algoritmima ABL, DBD te ASD.\
 
+\subsection{Primjena algoritma ILL}
+\label{sub:trovanje_ill}
+
+Algoritam \textit{Imprecise label learning} (ILL) pokazao se izvrsnim za problem zašumljenih oznaka.\ Potaknuti tim rezultatom, odlučili smo ga pokušati primijeniti na problem napada umetanjem stražnjih vrata.\ 
+Konkretno, algoritmom ILL učimo modele arhitekture ResNet-18 na inačicama skupa CIFAR-10 zatrovanim napadom BadNets uz varijabilnu stopu trovanja.\ 
+Pritom na slike dodajemo ranije opisani okidač, a ponovno koristimo i \textit{all-to-one} izmjenu oznaka uz ciljni razred \texttt{airplane}.\ 
+U tablici~\ref{tbl:trovanje_ill}, stupac \textit{Stopa trovanja [\%]} predstavlja korištenu stopu trovanja, stupac \textit{Točnost [\%]} ponovno predstavlja točnost modela na čistom skupu za ispitivanje skupa CIFAR-10, a stupac \textit{ASR [\%]} predstavlja stopu uspješnosti napada izračunatu na potpuno zatrovanoj inačici skupa za ispitivanje.\  
+
+\begin{table}[htb]
+  \caption{Točnost modela učenih algoritmom ILL na inačicama skupa CIFAR-10 zatrovanim napadom BadNets uz varijabilnu stopu trovanja.}
+  \label{tbl:trovanje_ill}
+  \centering
+  \begin{tabular}{l||cc}
+  Stopa trovanja [\%] & Točnost [\%] & ASR [\%]\\ \hline \hline
+  0 & \textbf{96.75} & - \\
+  1 & 96.62 & \textbf{0.28} \\
+  10 & 10.00 & 100.00 \\ 
+  \end{tabular}
+\end{table}
+
+Možemo vidjeti da model učen na inačici skupa CIFAR-10 zatrovanoj napadom BadNets uz stopu trovanja iznosa $1\%$ postiže točnost neznatno nižu od točnosti modela učenog na čistom skupu.\ 
+Prema iznosu stope uspješnosti napada, vidimo da napad uz stopu trovanja iznosa $1\%$ nije uspio.\ Drugim riječima, ovdje algoritam ILL služi kao uspješna obrana od napada umetanjem stražnjih vrata.\ 
+Ipak, važno je razmotriti i model učen na inačici skupa CIFAR-10 zatrovanoj napadom BadNets uz stopu trovanja iznosa $10\%$.\ 
+Vidimo da u ovom slučaju učenje nije uspješno.\ Konkretno, došlo je do kolapsa učenja: model za sve ulaze predviđa zatrovani razred \texttt{airplane}.\ 
+Ovaj rezultat pokazuje nam da učenje algoritmom ILL može biti nestabilno pri težim postavima trovanja.\ 
+Dakle, iako je učenje uz nisku stopu trovanja uspješno, povećanje stope trovanja može voditi do nestabilnosti te kolapsa učenja.\ 
+Zbog ovoga, algoritam ILL nije prikladan kao obrana od napada umetanjem stražnjih vrata.\ 
+
+\subsection{Hibrid okvira VIBE i algoritma ILL}
+\label{sub:hibrid_vibe_ill}
+
+
+
 %--- ZAKLJUČAK / CONCLUSION ----------------------------------------------------
 \chapter{Zaključak}
 \label{pog:zakljucak}
