@@ -1102,7 +1102,7 @@ Pritom član $\frac{1}{N}$ osigurava da je matrica $\bm{Q}$ ispravna matrica zaj
   \label{eq:vibe_e_step_matrices}
 \end{equation}
 
-Pri čemu $\operatorname{tr}$ označava operaciju traga matrice, a $\operatorname{H}(\bm{Q})$ entropiju matrice $\bm{Q}$ danu jednadžbom~\ref{eq:ot_with_entropy} .\ Član $- \log N$ pritom možemo ignorirati jer je konstanta.\ 
+Pri čemu $\operatorname{tr}$ označava operaciju traga matrice, a $\operatorname{H}(\bm{Q})$ entropiju matrice $\bm{Q}$ danu jednadžbom~\ref{eq:ot_with_entropy}.\ Član $- \log N$ pritom možemo ignorirati jer je konstanta.\ 
 Uz uvođenje regularizacijskog hiperparametra $\lambda$ za koji vrijedi $\lambda > 1$, dobivamo:
 
 \begin{equation}
@@ -2054,14 +2054,109 @@ Možemo vidjeti da model učen na inačici skupa CIFAR-10 zatrovanoj napadom Bad
 Prema iznosu stope uspješnosti napada, vidimo da napad uz stopu trovanja iznosa $1\%$ nije uspio.\ Drugim riječima, ovdje algoritam ILL služi kao uspješna obrana od napada umetanjem stražnjih vrata.\ 
 Ipak, važno je razmotriti i model učen na inačici skupa CIFAR-10 zatrovanoj napadom BadNets uz stopu trovanja iznosa $10\%$.\ 
 Vidimo da u ovom slučaju učenje nije uspješno.\ Konkretno, došlo je do kolapsa učenja: model za sve ulaze predviđa zatrovani razred \texttt{airplane}.\ 
-Ovaj rezultat pokazuje nam da učenje algoritmom ILL može biti nestabilno pri težim postavima trovanja.\ 
+Ovaj rezultat pokazuje nam da učenje algoritmom ILL može biti nestabilno pri težim postavima napada.\ 
 Dakle, iako je učenje uz nisku stopu trovanja uspješno, povećanje stope trovanja može voditi do nestabilnosti te kolapsa učenja.\ 
 Zbog ovoga, algoritam ILL nije prikladan kao obrana od napada umetanjem stražnjih vrata.\ 
 
 \subsection{Hibrid okvira VIBE i algoritma ILL}
 \label{sub:hibrid_vibe_ill}
 
+Okvir VIBE postiže izvrsne performanse pri učenju na zatrovanim podatcima, kao i pri učenju na podatcima sa zašumljenim oznakama.\
+S druge strane, algoritam ILL je izvrstan za problem zašumljenih oznaka, ali ne i za problem napada umetanjem stražnjih vrata.\ 
+Konkretno, vidjeli smo da učenje može biti nestabilno pri težim postavima napada.\ Ipak, algoritam ILL postiže višu točnost u usporedbi s okvirom VIBE pri lakšim postavima zašumljivanja.\ 
 
+Zanimljivo je uočiti brojne sličnosti između okvira VIBE i algoritma ILL.\ U oba slučaja, glavni cilj je maksimizirati log-izglednost skupa podataka $\mathcal{D} = \{(\bm{x}^i, y^i)\}_{i=1}^{N}$.\ 
+Pritom su u skupu prisutne zatrovane odnosno zašumljene oznake $\bm{y}$, dok su čiste oznake $\bm{l}$ skrivene.\ Zbog ovoga, distribuciju $p(y | \bm{x})$ dobivamo marginalizacijom zajedničke distribucije $p(y, l | \bm{x})$.\ 
+Kako bismo uspješno maksimizirali ovako definiranu log-izglednost, u oba slučaja koristimo algoritam maksimizacije očekivanja.\ 
+Glavne razlike između okvira VIBE i algoritma ILL su u parametrizaciji pojedinih distribucija, kao i provođenju E koraka učenja.\ 
+
+\pagebreak
+
+Zbog navedenih sličnosti, možemo osmisliti hibridni okvir zasnovan na okviru VIBE uz određene dijelove algoritma ILL.\ 
+Idealno, predloženi okvir bi imao izvrsne performanse neovisno o težini postava te bez obzira radi li se o problemu napada umetanjem stražnjih vrata ili o problemu zašumljenih oznaka.\ 
+Konkretno, predlažemo dvije različite inačice hibridnog okvira.\ 
+
+Kod prve inačice, umjesto E koraka okvira VIBE koristimo E korak algoritma ILL.\ 
+U E koraku okvira VIBE, matricu $\bm{Q}$ procjenjujemo na temelju izračunate matrice $\bm{P}$ koristeći algoritam Sinkhorn-Knopp za rješavanje problema optimalnog transporta s entropijskom regularizacijom.\ 
+Pritom su matrice $\bm{Q}$ i $\bm{P}$ definirane jednadžbama~\ref{eq:vibe_matrices_p_q}, a matrica $\bm{P}$ je izračunata na temelju modela iz prethodne iteracije.\ 
+S druge strane, u E koraku algoritma ILL, matricu $\bm{Q}$ jednostavno postavljamo na matricu $\bm{P}$ izračunatu u prethodnoj iteraciji.\ 
+Čiste oznake $\bm{l}$ potom procjenjujemo na temelju dobivene matrice $\bm{Q}$.\ Pritom uobičajeno radimo s čvrstim oznakama (engl.\ \textit{hard labels}), ali možemo koristiti i meke oznake (engl.\ \textit{soft labels}).\ 
+Dodatno, E korak kod okvira VIBE provodimo svakih $T$ iteracija, dok ga kod algoritma ILL provodimo svaku iteraciju.\ 
+
+Model arhitekture ResNet-18 učimo prvom inačicom hibridnog okvira na skupu podataka CIFAR-10 zatrovanom napadom BadNets uz stopu trovanja iznosa $10\%$ i prethodno opisani okidač.\ 
+Konfiguracija hibridnog okvira pritom odgovara konfiguraciji osnovne inačice okvira VIBE, ali uz varijabilnu vrstu oznaka te varijabilan iznos hiperparametra $T$.\ 
+U tablici~\ref{tbl:trovanje_hibrid1}, stupac \textit{Vrsta oznaka} predstavlja korištenu vrstu oznaka, a stupac \textit{T} predstavlja period provođenja E koraka.\ 
+Kao i inače, stupac \textit{Točnost [\%]} predstavlja točnost modela na čistom skupu za ispitivanje skupa CIFAR-10, a stupac \textit{ASR [\%]} predstavlja stopu uspješnosti napada izračunatu na potpuno zatrovanoj inačici skupa za ispitivanje.\  
+
+\begin{table}[htb]
+  \caption{Točnost modela učenih prvom inačicom hibridnog okvira na skupu CIFAR-10 zatrovanom napadom BadNets ovisno o vrsti oznaka te periodu provođenja E koraka.}
+  \label{tbl:trovanje_hibrid1}
+  \centering
+  \begin{tabular}{ll||cc}
+  Vrsta oznaka & T & Točnost [\%] & ASR [\%]\\ \hline \hline
+  Čvrste & 1 & 94.7 & 100 \\
+  Čvrste & 1000 & 94.5 & 100 \\ \hline
+  Meke & 1 & \textbf{94.8} & 100 \\ 
+  Meke & 1000 & 94.5 & 100 \\ 
+  \end{tabular}
+\end{table}
+
+\pagebreak
+
+Kao što možemo vidjeti, model učen uz meke oznake te provođenje E koraka svaku iteraciju postiže najvišu točnost.\ 
+Općenito, izgleda da provođenje E koraka svaku iteraciju rezultira višom točnošću u usporedbi s provođenjem E koraka svakih $1000$ iteracija.\ 
+Nažalost, na temelju iznosa stope uspješnosti napada, vidimo da prva inačica hibridnog okvira nije uspješna kao obrana od napada umetanjem stražnjih vrata.\ 
+
+U drugoj inačici hibridnog okvira, mijenjamo način izračuna distribucije $p(y | l)$.\ 
+Kod okvira VIBE, ovu distribuciju definiramo kao normaliziranu kosinusnu sličnost između čistih i zatrovanih prototipova.\ 
+S druge strane, kod algoritma ILL, ovu distribuciju računamo na temelju parametrizirane matrice šuma neovisne o uzorku.\ Ovu matricu možemo smatrati otprilike kao logite distribucije $p(y | l)$.\ 
+Kako bismo pospješili učenje, matricu šuma možemo normalizirati po recima i stupcima, kao i skalirati hiperparametrom temperature $c$.\ 
+Dodatno, važno je i pitanje inicijalizacije zadane matrice.\ Kod algoritma ILL, matricu šuma uobičajeno inicijaliziramo na jediničnu matricu.\ 
+U našim eksperimentima, dodatno ćemo isprobati i nasumičnu inicijalizaciju.\ 
+
+Model arhitekture ResNet-18 učimo drugom inačicom hibridnog okvira na skupu podataka CIFAR-10 zatrovanom napadom BadNets uz stopu trovanja iznosa $10\%$ i prethodno opisani okidač.\ 
+Matricu šuma pritom inicijaliziramo nasumično iz jedinične normalne distribucije.\ Konfiguracija hibridnog okvira ponovno odgovara konfiguraciji osnovne inačice okvira VIBE, ali uz varijabilno korištenje normalizacije matrice te varijabilan iznos temperature.\ 
+U tablici~\ref{tbl:trovanje_hibrid2_nasumicna_init}, stupac \textit{Normalizacija} nam govori je li korištena normalizacija matrice šuma po recima i stupcima, a stupac \textit{Temperatura} predstavlja korišteni iznos hiperparametra temperature $c$.\ 
+
+\begin{table}[htb]
+  \caption{Točnost modela učenih drugom inačicom hibridnog okvira uz nasumičnu inicijalizaciju matrice šuma na skupu CIFAR-10 zatrovanom napadom BadNets ovisno o korištenju normalizacije matrice te temperaturi.}
+  \label{tbl:trovanje_hibrid2_nasumicna_init}
+  \centering
+  \begin{tabular}{ll||cc}
+  Normalizacija & Temperatura & Točnost [\%] & ASR [\%]\\ \hline \hline
+  Ne & 1 & 86.7 & 0.5 \\
+  Ne & 10 & 14.3 & 1.2 \\ \hline
+  Da & 1 & \textbf{89.9} & 0.8 \\ 
+  Da & 10 & 29.3 & \textbf{0.1} \\ 
+  \end{tabular}
+\end{table}
+
+\pagebreak
+
+Vidimo da normalizacija matrice šuma po recima i stupcima povećava točnost neovisno o iznosu hiperparametra temperature.\ 
+Pritom najvišu točnost postiže model učen uz normalizaciju matrice šuma te uz temperaturu iznosa $1$ tj.\ bez skaliranja matrice.\ 
+Štoviše, učenje uz temperaturu iznosa $10$ značajno smanjuje točnost u usporedbi s učenjem bez skaliranja.\ 
+Pogledajmo sada još i performanse modela učenih uz inicijalizaciju matrice šuma na jediničnu matricu.\ 
+
+\begin{table}[htb]
+  \caption{Točnost modela učenih drugom inačicom hibridnog okvira uz jediničnu inicijalizaciju matrice šuma na skupu CIFAR-10 zatrovanom napadom BadNets ovisno o korištenju normalizacije matrice te temperaturi.}
+  \label{tbl:trovanje_hibrid2_jedinicna_init}
+  \centering
+  \begin{tabular}{ll||cc}
+  Normalizacija & Temperatura & Točnost [\%] & ASR [\%]\\ \hline \hline
+  Ne & 1 & 92.4 & 0.8 \\
+  Ne & 10 & 94.2 & \textbf{0.6} \\ \hline
+  Da & 1 & 92.6 & \textbf{0.6} \\ 
+  Da & 10 & \textbf{94.5} & 0.7 \\ 
+  \end{tabular}
+\end{table}
+
+Možemo vidjeti da model učen uz normalizaciju matrice šuma po recima i stupcima te hiperparametar temperature iznosa $10$ sada postiže najvišu točnost.\ Stopa uspješnosti napada pritom je podjednaka za sve konfiguracije hiperparametara.\ 
+Za razliku od prethodnog eksperimenta, učenje uz temperaturu iznosa $10$ sada povećava točnost u usporedbi s učenjem bez skaliranja matrice.\ Štoviše, vidimo da iznos temperature sada ima veći značaj nego korištenje normalizacije matrice šuma.\ 
+Na temelju ovih rezultata, možemo zaključiti da je prikladna inicijalizacija matrice šuma veoma važna za uspješnost rada algoritma ILL.\ 
+
+Općenito, najbolji naučeni model po performansama je podjednak modelu učenim osnovnom inačicom okvira VIBE iz tablice~\ref{tbl:usporedba_badnets}.\ 
+Dakle, zaključujemo da druga inačica hibridnog okvira uz jediničnu inicijalizaciju matrice šuma, normalizaciju matrice po recima i stupcima te hiperparametar temperature iznosa $10$ može služiti kao zamjena za osnovnu inačicu okvira VIBE te općenito kao robusna obrana od napada umetanjem stražnjih vrata.\
 
 %--- ZAKLJUČAK / CONCLUSION ----------------------------------------------------
 \chapter{Zaključak}
