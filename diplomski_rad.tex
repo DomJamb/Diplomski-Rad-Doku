@@ -68,7 +68,7 @@ Dodatno, pokazuje se da duboki modeli uz dovoljan kapacitet mogu naučiti isprav
   
 Područje računalnog vida~\cite{voulodimos2018deep} bavi se razvojem algoritama i modela za brojne zadatke raspoznavanja i razumijevanja slika.\ Najčešći zadatak je klasifikacija slika - model na ulazu dobiva sliku, a na izlazu treba predvidjeti razred koji odgovara ulaznom primjeru.\ 
 Iako postoje brojni skupovi slikovnih podataka koji se mogu koristiti za učenje i evaluaciju modela, za konkretne zadatke u većini slučajeva trebamo prikupiti i označiti vlastite slike.\ 
-Pritom postoji nekoliko čestih opasnosti: napadi umetanjem stražnjih vrata~\cite{gao2020backdoor} ili prisutnost zašumljenih oznaka~\cite{gupta2019dealing}.\ 
+Pritom postoji nekoliko čestih opasnosti: napadi umetanjem stražnjih vrata~\cite{gao2020backdoor} i prisutnost zašumljenih oznaka~\cite{gupta2019dealing}.\ 
 
 \pagebreak
 
@@ -79,6 +79,7 @@ Kroz vrijeme, razvili su se brojni algoritmi za obranu modela od napada umetanje
 Cilj ovog rada je reproducirati i poboljšati rezultate okvira za obranu od napada umetanjem stražnjih vrata imena VIBE (engl.\ \textit{Variational inference for backdoor elimination})~\cite{sabolic2025seal}.\ 
 Osim ovoga, cilj je i primijeniti VIBE na problem zašumljenih oznaka.\ Pritom VIBE evaluiramo na nekoliko čestih vrsta napada odnosno metoda zašumljivanja oznaka kako bi se osigurala robusnost okvira.\ 
 Dodatno, cilj je usporediti VIBE sa stanjem tehnike (engl.\ \textit{state of the art - SotA}) za problem zašumljenih oznaka.\
+
 %-------------------------------------------------------------------------------
 \chapter{Napadi umetanjem stražnjih vrata}
 \label{pog:napadi}
@@ -2054,7 +2055,7 @@ Možemo vidjeti da model učen na inačici skupa CIFAR-10 zatrovanoj napadom Bad
 Prema iznosu stope uspješnosti napada, vidimo da napad uz stopu trovanja iznosa $1\%$ nije uspio.\ Drugim riječima, ovdje algoritam ILL služi kao uspješna obrana od napada umetanjem stražnjih vrata.\ 
 Ipak, važno je razmotriti i model učen na inačici skupa CIFAR-10 zatrovanoj napadom BadNets uz stopu trovanja iznosa $10\%$.\ 
 Vidimo da u ovom slučaju učenje nije uspješno.\ Konkretno, došlo je do kolapsa učenja: model za sve ulaze predviđa zatrovani razred \texttt{airplane}.\ 
-Ovaj rezultat pokazuje nam da učenje algoritmom ILL može biti nestabilno pri težim postavima napada.\ 
+Ovaj rezultat pokazuje nam da učenje algoritmom ILL može biti nestabilno u teškim postavima napada.\ 
 Dakle, iako je učenje uz nisku stopu trovanja uspješno, povećanje stope trovanja može voditi do nestabilnosti te kolapsa učenja.\ 
 Zbog ovoga, algoritam ILL nije prikladan kao obrana od napada umetanjem stražnjih vrata.\ 
 
@@ -2063,7 +2064,7 @@ Zbog ovoga, algoritam ILL nije prikladan kao obrana od napada umetanjem stražnj
 
 Okvir VIBE postiže izvrsne performanse pri učenju na zatrovanim podatcima, kao i pri učenju na podatcima sa zašumljenim oznakama.\
 S druge strane, algoritam ILL je izvrstan za problem zašumljenih oznaka, ali ne i za problem napada umetanjem stražnjih vrata.\ 
-Konkretno, vidjeli smo da učenje može biti nestabilno pri težim postavima napada.\ Ipak, algoritam ILL postiže višu točnost u usporedbi s okvirom VIBE pri lakšim postavima zašumljivanja.\ 
+Konkretno, vidjeli smo da učenje može biti nestabilno u teškim postavima napada.\ Ipak, algoritam ILL postiže višu točnost u usporedbi s okvirom VIBE u lakšim postavima zašumljivanja.\ 
 
 Zanimljivo je uočiti brojne sličnosti između okvira VIBE i algoritma ILL.\ U oba slučaja, glavni cilj je maksimizirati log-izglednost skupa podataka $\mathcal{D} = \{(\bm{x}^i, y^i)\}_{i=1}^{N}$.\ 
 Pritom su u skupu prisutne zatrovane odnosno zašumljene oznake $\bm{y}$, dok su čiste oznake $\bm{l}$ skrivene.\ Zbog ovoga, distribuciju $p(y | \bm{x})$ dobivamo marginalizacijom zajedničke distribucije $p(y, l | \bm{x})$.\ 
@@ -2162,6 +2163,30 @@ Dakle, zaključujemo da druga inačica hibridnog okvira uz jediničnu inicijaliz
 \chapter{Zaključak}
 \label{pog:zakljucak}
 
+Kada prikupljamo i označavamo vlastite skupove podataka, možemo se susresti s brojnim problemima.\ Neki od najčešćih problema su napadi umetanjem stražnjih vrata (BadNets, Blend, WaNet) i prisutnost zašumljenih oznaka (simetrično, asimetrično).\ 
+Kroz vrijeme, razvili su se brojni algoritmi za obranu od napada (ABL, DBD, ASD), kao i za učenje na zašumljenim oznakama (SOP+, ILL).\ Okvir VIBE razvijen je s ciljem obrane od napada umetanjem stražnjih vrata.\ 
+Provođenjem niza eksperimenata, pokazali smo da osnovna inačica okvira VIBE postiže podjednake ili bolje rezultate u usporedbi sa stanjem tehnike za obranu od napada.\ 
+S druge strane, vidjeli smo i da osnovna inačica okvira VIBE postiže lošije rezultate od stanja tehnike za učenje na zašumljenim oznakama.\ 
+
+Pažljivom validacijom hiperparametara, korištenjem strategije kosinusnog kaljenja za izmjenu stope učenja te dodavanjem komponente konzistencijskog gubitka, poboljšali smo performanse okvira VIBE.\ 
+Konkretno, zaključili smo da okvir VIBE s konzistencijskim gubitkom i prikladno odabranim skupom jakih augmentacija postiže najbolje rezultate u teškim postavima zašumljivanja (simetrično zašumljivanje uz visoku stopu šuma, asimetrično zašumljivanje).\ 
+Iako algoritmi SOP+ te ILL i dalje postižu najbolje rezultate u lakšim postavima zašumljivanja, dodavanjem konzistencijskog gubitka okviru VIBE značajno smo smanjili razliku u performansama u usporedbi sa stanjem tehnike.\ 
+Dodatno, eksperimentalno smo potvrdili da okvir VIBE s konzistencijskim gubitkom ima poboljšane performanse i na problemu napada umetanjem stražnjih vrata.\ 
+
+Potaknuti uspjehom poboljšanog okvira VIBE, odlučili smo dodati komponentu konzistencijskog gubitka standardnom nadziranom učenju te ga evaluirati na problemu zašumljenih oznaka.\ 
+Dok standardno nadzirano učenje na podatcima sa zašumljenim oznakama rezultira modelima s niskom točnošću, dodavanjem konzistencijskog gubitka možemo drastično povećati točnost naučenih modela na čistim podatcima.\ 
+Konkretno, u lakšim postavima zašumljivanja, nadzirano učenje s konzistencijskim gubitkom postiže točnost usporedivu s točnošću algoritama SOP+ te ILL.\ 
+Iako povećanje stope šuma vodi do pada točnosti nadziranog učenja s konzistencijskim gubitkom, uočeni pad je značajno manji u usporedbi sa standardnim nadziranim učenjem.\ 
+
+Konačno, eksperimentalno smo pokazali da učenje algoritmom ILL može biti nestabilno u teškim postavima napada.\ Zbog ovoga, algoritam ILL ne možemo koristiti kao obranu od napada umetanjem stražnjih vrata.\ 
+Kako bismo pokušali riješiti ovaj problem, predlažemo dvije inačice hibridnog okvira zasnovane na okviru VIBE uz određene dijelove algoritma ILL.\ 
+Dok se prva inačica (E korak preuzet iz algoritma ILL) nije pokazala uspješnom, druga inačica (definicija distribucije $p(y | l)$ preuzeta iz algoritma ILL) postiže podjednake performanse kao i osnovna inačica okvira VIBE.\ 
+Zaključujemo da druga inačica hibridnog okvira može služiti kao zamjena za osnovnu inačicu okvira VIBE, ali i općenito kao obrana od napada umetanjem stražnjih vrata.\ 
+
+Kao smjer za budući rad, prirodno se nalaže primjena okvira VIBE s konzistencijskim gubitkom na problem učenja na djelomičnim oznakama.\ 
+Kako bismo ovo ostvarili, potrebno je reformulirati optimizacijski cilj te prilagoditi korake algoritma maksimizacije očekivanja.\ 
+Kada je u pitanju nadzirano učenje, vrijedilo bi provesti još eksperimenata u vezi dodavanja konzistencijskog gubitka (izmjena stope konzistencije, validacija odabira skupa jakih augmentacija) kako bismo potvrdili da ovim pristupom možemo dobiti prihvatljivu točnost pri učenju na podatcima sa zašumljenim oznakama.\ 
+Konačno, bilo bi zanimljivo evaluirati uspješnu inačicu hibridnog okvira na problemu zašumljenih oznaka, kao i nadograditi ju konzistencijskim gubitkom.\ 
 
 %--- LITERATURA / REFERENCES ---------------------------------------------------
 
