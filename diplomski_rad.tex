@@ -6,6 +6,9 @@
 
 %--- PODACI O RADU / THESIS INFORMATION ----------------------------------------
 
+% Naslov na engleskom jeziku / Title in English
+\title{Variational learning on noisy labels}
+
 % Naslov na hrvatskom jeziku / Title in Croatian
 \naslov{Varijacijsko učenje na zašumljenim oznakama}
 
@@ -17,6 +20,9 @@
 
 % Mentor 
 \mentor{prof.\ dr.\ sc.\ Siniša Šegvić}
+
+% Datum rada na engleskom jeziku / Date in English
+\date{June, 2025}
 
 % Datum rada na hrvatskom jeziku / Date in Croatian
 \datum{lipanj, 2025.}
@@ -2208,8 +2214,22 @@ Konačno, bilo bi zanimljivo evaluirati uspješnu inačicu hibridnog okvira na p
 \end{sazetak}
 
 \begin{kljucnerijeci}
-  napadi umetanjem stražnjih vrata; zašumljene oznake; algoritam maksimizacije očekivanja; okvir VIBE; konzistencijski gubitak
+  napadi umetanjem stražnjih vrata; zašumljene oznake; algoritam maksimizacije očekivanja; konzistencijski gubitak; VIBE
 \end{kljucnerijeci}
+
+% Abstract in English
+\begin{abstract}
+  Backdoor attacks and the presence of noisy labels are some of the potential problems during data collection and labeling.\ 
+  Although the VIBE framework is designed as a defense against backdoor attacks, we show that it can also be successfully used for learning on noisy data.\ 
+  We improve the performance of the VIBE framework on the backdoor attacks problem by adding a consistency loss component.\ 
+  By training and evaluating it on the noisy CIFAR-10 dataset, we confirm that the VIBE framework with consistency loss outperforms the state-of-the-art in hard noisiness setups.\ 
+  Experiments show that adding consistency loss significantly increases the accuracy of standard supervised learning on the noisy labels problem.\ 
+  We conclude that consistency loss is crucial for successful learning on noisy data.\
+\end{abstract}
+
+\begin{keywords}
+  backdoor attacks; noisy labels; expectation-maximization algorithm; consistency loss; VIBE
+\end{keywords}
 
 
 \end{document}
