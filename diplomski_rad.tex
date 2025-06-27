@@ -1038,8 +1038,8 @@ Kako bismo doskočili ovom problemu, uvodimo zamjensku distribuciju $q(l | \bm{x
 
 \begin{equation}
   \begin{aligned}
-    \ell_{VD}(\bm{\Omega}|\mathcal{D}) &= \sum_{i=1}^{N} \log \sum_{l=1}^{K} p_{\bm{\phi}, \bm{\psi}}(y^i | l) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) \frac{q(l | \bm{x}^i, y^i)}{q(l | \bm{x}^i, y^i)} \\
-                                 &= \sum_{i=1}^{N} \log \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \frac{p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i)}{q(l^i | \bm{x}^i, y^i)} \right]
+    \ell_{VD}(\bm{\Omega}|\mathcal{D}) &= \sum_{i=1}^{N} \log \sum_{l=1}^{K} p_{\bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) \frac{q(l | \bm{x}^i, y^i)}{q(l | \bm{x}^i, y^i)} \\
+                                 &= \sum_{i=1}^{N} \log \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \frac{p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i)}{q(l^i | \bm{x}^i, y^i)} \right]
   \end{aligned}
   \label{eq:vibe_added_q}
 \end{equation}
@@ -1048,9 +1048,9 @@ Prisjetimo se da je logaritam konkavna funkcija.\ Primjenom Jensenove nejednakos
 
 \begin{equation}
   \begin{aligned}
-    \ell_{VD}(\bm{\Omega}|\mathcal{D}) &= \sum_{i=1}^{N} \log \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \frac{p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i)}{q(l^i | \bm{x}^i, y^i)} \right] \\
-                                 &\geq \sum_{i=1}^{N} \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[\log \frac{p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i)}{q(l^i | \bm{x}^i, y^i)} \right] \\
-                                 &= \sum_{i=1}^{N} \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[\log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) + \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i) - \log q(l^i | \bm{x}^i, y^i) \right] \\
+    \ell_{VD}(\bm{\Omega}|\mathcal{D}) &= \sum_{i=1}^{N} \log \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \frac{p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i)}{q(l^i | \bm{x}^i, y^i)} \right] \\
+                                 &\geq \sum_{i=1}^{N} \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[\log \frac{p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i)}{q(l^i | \bm{x}^i, y^i)} \right] \\
+                                 &= \sum_{i=1}^{N} \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[\log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) + \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i) - \log q(l^i | \bm{x}^i, y^i) \right] \\
                                  &= \mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D})
   \end{aligned}
   \label{eq:vibe_jensen}
@@ -1079,9 +1079,9 @@ Donju varijacijsku granicu uprosječenu preko $N$ primjera možemo zapisati kao:
 
 \begin{equation}
   \begin{aligned}
-    \frac{1}{N} \mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D}) &= \frac{1}{N} \sum_{i=1}^{N} \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[\log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) + \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i) - \log q(l^i | \bm{x}^i, y^i) \right] \\
-                                                               &= \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \left[\log p_{\bm{\phi}, \bm{\psi}}(y^i | l) + \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) - \log q(l | \bm{x}^i, y^i) \right] \\ 
-                                                               &= \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \log \left[p_{\bm{\phi}, \bm{\psi}}(y^i | l) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) \right] \\ 
+    \frac{1}{N} \mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D}) &= \frac{1}{N} \sum_{i=1}^{N} \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[\log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) + \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i) - \log q(l^i | \bm{x}^i, y^i) \right] \\
+                                                               &= \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \left[\log p_{\bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) + \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) - \log q(l | \bm{x}^i, y^i) \right] \\ 
+                                                               &= \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \log \left[p_{\bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) \right] \\ 
                                                                &- \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \log \left[N \frac{1}{N} q(l | \bm{x}^i, y^i) \right] \\ 
   \end{aligned}
   \label{eq:vibe_e_step_init}
@@ -1091,7 +1091,7 @@ Uvedimo sada matrice $\bm{P}$ i $\bm{Q}$ za koje vrijedi:
 
 \begin{equation}
   \begin{aligned}
-    \bm{P}_{i, l} &= p_{\bm{\phi}, \bm{\psi}}(y^i | l) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) \\
+    \bm{P}_{i, l} &= p_{\bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) \\
     \bm{Q}_{i, l} &= \frac{1}{N} q(l | \bm{x}^i, y^i)
   \end{aligned}
   \label{eq:vibe_matrices_p_q}
@@ -1101,7 +1101,7 @@ Pritom član $\frac{1}{N}$ osigurava da je matrica $\bm{Q}$ ispravna matrica zaj
 
 \begin{equation}
   \begin{aligned}
-    \frac{1}{N} \mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D}) &= \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \log \left[p_{\bm{\phi}, \bm{\psi}}(y^i | l) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) \right] \\ 
+    \frac{1}{N} \mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D}) &= \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \log \left[p_{\bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) \right] \\ 
                                                                &- \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \log \left[N \frac{1}{N} q(l | \bm{x}^i, y^i) \right] \\ 
                                                                &= \sum_{i=1}^{N} \sum_{l=1}^{K} \bm{Q}_{i, l} \log \bm{P}_{i, l} - \sum_{i=1}^{N} \sum_{l=1}^{K} \bm{Q}_{i, l} \log \left[N \bm{Q}_{i, l} \right] \\ 
                                                                &= \sum_{i=1}^{N} \sum_{l=1}^{K} \bm{Q}_{i, l} \log \bm{P}_{i, l} - \sum_{i=1}^{N} \sum_{l=1}^{K} \bm{Q}_{i, l} \log \bm{Q}_{i, l} - \sum_{i=1}^{N} \sum_{l=1}^{K} \bm{Q}_{i, l} \log N \\ 
@@ -1168,10 +1168,10 @@ Maksimizacija donje varijacijske granice ekvivalentna je minimizaciji cilja:
 
 \begin{equation}
   \begin{aligned}
-    -\mathcal{L}_{VD}(\bm{\Omega}|\mathcal{D}) &= -\sum_{i=1}^{N} \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[\log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) + \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i) - \log q(l^i | \bm{x}^i, y^i) \right] \\
-                                               &= \sum_{i=1}^{N} \sum_{l=1}^{K} q(l | \bm{x}^i, y^i) \left[-\log p_{\bm{\phi}, \bm{\psi}}(y^i | l) - \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) + \log q(l | \bm{x}^i, y^i) \right] \\
-                                               &= \sum_{i=1}^{N} \left[ \sum_{l=1}^{K} -q(l | \bm{x}^i, y^i) \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) - \sum_{l=1}^{K} q(l | \bm{x}^i, y^i) \log p_{\bm{\phi}, \bm{\psi}}(y^i | l) - \operatorname{H}(q) \right] \\
-                                               &= \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) \right] - \operatorname{H}(q) \right] \\
+    -\mathcal{L}_{VD}(\bm{\Omega}|\mathcal{D}) &= -\sum_{i=1}^{N} \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[\log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) + \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i) - \log q(l^i | \bm{x}^i, y^i) \right] \\
+                                               &= \sum_{i=1}^{N} \sum_{l=1}^{K} q(l | \bm{x}^i, y^i) \left[-\log p_{\bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) - \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) + \log q(l | \bm{x}^i, y^i) \right] \\
+                                               &= \sum_{i=1}^{N} \left[ \sum_{l=1}^{K} -q(l | \bm{x}^i, y^i) \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) - \sum_{l=1}^{K} q(l | \bm{x}^i, y^i) \log p_{\bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) - \operatorname{H}(q) \right] \\
+                                               &= \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) \right] - \operatorname{H}(q) \right] \\
   \end{aligned}
   \label{eq:vibe_m_step_init}
 \end{equation}
@@ -1180,7 +1180,7 @@ Pritom $\mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(
 Član $\operatorname{H}(q)$ ne ovisi o parametrima $\bm{\Omega}$, tako da ga možemo izostaviti te dobivamo konačan cilj koji želimo minimizirati:
 
 \begin{equation}
-  \mathcal{L}_{VIBE}(\bm{\Omega} | \mathcal{D}) = \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) \right] \right]
+  \mathcal{L}_{VIBE}(\bm{\Omega} | \mathcal{D}) = \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) \right] \right]
   \label{eq:vibe_m_step_final}
 \end{equation}
 
@@ -1229,7 +1229,7 @@ Konkretno, glavna izmjena okvira VIBE je u M koraku.\ Dok E korak za zadani skup
 Pritom smo gubitak u M koraku definirali kao:
 
 \begin{equation}
-  \mathcal{L}_{VIBE}(\bm{\Omega} | \mathcal{D}) = \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) \right] \right]
+  \mathcal{L}_{VIBE}(\bm{\Omega} | \mathcal{D}) = \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) \right] \right]
   \label{eq:vibe_m_step_loss}
 \end{equation}
 
@@ -1239,7 +1239,7 @@ Uz korištenje jake augmentacije ulaza za izračun standardnog gubitka te dodava
 
 \begin{equation}
   \begin{aligned}
-    \mathcal{L}_{VIBE + CL}(\bm{\Omega} | \mathcal{D}) &= \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \mathcal{A}_{S}(\bm{x}^i)), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i) \right] \right] \\
+    \mathcal{L}_{VIBE + CL}(\bm{\Omega} | \mathcal{D}) &= \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \mathcal{A}_{S}(\bm{x}^i)), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) \right] \right] \\
                                                        &+ \sigma \sum_{i=1}^{N} KL(p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \mathcal{A}_{W}(\bm{x}^i)) || p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \mathcal{A}_{S}(\bm{x}^i)))
   \end{aligned}
   \label{eq:vibe_with_con_loss}
