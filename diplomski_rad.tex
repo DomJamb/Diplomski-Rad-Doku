@@ -202,7 +202,7 @@ Ideja je da će gubitak za zatrovane primjere veoma brzo pasti ispod praga te ć
 Nakon zadanog broja epoha, izolira se udio $p$ primjera s najnižim gubitkom i proglašava potencijalnim zatrovanim skupom.\ Važno je napomenuti da bismo prvi korak ABL-a mogli zamijeniti proizvoljnim algoritmom detekcije zatrovanih primjera.\ 
   
 U drugom koraku, učenje se u svakoj epohi provodi zasebno za procijenjeni čisti odnosno zatrovani skup.\ 
-Dok se učenje na čistom skupu provodi uz standardni gradijentni spust, učenje na zatrovanom skupu provodi se uz gradijentni uspon kako bi model odučili od stražnjih vrata.\ 
+Dok se učenje na čistom skupu provodi uz standardni gradijentni spust, učenje na zatrovanom skupu provodi se uz gradijentni uspon kako bismo model odučili od stražnjih vrata.\ 
 Ovo je moguće zato što je napad najčešće realiziran uz samo jedan ciljni razred tj.\ uz \textit{all-to-one} način izmjene oznaka.\ Gubitak u drugom koraku možemo prikazati jednadžbom:
 
 \begin{equation}
@@ -423,16 +423,16 @@ Cilj učenja modela tada je pronaći parametre $\bm{\theta}$ koji maksimiziraju 
 \end{equation}
 
 Kako bismo maksimizirali logaritam očekivanja uz prisutnost latentne varijable, koristimo algoritam maksimizacije očekivanja (algoritam EM)~\cite{moon1996expectation}.\
-Pritom u E koraku algoritma maksimizacije očekivanja računamo očekivanje zajedničke vjerojatnosti $p(X, I, Y | \bm{\theta})$ uz zadanu uvjetnu vjerojatnost $p(Y | X, I, \bm{\theta}^t)$ u vremenskom koraku $t$.\ 
+Pritom u E koraku algoritma maksimizacije očekivanja računamo očekivanje zajedničke vjerojatnosti $p(X, I, Y | \bm{\theta})$ uz zadanu uvjetnu vjerojatnost $p(Y | X, I, \bm{\theta}^{(t)})$ u vremenskom koraku $t$.\ 
 S druge strane, u M koraku tražimo parametre $\bm{\theta}$ koji maksimiziraju donju varijacijsku granicu (engl.\ \textit{evidence lower bound} - ELBO) vjerojatnosti $p(X, I | \bm{\theta})$.\ 
-Budući da se različite vrste problema razlikuju primarno po prirodi nepreciznosti oznaka, algoritmi za pojedine probleme najviše će se razlikovati u načinu izračuna vjerojatnosti $p(Y | X, I, \bm{\theta}^t)$.\
+Budući da se različite vrste problema razlikuju primarno po prirodi nepreciznosti oznaka, algoritmi za pojedine probleme najviše će se razlikovati u načinu izračuna vjerojatnosti $p(Y | X, I, \bm{\theta}^{(t)})$.\
 Ovime algoritam ILL pruža unificirani okvir koji podržava različite vrste nepreciznosti oznaka, kao i kombinacije istih.\
 
 Dakle, glavni cilj algoritma ILL je pronaći parametre $\bm{\theta}$ koji maksimiziraju zajedničku vjerojatnost $p(X, I | \bm{\theta})$ odnosno logaritam iste.\
 Prema algoritmu EM, ovaj problem možemo riješiti maksimizacijom očekivanja:
 
 \begin{equation}
-  \mathbb{E}_{Y | X, I, \bm{\theta}^t} \left[ \log p(X, Y, I | \bm{\theta}) \right] = \mathbb{E}_{Y | X, I, \bm{\theta}^t} \left[ \log p(Y | X, \bm{\theta}) + \log p(I | X, Y, \bm{\theta}) \right]
+  \mathbb{E}_{Y | X, I, \bm{\theta}^{(t)}} \left[ \log p(X, Y, I | \bm{\theta}) \right] = \mathbb{E}_{Y | X, I, \bm{\theta}^{(t)}} \left[ \log p(Y | X, \bm{\theta}) + \log p(I | X, Y, \bm{\theta}) \right]
   \label{eq:ill_expectation}
 \end{equation}
 
@@ -447,10 +447,10 @@ Ovaj problem pojednostavit ćemo razmatranjem modela šuma neovisnog o uzorku $\
 
 \begin{equation}
   \begin{aligned}
-    \mathbb{E}_{Y | X, I, \bm{\theta}^t} \left[ \log p(X, Y, I | \bm{\theta}) \right] &= \mathbb{E}_{Y | X, I, \bm{\theta}^t} \left[ \log p(Y, I | X, \bm{\theta}) \right] \\
-    &= \mathbb{E}_{Y | X, \hat{Y}, \bm{\theta}^t} \left[ \log p(Y, \hat{Y} | X, \bm{\theta}) \right] \\
-    &= \mathbb{E}_{Y | X, \hat{Y}, \bm{\theta}^t} \left[ \log p(Y | \hat{Y}, X, \bm{\theta}) + \log p(\hat{Y} | X, \bm{\theta}) \right] \\
-    &= \sum_{Y} p(Y | \hat{Y}, X, \bm{\theta}^t) \log p(Y | \hat{Y}, X, \bm{\theta}) + \log p(\hat{Y} | X, \bm{\theta}) \\
+    \mathbb{E}_{Y | X, I, \bm{\theta}^{(t)}} \left[ \log p(X, Y, I | \bm{\theta}) \right] &= \mathbb{E}_{Y | X, I, \bm{\theta}^{(t)}} \left[ \log p(Y, I | X, \bm{\theta}) \right] \\
+    &= \mathbb{E}_{Y | X, \hat{Y}, \bm{\theta}^{(t)}} \left[ \log p(Y, \hat{Y} | X, \bm{\theta}) \right] \\
+    &= \mathbb{E}_{Y | X, \hat{Y}, \bm{\theta}^{(t)}} \left[ \log p(Y | \hat{Y}, X, \bm{\theta}) + \log p(\hat{Y} | X, \bm{\theta}) \right] \\
+    &= \sum_{Y} p(Y | \hat{Y}, X, \bm{\theta}^{(t)}) \log p(Y | \hat{Y}, X, \bm{\theta}) + \log p(\hat{Y} | X, \bm{\theta}) \\
   \end{aligned}
   \label{eq:ill_target}
 \end{equation}
@@ -458,7 +458,7 @@ Ovaj problem pojednostavit ćemo razmatranjem modela šuma neovisnog o uzorku $\
 Funkcija gubitka koju želimo minimizirati tada postaje:
 
 \begin{equation}
-  \mathcal{L}_{ILL} = \mathcal{L}_{CE} (p(y | \bm{x}, \hat{y}, \bm{\theta}, \bm{\omega}^t), p(y | \bm{x}, \hat{y}, \bm{\theta}^t, \bm{\omega}^t)) + \mathcal{L}_{CE} (p(\hat{y} | \bm{x}, \bm{\theta}, \bm{\omega}), \hat{y})
+  \mathcal{L}_{ILL} = \mathcal{L}_{CE} (p(y | \bm{x}, \hat{y}, \bm{\theta}, \bm{\omega}^{(t)}), p(y | \bm{x}, \hat{y}, \bm{\theta}^{(t)}, \bm{\omega}^{(t)})) + \mathcal{L}_{CE} (p(\hat{y} | \bm{x}, \bm{\theta}, \bm{\omega}), \hat{y})
   \label{eq:ill_loss}
 \end{equation}
 
@@ -467,8 +467,8 @@ Pritom se za izračun obje komponente koristi model šuma uz zadanu zašumljenu 
 
 \begin{equation}
   \begin{aligned}
-    p(y | \bm{x}, \hat{y}, \bm{\theta}, \bm{\omega}^t) \propto p(y | \bm{x}, \bm{\theta}) \, \mathcal{T}(\bm{y} | y, \bm{\omega}^t) \\
-    p(\hat{y} | \bm{x}, \bm{\theta}, \bm{\omega}) = \sum_{y} p(y | \bm{x}, \bm{\theta}) \, \mathcal{T}(\bm{y} | y, \bm{\omega})
+    p(y | \bm{x}, \hat{y}, \bm{\theta}, \bm{\omega}^{(t)}) \propto p(y | \bm{x}, \bm{\theta}) \, \mathcal{T}(\hat{y} | y, \bm{\omega}^{(t)}) \\
+    p(\hat{y} | \bm{x}, \bm{\theta}, \bm{\omega}) = \sum_{y} p(y | \bm{x}, \bm{\theta}) \, \mathcal{T}(\hat{y} | y, \bm{\omega})
   \end{aligned}
   \label{eq:ill_probs}
 \end{equation}
@@ -773,14 +773,14 @@ Provođenjem M koraka dobivamo parametre $\bm{\theta}^{(t + 1)}$ uz koje vrijedi
 Gledajući da je funkcija $F(q(Z), \bm{\theta})$ donja granica log-izglednosti $\log p(X | \bm{\theta})$, vrijedi i:
 
 \begin{equation}
-  F(q^{(t + 1)}(Z), \bm{\theta}^{(t + 1)}) \leq \log p(X | \bm{\theta}^{t + 1})
+  F(q^{(t + 1)}(Z), \bm{\theta}^{(t + 1)}) \leq \log p(X | \bm{\theta}^{(t + 1)})
   \label{eq:em_proof_pt3}
 \end{equation}
 
 Konačno, dobivamo početnu tvrdnju:
 
 \begin{equation}
-  \log p(X | \bm{\theta}^{(t)}) \leq \log p(X | \bm{\theta}^{t + 1})
+  \log p(X | \bm{\theta}^{(t)}) \leq \log p(X | \bm{\theta}^{(t + 1)})
   \label{eq:em_proof_final}
 \end{equation}
 
@@ -969,7 +969,7 @@ Cilj okvira VIBE je naučiti model $f$ koji potencijalno zatrovanom ulaznom prim
 Naravno, čiste oznake $\bm{l}$ su skrivene, a dostupne su nam samo zatrovane oznake $\bm{y}$.\ 
 
 Uobičajeni napadi umetanjem stražnjih vrata modificiraju mali udio $\gamma$ čistog skupa jer žele izbjeći detekciju.\ Drugim riječima, za većinu podataka će zatrovane i čiste oznake biti identične.\
-Zbog ovoga, prirodan optimizacijski cilj za okvir VIBE je maksimizacija log-izglednosti skupa $\mathcal{D}$ uz pretpostavku o nezavisno i identično distribuiranim primjerima (IID pretpostavku):
+Zbog ovoga, prirodan optimizacijski cilj za okvir VIBE je maksimizacija log-izglednosti skupa $\mathcal{D}$ uz pretpostavku o nezavisno i identično distribuiranim primjerima (pretpostavku IID):
 
 \begin{equation}
   \ell_{VD}(\cdot|\mathcal{D}) = \log \prod_{i=1}^{N} p(y^i | \bm{x}^i) = \sum_{i=1}^{N} \log \sum_{l=1}^{K} p(y^i | l, \bm{x}^i) p(l | \bm{x}^i)
@@ -1014,7 +1014,7 @@ Pritom koeficijenti miješanja $\bm{\pi}$ odgovaraju apriornoj distribuciji čis
 Kako bismo osigurali da distribuciju $\bm{\pi}$ možemo učiti, definiramo ju kao $\bm{\pi} = \sigma (c \cdot \bm{\hat{\pi}})$, pri čemu je $\sigma$ funkcija softmax, $c$ hiperparametar temperature, a $\bm{\hat{\pi}}$ vektor parametara koje učimo.\ 
 Ovom formulacijom osiguravamo da se vektor $\bm{\pi}$ sumira u $1$.\
 
-Uočimo da dobivena uvjetna vjerojatnost $p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x})$ odgovara dubokom modelu s funkcijom softmax, $L_2$ normalizacijom pred-logita te skupom razrednih prototipova $\bm{\phi}$.\ 
+Uočimo da dobivena uvjetna vjerojatnost $p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x})$ odgovara dubokom modelu s aktivacijskom funkcijom softmax, $L_2$ normalizacijom pred-logita te skupom razrednih prototipova $\bm{\phi}$.\ 
 Parametri definiranog modela tada su: skup razrednih tj.\ čistih prototipova $\bm{\phi} = \{\bm{\mu}_1,\,...\,,\bm{\mu}_K\}$, koeficijenti miješanja $\bm{\pi}$ te parametri $\bm{\theta}$ ekstraktora značajki $g_{\bm{\theta}}$.\ 
 Uz ovu parametrizaciju, model $f$ koji na ulazu prima primjer $\bm{x}^i$ te na izlazu daje čistu oznaku $l^i$ možemo prikazati kao kompoziciju nekoliko funkcija:
 
@@ -1023,17 +1023,17 @@ Uz ovu parametrizaciju, model $f$ koji na ulazu prima primjer $\bm{x}^i$ te na i
   \label{eq:h_form}
 \end{equation}
 
-Pritom funkcija $\operatorname{cos\text{-}sim}_{\bm{\phi}, \bm{\pi}}$ računa kosinusnu sličnost između prototipova iz skupa $\bm{\phi}$ i ugrađivanja $\bm{v}^i$ otežanu parametrima $\bm{\pi}$.\ 
+Pritom funkcija $\operatorname{cos\text{-}sim}_{\bm{\phi}, \bm{\pi}}$ označava kosinusnu sličnost između prototipova iz skupa $\bm{\phi}$ i ugrađivanja $\bm{v}^i$ otežanu parametrima $\bm{\pi}$.\ 
 
 Sada trebamo definirati distribuciju $p(y | l, \bm{x})$.\ Kako bismo to postigli, uvedimo još i skup zatrovanih prototipova $\bm{\psi} = \{\bm{\eta}_1,\,...\,,\bm{\eta}_K\}$ na istoj hipersferi $S^{d - 1}$.\ 
 Distribuciju $p(y | l, \bm{x})$ definirat ćemo kao normaliziranu kosinusnu sličnost između zatrovanih prototipova i izlaza funkcije $h$ koja kao ulaz dobiva čisti prototip $\bm{\mu}_{l^i}$ te ugrađivanje $\bm{v}^i$:
 
 \begin{equation}
-  p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) = \frac{\exp(\nu \bm{\eta}_{y^i}^T h(\bm{\mu}_{l^i}, \bm{v}^i))}{\sum_{y'} \exp(\nu \bm{\eta}_{y'}^T h(\bm{\mu}_{l^i}, \bm{v}^i))}
+  p_{\bm{\theta}, \bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) = \frac{\exp(\nu \bm{\eta}_{y^i}^T h(\bm{\mu}_{l^i}, \bm{v}^i))}{\sum_{y'} \exp(\nu \bm{\eta}_{y'}^T h(\bm{\mu}_{l^i}, \bm{v}^i))}
   \label{eq:p_y_l}
 \end{equation}
 
-Pri čemu je $\nu$ hiperparametar temperature, a funkcija $h$ je proizvoljno zadana.\ Definiranjem iste kao $h(\bm{\mu}, \bm{v}) = \bm{\mu}$, distribuciju $p_{\bm{\phi}, \bm{\psi}}(y | l, \bm{x})$ aproksimiramo distribucijom $p_{\bm{\phi}, \bm{\psi}}(y | l)$ koja ne ovisi o konkretnom primjeru.\ 
+Pri čemu je $\nu$ hiperparametar temperature, a funkcija $h$ je proizvoljno zadana.\ Definiranjem iste kao $h(\bm{\mu}, \bm{v}) = \bm{\mu}$, distribuciju $p_{\bm{\theta}, \bm{\phi}, \bm{\psi}}(y | l, \bm{x})$ aproksimiramo distribucijom $p_{\bm{\phi}, \bm{\psi}}(y | l)$ koja ne ovisi o konkretnom primjeru.\ 
 U našem radu, koristit ćemo upravo navedenu aproksimacijsku distribuciju.\ Uočimo da pomoću naučene distribucije $p_{\bm{\phi}, \bm{\psi}}(y | l)$ možemo rekonstruirati pravila trovanja korištena za stvaranje zatrovanog skupa podataka $\mathcal{D}$.\ 
 Skup svih parametara modela označit ćemo s $\bm{\Omega} = \bm{\theta} \cup \bm{\pi} \cup \bm{\phi} \cup \bm{\psi}$.\ Nakon što smo parametrizirali obje potrebne distribucije, vrijeme je za definiranje algoritma učenja.\
 
@@ -1045,8 +1045,8 @@ Kako bismo doskočili ovom problemu, uvodimo zamjensku distribuciju $q(l | \bm{x
 
 \begin{equation}
   \begin{aligned}
-    \ell_{VD}(\bm{\Omega}|\mathcal{D}) &= \sum_{i=1}^{N} \log \sum_{l=1}^{K} p_{\bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) \frac{q(l | \bm{x}^i, y^i)}{q(l | \bm{x}^i, y^i)} \\
-                                 &= \sum_{i=1}^{N} \log \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \frac{p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i)}{q(l^i | \bm{x}^i, y^i)} \right]
+    \ell_{VD}(\bm{\Omega}|\mathcal{D}) &= \sum_{i=1}^{N} \log \sum_{l=1}^{K} p_{\bm{\theta}, \bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) \frac{q(l | \bm{x}^i, y^i)}{q(l | \bm{x}^i, y^i)} \\
+                                 &= \sum_{i=1}^{N} \log \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \frac{p_{\bm{\theta}, \bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i)}{q(l^i | \bm{x}^i, y^i)} \right]
   \end{aligned}
   \label{eq:vibe_added_q}
 \end{equation}
@@ -1055,9 +1055,9 @@ Prisjetimo se da je logaritam konkavna funkcija.\ Primjenom Jensenove nejednakos
 
 \begin{equation}
   \begin{aligned}
-    \ell_{VD}(\bm{\Omega}|\mathcal{D}) &= \sum_{i=1}^{N} \log \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \frac{p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i)}{q(l^i | \bm{x}^i, y^i)} \right] \\
-                                 &\geq \sum_{i=1}^{N} \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[\log \frac{p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i)}{q(l^i | \bm{x}^i, y^i)} \right] \\
-                                 &= \sum_{i=1}^{N} \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[\log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) + \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i) - \log q(l^i | \bm{x}^i, y^i) \right] \\
+    \ell_{VD}(\bm{\Omega}|\mathcal{D}) &= \sum_{i=1}^{N} \log \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \frac{p_{\bm{\theta}, \bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i)}{q(l^i | \bm{x}^i, y^i)} \right] \\
+                                 &\geq \sum_{i=1}^{N} \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[\log \frac{p_{\bm{\theta}, \bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i)}{q(l^i | \bm{x}^i, y^i)} \right] \\
+                                 &= \sum_{i=1}^{N} \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[\log p_{\bm{\theta}, \bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) + \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i) - \log q(l^i | \bm{x}^i, y^i) \right] \\
                                  &= \mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D})
   \end{aligned}
   \label{eq:vibe_jensen}
@@ -1086,9 +1086,9 @@ Donju varijacijsku granicu uprosječenu preko $N$ primjera možemo zapisati kao:
 
 \begin{equation}
   \begin{aligned}
-    \frac{1}{N} \mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D}) &= \frac{1}{N} \sum_{i=1}^{N} \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[\log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) + \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i) - \log q(l^i | \bm{x}^i, y^i) \right] \\
-                                                               &= \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \left[\log p_{\bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) + \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) - \log q(l | \bm{x}^i, y^i) \right] \\ 
-                                                               &= \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \log \left[p_{\bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) \right] \\ 
+    \frac{1}{N} \mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D}) &= \frac{1}{N} \sum_{i=1}^{N} \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[\log p_{\bm{\theta}, \bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) + \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i) - \log q(l^i | \bm{x}^i, y^i) \right] \\
+                                                               &= \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \left[\log p_{\bm{\theta}, \bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) + \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) - \log q(l | \bm{x}^i, y^i) \right] \\ 
+                                                               &= \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \log \left[p_{\bm{\theta}, \bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) \right] \\ 
                                                                &- \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \log \left[N \frac{1}{N} q(l | \bm{x}^i, y^i) \right] \\ 
   \end{aligned}
   \label{eq:vibe_e_step_init}
@@ -1098,7 +1098,7 @@ Uvedimo sada matrice $\bm{P}$ i $\bm{Q}$ za koje vrijedi:
 
 \begin{equation}
   \begin{aligned}
-    \bm{P}_{i, l} &= p_{\bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) \\
+    \bm{P}_{i, l} &= p_{\bm{\theta}, \bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) \\
     \bm{Q}_{i, l} &= \frac{1}{N} q(l | \bm{x}^i, y^i)
   \end{aligned}
   \label{eq:vibe_matrices_p_q}
@@ -1108,7 +1108,7 @@ Pritom član $\frac{1}{N}$ osigurava da je matrica $\bm{Q}$ ispravna matrica zaj
 
 \begin{equation}
   \begin{aligned}
-    \frac{1}{N} \mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D}) &= \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \log \left[p_{\bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) \right] \\ 
+    \frac{1}{N} \mathcal{L}_{VD}(\bm{\Omega}, q | \mathcal{D}) &= \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \log \left[p_{\bm{\theta}, \bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) \right] \\ 
                                                                &- \sum_{i=1}^{N} \sum_{l=1}^{K} \frac{1}{N} q(l | \bm{x}^i, y^i) \log \left[N \frac{1}{N} q(l | \bm{x}^i, y^i) \right] \\ 
                                                                &= \sum_{i=1}^{N} \sum_{l=1}^{K} \bm{Q}_{i, l} \log \bm{P}_{i, l} - \sum_{i=1}^{N} \sum_{l=1}^{K} \bm{Q}_{i, l} \log \left[N \bm{Q}_{i, l} \right] \\ 
                                                                &= \sum_{i=1}^{N} \sum_{l=1}^{K} \bm{Q}_{i, l} \log \bm{P}_{i, l} - \sum_{i=1}^{N} \sum_{l=1}^{K} \bm{Q}_{i, l} \log \bm{Q}_{i, l} - \sum_{i=1}^{N} \sum_{l=1}^{K} \bm{Q}_{i, l} \log N \\ 
@@ -1175,10 +1175,10 @@ Maksimizacija donje varijacijske granice ekvivalentna je minimizaciji cilja:
 
 \begin{equation}
   \begin{aligned}
-    -\mathcal{L}_{VD}(\bm{\Omega}|\mathcal{D}) &= -\sum_{i=1}^{N} \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[\log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) + \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i) - \log q(l^i | \bm{x}^i, y^i) \right] \\
-                                               &= \sum_{i=1}^{N} \sum_{l=1}^{K} q(l | \bm{x}^i, y^i) \left[-\log p_{\bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) - \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) + \log q(l | \bm{x}^i, y^i) \right] \\
-                                               &= \sum_{i=1}^{N} \left[ \sum_{l=1}^{K} -q(l | \bm{x}^i, y^i) \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) - \sum_{l=1}^{K} q(l | \bm{x}^i, y^i) \log p_{\bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) - \operatorname{H}(q) \right] \\
-                                               &= \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) \right] - \operatorname{H}(q) \right] \\
+    -\mathcal{L}_{VD}(\bm{\Omega}|\mathcal{D}) &= -\sum_{i=1}^{N} \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[\log p_{\bm{\theta}, \bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) + \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l^i | \bm{x}^i) - \log q(l^i | \bm{x}^i, y^i) \right] \\
+                                               &= \sum_{i=1}^{N} \sum_{l=1}^{K} q(l | \bm{x}^i, y^i) \left[-\log p_{\bm{\theta}, \bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) - \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) + \log q(l | \bm{x}^i, y^i) \right] \\
+                                               &= \sum_{i=1}^{N} \left[ - \sum_{l=1}^{K} q(l | \bm{x}^i, y^i) \log p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i) - \sum_{l=1}^{K} q(l | \bm{x}^i, y^i) \log p_{\bm{\theta}, \bm{\phi}, \bm{\psi}}(y^i | l, \bm{x}^i) - \operatorname{H}(q) \right] \\
+                                               &= \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\theta}, \bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) \right] - \operatorname{H}(q) \right] \\
   \end{aligned}
   \label{eq:vibe_m_step_init}
 \end{equation}
@@ -1187,7 +1187,7 @@ Pritom $\mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(
 Član $\operatorname{H}(q)$ ne ovisi o parametrima $\bm{\Omega}$, tako da ga možemo izostaviti te dobivamo konačan cilj koji želimo minimizirati:
 
 \begin{equation}
-  \mathcal{L}_{VIBE}(\bm{\Omega} | \mathcal{D}) = \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) \right] \right]
+  \mathcal{L}_{VIBE}(\bm{\Omega} | \mathcal{D}) = \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\theta}, \bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) \right] \right]
   \label{eq:vibe_m_step_final}
 \end{equation}
 
@@ -1236,7 +1236,7 @@ Konkretno, glavna izmjena okvira VIBE je u M koraku.\ Dok E korak za zadani skup
 Pritom smo gubitak u M koraku definirali kao:
 
 \begin{equation}
-  \mathcal{L}_{VIBE}(\bm{\Omega} | \mathcal{D}) = \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) \right] \right]
+  \mathcal{L}_{VIBE}(\bm{\Omega} | \mathcal{D}) = \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \bm{x}^i), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\theta}, \bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) \right] \right]
   \label{eq:vibe_m_step_loss}
 \end{equation}
 
@@ -1246,7 +1246,7 @@ Uz korištenje jake augmentacije ulaza za izračun standardnog gubitka te dodava
 
 \begin{equation}
   \begin{aligned}
-    \mathcal{L}_{VIBE + CL}(\bm{\Omega} | \mathcal{D}) &= \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \mathcal{A}_{S}(\bm{x}^i)), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\phi}, \bm{\psi}}(y^i | l^i, \bm{x}^i) \right] \right] \\
+    \mathcal{L}_{VIBE + CL}(\bm{\Omega} | \mathcal{D}) &= \sum_{i=1}^{N} \left[ \mathcal{L}_{CE} (p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \mathcal{A}_{S}(\bm{x}^i)), q(l | \bm{x}^i, y^i)) - \mathbb{E}_{l^i \sim q(\cdot | \bm{x}^i, y^i)} \left[ \log p_{\bm{\theta}, \bm{\phi}, \bm{\psi}}(y^i | l^i, \mathcal{A}_{S}(\bm{x}^i)) \right] \right] \\
                                                        &+ \sigma \sum_{i=1}^{N} KL(p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \mathcal{A}_{W}(\bm{x}^i)) || p_{\bm{\theta}, \bm{\phi}, \bm{\pi}}(l | \mathcal{A}_{S}(\bm{x}^i)))
   \end{aligned}
   \label{eq:vibe_with_con_loss}
@@ -1259,7 +1259,7 @@ Okvir VIBE algoritmom maksimizacije očekivanja implicitno prepravlja oznake zat
 Pritom učenje uspijeva jer većina napada nastoji što manje izmijeniti ulazne primjere.\ 
 Ipak, napadi s čistim oznakama (engl.\ \textit{clean-label attacks}) uobičajeno moraju više izmijeniti ulazne primjere kako bi uspjeli ugraditi stražnja vrata u model.\ 
 Ova značajna perturbacija ulaza vidljiva je i u prostoru samonadziranih značajki: primjeri zatrovani napadom s čistim oznakama prilično su udaljeni od mnogostrukosti (engl.\ \textit{manifold}) na kojoj leže čisti podatci.\ 
-Kako bi iskoristili ovu činjenicu, okvir VIBE uključuje korak pretprocesiranja čiji je cilj ukloniti primjere zatrovane napadom s čistim oznakama.\ 
+Kako bi iskoristio ovu činjenicu, okvir VIBE uključuje korak pretprocesiranja čiji je cilj ukloniti primjere zatrovane napadom s čistim oznakama.\ 
 
 \begin{figure}[h]
   \centering
@@ -1269,7 +1269,7 @@ Kako bi iskoristili ovu činjenicu, okvir VIBE uključuje korak pretprocesiranja
 \end{figure}
 
 Konkretno, korak pretprocesiranja promatra mnogostrukost podataka u prostoru samonadziranih značajki te zatrovane primjere identificira kao najudaljeniju zajednicu.\ 
-Kako bi ovo postigli, prvo konstruiramo graf $k$ najbližih susjeda predstavljen matricom susjedstva $\bm{A}_k$.\ 
+Kako bismo ovo postigli, prvo konstruiramo graf $k$ najbližih susjeda predstavljen matricom susjedstva $\bm{A}_k$.\ 
 Potom koristimo Leidenov algoritam~\cite{traag2019louvain} kako bismo podijelili graf najbližih susjeda $\bm{A}_k$ na $K + 1$ zajednicu.\ 
 Za svaku detektiranu zajednicu zatim računamo prosječnu udaljenost do preostalih $K$ zajednica te izdvajamo zajednicu s najvećom prosječnom udaljenosti.\ 
 Ako je prosječna udaljenost te zajednice veća od zadanog praga $\delta$, iz skupa podataka $\mathcal{D}$ uklanjamo primjere koji joj pripadaju.\ 
@@ -1388,7 +1388,7 @@ Pri čemu je $y_i^{(k)}$ k-ta značajka i-tog izlaza $\bm{y}_i$ iz sloja normali
 Kako bi sloj normalizacije nad grupom radio ispravno, potrebno je koristiti dovoljno velike minigrupe.\ 
 
 Opisani postupak koristi se tijekom učenja modela.\ Nakon što smo naučili i upogonili model, primjeri mu najčešće dolaze jedan po jedan (engl.\ \textit{online}).\ 
-Kako bi se nosili s ovom situacijom, sloj normalizacije nad grupom definira još jedan režim rada.\ 
+Kako bi se nosio s ovom situacijom, sloj normalizacije nad grupom definira još jedan režim rada.\ 
 Konkretno, kada model koristimo za evaluaciju, više ne računamo statistike $\bm{\mu}_{\mathcal{B}}$ i $\bm{\sigma}_{\mathcal{B}}^2$.\ 
 Umjesto toga, za normalizaciju koristimo pomične prosjeke izračunatih statistika $\bm{\hat{\mu}}$ i $\bm{\hat{\sigma}}^2$.\ Alternativno, možemo koristiti i statistike izračunate za cijeli skup za učenje $\mathcal{D}$.\
 
@@ -1567,7 +1567,7 @@ Konkretno, uz stopu šuma iznosa $20\%$, algoritam SOP+ postiže najvišu točno
 Iako se nadzirano učenje pokazuje kao najlošije u ovom postavu, zanimljivo je da dodavanjem konzistencijskog gubitka možemo postići točnost za samo $1.1\%$ nižu u usporedbi sa stanjem tehnike.\ 
 Drugim riječima, iako standardno nadzirano učenje ne postiže visoku točnost pri učenju na skupu sa zašumljenim oznakama, jednostavnim dodavanjem konzistencijskog gubitka možemo drastično povećati točnost naučenog modela.\ 
 
-Uz stopu šuma iznosa $40\%$, algoritam ILL postiže najvišu točnost.\ Algoritam SOP+ u ovom slučaju je podjednake točnosti, dok okvir VIBE postiže za $0.9\%$ nižu točnost.\ U usporedbi sa stanjem tehnike, ovaj postav predstavlja najgori slučaj za okvir VIBE.\ 
+Uz stopu šuma iznosa $50\%$, algoritam ILL postiže najvišu točnost.\ Algoritam SOP+ u ovom slučaju je podjednake točnosti, dok okvir VIBE postiže za $0.9\%$ nižu točnost.\ U usporedbi sa stanjem tehnike, ovaj postav predstavlja najgori slučaj za okvir VIBE.\ 
 Dok standardno nadzirano učenje ovdje postiže nisku točnost iznosa $57.6\%$, dodavanjem konzistencijskog gubitka istu možemo povećati na $91.6\%$.\ 
 Kada govorimo o postavu sa stopom šuma iznosa $80\%$, okvir VIBE postiže najvišu točnost.\ Pritom je točnost VIBE-a za $1.1\%$ viša u odnosu na algoritam SOP+, odnosno za $0.4\%$ viša u odnosu na algoritam ILL.\ 
 Kod ovog postava, nadzirano učenje postiže veoma nisku točnost iznosa $26.7\%$.\ Iako dodavanjem konzistencijskog gubitka točnost možemo povećati za čak $49.8\%$, ovaj rezultat je i dalje značajno lošiji od rezultata okvira VIBE.\ 
@@ -1607,7 +1607,7 @@ Nažalost, ovo je često i realističniji model.\ Na primjer, u slučaju označa
 Drugim riječima, u stvarnosti do zašumljivanja najčešće dolazi zbog sistematskih pogrešaka označivača, a ovo više odgovara modelu asimetričnog zašumljivanja oznaka.\ 
 
 Dok algoritmi SOP+ i ILL postižu najbolje performanse u postavima sa simetričnim zašumljivanjem i niskom stopom šuma, okvir VIBE postiže najbolje performanse u teškim postavima tj. pri simetričnom zašumljivanju uz stopu šuma iznosa $80\%$, kao i pri asimetričnom zašumljivanju uz stopu šuma iznosa $40\%$.\ 
-Dodatno, dodavanjem konzistencijskog gubitka nadziranom učenju u većini slučajeva možemo postići rezultate veoma bliske onima algoritama za učenje na podatcima sa zašumljenim oznakama.\ 
+Dodatno, dodavanjem konzistencijskog gubitka nadziranom učenju u lakšim postavima zašumljivanja možemo postići rezultate bliske onima algoritama za učenje na podatcima sa zašumljenim oznakama.\ 
 
 \subsection{Validacija hiperparametara}
 \label{sub:validacija_zasumljene}
@@ -1924,6 +1924,7 @@ Pogledajmo sada kako se točnost modela učenih nadziranim učenjem s konzistenc
 \end{table}
 
 Vidimo da dodavanje konzistencijskog gubitka povećava točnost modela na svim inačicama skupa CIFAR-10.\ 
+Dobiveni rezultati podudaraju se s rezultatima rada~\cite{grubivsic2023revisiting} u kojemu je pokazano da korištenje konzistencijskog gubitka može poboljšati generalizacijsku moć nadziranih modela.\
 Pri učenju na čistom skupu, učenje veći broj epoha rezultira višom točnošću.\ S druge strane, učenje na zašumljenim inačicama skupa rezultira višom točnošću kada odaberemo manji broj epoha.\ 
 Dakle, ako želimo osigurati veću robusnost na prisutnost zašumljenih oznaka, bolje je model učiti manji broj epoha.\ 
 Iako ćemo ovim pristupom imati malo nižu točnost pri učenju na čistom skupu, točnost modela pri učenju na zašumljenim inačicama skupa bit će značajno viša.\ 
@@ -2000,7 +2001,7 @@ Eksperimente smo ponavljali tri puta, a najbolji rezultati za oba stupca su pode
 \pagebreak
 
 Možemo vidjeti da osnovna inačica okvira VIBE postiže višu točnost, ali i niži udio uspješnih napada u usporedbi s preostalim algoritmima obrane.\ 
-Pritom vrijedi napomenuti da algoritam ABL postiže višu točnost te podjednaku ili niži udio uspješnih napada od algoritama DBD i ASD.\ 
+Pritom vrijedi napomenuti da algoritam ABL postiže višu točnost te podjednaki ili niži udio uspješnih napada od algoritama DBD i ASD.\ 
 Dodavanjem komponente konzistencijskog gubitka, dodatno poboljšavamo performanse okvira VIBE.\ Konkretno, postižemo povećanje točnosti iznosa $0.4\%$, kao i smanjenje udjela uspješnih napada iznosa $0.1\%$.\ 
 Pogledajmo sada uspješnost opisanih algoritama obrane pri učenju na inačici skupa CIFAR-10 zatrovanoj napadom Blend.\ 
 
@@ -2046,7 +2047,7 @@ Dodavanjem komponente konzistencijskog gubitka, ponovno poboljšavamo performans
 Iako okvir VIBE s konzistencijskim gubitkom u ovom eksperimentu ima najvišu točnost, algoritam DBD i dalje postiže najniži udio uspješnih napada.\ 
 
 Dakle, zaključujemo da dodavanje konzistencijskog gubitka okviru VIBE vodi do povećanja točnosti, kao i do smanjenja udjela uspješnih napada.\ 
-Pritom je smanjenje najveće kod napada Blend za koji osnovni okvir VIBE ima relativno visoki udio uspješnih napada.\ 
+Pritom je smanjenje najveće kod napada Blend za koji osnovni okvir VIBE ima relativno visok udio uspješnih napada.\ 
 Kada govorimo o napadima BadNets te WaNet, poboljšanja performansi su prisutna, ali ne i toliko značajna kao kod napada Blend.\ 
 Općenito, okvir VIBE s konzistencijskim gubitkom postiže performanse podjednake ili bolje u usporedbi s algoritmima ABL, DBD te ASD.\
 
@@ -2175,7 +2176,7 @@ Možemo vidjeti da model učen uz normalizaciju matrice šuma po recima i stupci
 Za razliku od prethodnog eksperimenta, učenje uz temperaturu iznosa $10$ sada povećava točnost u usporedbi s učenjem bez skaliranja matrice.\ Štoviše, vidimo da iznos temperature sada ima veći značaj nego korištenje normalizacije matrice šuma.\ 
 Na temelju ovih rezultata, možemo zaključiti da je prikladna inicijalizacija matrice šuma veoma važna za uspješnost rada algoritma ILL.\ 
 
-Općenito, najbolji naučeni model po performansama je podjednak modelu učenim osnovnom inačicom okvira VIBE iz tablice~\ref{tbl:usporedba_badnets}.\ 
+Općenito, najbolji naučeni model po performansama je podjednak modelu učenom osnovnom inačicom okvira VIBE iz tablice~\ref{tbl:usporedba_badnets}.\ 
 Dakle, zaključujemo da druga inačica hibridnog okvira uz jediničnu inicijalizaciju matrice šuma, normalizaciju matrice po recima i stupcima te hiperparametar temperature iznosa $10$ može služiti kao zamjena za osnovnu inačicu okvira VIBE te općenito kao robusna obrana od napada umetanjem stražnjih vrata.\
 
 %--- ZAKLJUČAK / CONCLUSION ----------------------------------------------------
