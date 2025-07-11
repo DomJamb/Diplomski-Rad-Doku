@@ -96,7 +96,7 @@ Dodatno, cilj je usporediti VIBE sa stanjem tehnike (engl.\ \textit{state of the
 
 Cilj napada umetanjem stražnjih vrata~\cite{gao2020backdoor} je dodavanjem zatrovanih podataka ugraditi stražnja vrata u naučeni model.\ Ako napad uspije, napadač može kontrolirati izlaz modela koristeći suptilne izmjene ulaznog primjera.\ 
 Općenito govoreći, napad umetanjem stražnjih vrata podrazumijeva dodavanje vizualnog okidača na ulazni primjer, kao i prikladnu izmjenu oznaka.\ Pritom napadač radi izmjenu određenog udjela podataka, dok preostali podatci ostaju neizmjenjeni.\ 
-Hiperparametar koji opisuje udio zatrovanih podataka zvat ćemo stopom trovanja (engl. \textit{poisoning rate}).\ Pojedini napadi razlikuju se po načinu dodavanja okidača tj.\ načinu izmjene ulaznih primjera, kao i po načinu izmjene oznaka.\ 
+Hiperparametar koji opisuje udio zatrovanih podataka zvat ćemo stopom trovanja (engl.\ \textit{poisoning rate}).\ Pojedini napadi razlikuju se po načinu dodavanja okidača tj.\ načinu izmjene ulaznih primjera, kao i po načinu izmjene oznaka.\ 
   
 Kada govorimo o načinu izmjene ulaznih primjera, možemo napraviti podjelu na lokalne i globalne izmjene primjera.\ Kod lokalnih izmjena, mijenja se samo određeno područje slike, najčešće dodavanjem zadanog okidača na to područje~\cite{gu2019badnets}.\ 
 S druge strane, kod globalnih izmjena se mijenja cijela slika koristeći različite tehnike poput miješanja slike s okidačem~\cite{chen2020backdoor} ili transformiranja slike na temelju zadanog deformacijskog polja~\cite{nguyen2021wanet}.\ 
@@ -105,7 +105,7 @@ Osim korištenja jednog okidača za sve zatrovane podatke, određeni napadi kori
 Većinu napada možemo svrstati u jedan od dva načina izmjena oznaka: \textit{all-to-one} i \textit{all-to-all} izmjena oznaka~\cite{doan2022marksman}.\ 
 Kod \textit{all-to-one} metode, primjeri dobivaju zatrovanu oznaku jednog proizvoljno odabranog razreda neovisno o originalnim oznakama pojedinih primjera.\ 
 S druge strane, kod \textit{all-to-all} metode, primjeri dobivaju zasebne zatrovane oznake ovisno o originalnim oznakama.\ 
-Određeni napadi uopće ne mijenjaju oznake zatrovanih primjera, već se oslanjaju isključivo na jače izmjene ulaznih primjera.\ Ovakve napade zovemo napadi s čistim oznakama (engl. \textit{clean-label attacks})~\cite{barni2019new}.\
+Određeni napadi uopće ne mijenjaju oznake zatrovanih primjera, već se oslanjaju isključivo na jače izmjene ulaznih primjera.\ Ovakve napade zovemo napadi s čistim oznakama (engl.\ \textit{clean-label attacks})~\cite{barni2019new}.\
   
 Uspješnost pojedinog napada mjerimo metrikom imena udio uspješnih napada (engl.\ \textit{attack success rate} - ASR).\ Ovu mjeru definiramo kao točnost modela mjerenu isključivo na zatrovanim primjerima.\ 
 Cilj algoritama za obranu od napada umetanjem stražnjih vrata je naučiti čisti model na zatrovanom skupu.\ Drugim riječima, glavni cilj obrane je naučiti model koji ima izvrsne performanse na čistim podatcima, ali i što niži udio uspješnih napada.\ 
@@ -184,7 +184,7 @@ U ovome radu, rezultate okvira VIBE uspoređujemo s rezultatima triju obrana od 
 \subsection{ABL}
 \label{sub:abl}
 
-Algoritam \textit{Anti-backdoor learning} (ABL) sastoji se od dva glavna koraka: izoliranje stražnjih vrata (engl.\ \textit{backdoor isolation}) i odučavanje stražnjih vrata (engl. \textit{backdoor unlearning}).\ 
+Algoritam \textit{Anti-backdoor learning} (ABL) sastoji se od dva glavna koraka: izoliranje stražnjih vrata (engl.\ \textit{backdoor isolation}) i odučavanje stražnjih vrata (engl.\ \textit{backdoor unlearning}).\ 
 Osnovna ideja ove obrane je da se nakon određenog broja epoha učenja uz posebno definiran gubitak izolira određeni broj primjera za koje se smatra da su zatrovani.\  
 Nakon prvog koraka, ti se primjeri koriste za odučavanje stražnjih vrata, dok se preostali primjeri koriste za standardno učenje.\ 
   
@@ -298,7 +298,7 @@ Dok je kod napada umetanjem stražnjih vrata problem prelako učenje poveznice i
 Drugim riječima, ako nismo oprezni, lako je doći do prenaučenosti (engl.\ \textit{overfitting}) modela.\ Naravno, ovakav model će loše generalizirati na ispravno označenim podatcima.\ 
   
 Kako bismo mogli usporediti performanse različitih algoritama za učenje na zašumljenim oznakama, najčešće određenom udjelu čistog skupa podataka dodajemo sintetičke zašumljene oznake.\ 
-Hiperparametar koji opisuje udio podataka sa zašumljenim oznakama zvat ćemo stopa šuma (engl. \textit{noise rate}).\ Nakon učenja na zašumljenim podatcima, performanse modela evaluiramo na čistom, ali i na u potpunosti zašumljenom skupu.\ 
+Hiperparametar koji opisuje udio podataka sa zašumljenim oznakama zvat ćemo stopa šuma (engl.\ \textit{noise rate}).\ Nakon učenja na zašumljenim podatcima, performanse modela evaluiramo na čistom, ali i na u potpunosti zašumljenom skupu.\ 
 Cilj algoritama za učenje na zašumljenim oznakama tada je zadržati performanse modela učenog na zašumljenim podatcima što bližima performansama modela učenog na čistim podatcima.\ 
 
 \section{Metode zašumljivanja}
@@ -503,7 +503,7 @@ Budući da primjeri nisu označeni, pozitivne primjere najčešće dobivamo pert
 \begin{figure}[h]
   \centering
   \includegraphics[scale=1]{./Slike/ssl.png}
-  \caption{Prikaz osnovne ideje kontrastnog samonadziranog učenja. Cilj učenja je približiti sidro (gore lijevo) i pozitivan primjer (dolje lijevo), ali i međusobno udaljiti sidro i negativne primjere (desno).\ Preuzeto iz \cite{khosla2020supervised}.}
+  \caption{Prikaz osnovne ideje kontrastnog samonadziranog učenja.\ Cilj učenja je približiti sidro (gore lijevo) i pozitivan primjer (dolje lijevo), ali i međusobno udaljiti sidro i negativne primjere (desno).\ Preuzeto iz \cite{khosla2020supervised}.}
   \label{fig:ssl}
 \end{figure}
 
@@ -531,7 +531,7 @@ Konkretno, optimizacijski cilj okvira All4One sadrži komponentu kontrastiranja 
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.7]{./Slike/all4one.png}
-  \caption{Prikaz arhitekture okvira All4One. Komponenta kontrastiranja najbližih susjeda označena je zelenom bojom, komponenta kontrastiranja centroida ljubičastom bojom, a komponenta kontrastiranja značajki crvenom bojom.\ Preuzeto iz \cite{estepa2023all4one}.}
+  \caption{Prikaz arhitekture okvira All4One.\ Komponenta kontrastiranja najbližih susjeda označena je zelenom bojom, komponenta kontrastiranja centroida ljubičastom bojom, a komponenta kontrastiranja značajki crvenom bojom.\ Preuzeto iz \cite{estepa2023all4one}.}
   \label{fig:all4one}
 \end{figure}
 
@@ -654,7 +654,7 @@ Drugim riječima, moguće je da dobiveni parametri $\bm{\theta}$ odgovaraju loka
 Osnovna ideja algoritma EM je jednostavna.\ Tijekom učenja, u svakoj iteraciji uobičajeno prvo provodimo E korak, a nakon njega provodimo M korak.\ Naravno, moguće je provoditi i više M koraka zaredom.\ 
 Gledajući da ne znamo vrijednosti skrivenih varijabli $Z$, kao ni vrijednosti optimalnih parametara $\bm{\theta}$, učenje možemo započeti uz nasumično odabrane vrijednosti parametara $\bm{\theta}^{(0)}$.\ 
   
-Na početku E koraka fiksiramo trenutne vrijednosti parametara $\bm{\theta}^{(t)}$. Tada računamo očekivanje potpune log-izglednosti $\log p(X, Z | \bm{\theta})$ uz uvjetnu distribuciju skrivenih varijabli $p(Z | X, \bm{\theta}^{(t)})$.\ 
+Na početku E koraka fiksiramo trenutne vrijednosti parametara $\bm{\theta}^{(t)}$.\ Tada računamo očekivanje potpune log-izglednosti $\log p(X, Z | \bm{\theta})$ uz uvjetnu distribuciju skrivenih varijabli $p(Z | X, \bm{\theta}^{(t)})$.\ 
 Izračunato očekivanje možemo definirati jednadžbom:
 
 \begin{equation}
@@ -692,7 +692,7 @@ Definirajmo sada zamjensku distribuciju $q(Z)$ kao proizvoljnu distribuciju skri
   \label{eq:em_log}
 \end{equation}
 
-Izračunajmo sada očekivanje dobivenog izraza s obzirom na distribuciju $q(Z)$. Budući da se na lijevoj strani jednadžbe ne pojavljuju skrivene varijable $Z$, nepotpunu log-izglednost $\log p(X | \bm{\theta})$ konačno možemo definirati jednadžbom:
+Izračunajmo sada očekivanje dobivenog izraza s obzirom na distribuciju $q(Z)$.\ Budući da se na lijevoj strani jednadžbe ne pojavljuju skrivene varijable $Z$, nepotpunu log-izglednost $\log p(X | \bm{\theta})$ konačno možemo definirati jednadžbom:
 
 \begin{equation}
   \begin{aligned}
@@ -751,9 +751,6 @@ Dakle, cilj je pronaći parametre $\bm{\theta}^{(t + 1)}$ koji maksimiziraju izr
 Pritom je član $\operatorname{H}(p(Z | X, \bm{\theta}^{(t)}))$ konstantan s obzirom na trenutne parametre $\bm{\theta}$, tako da on ne utječe na tijek optimizacije.\
 Vidimo da je izvedeni M korak identičan M koraku osnovne ideje - jedina razlika je prisutnost konstantnog člana u izrazu koji maksimiziramo.\ 
 Dobivene parametre $\bm{\theta}^{(t + 1)}$ dalje možemo iskoristiti za provođenje E koraka sljedeće iteracije.\ 
-
-% Kod algoritma koordinatnog uspona u dvije dimenzije, u svakoj iteraciji prvo fiksiramo jednu dimenziju i optimiramo drugu, a potom fiksiramo drugu dimenziju te optimiramo prvu.\ 
-% Vidimo da algoritam EM slijedi istu ideju: u E koraku fiksiramo parametre $\bm{\theta}^{(t)}$ i optimiramo distribuciju $q(Z)$, a u M koraku fiksiramo distribuciju $q(Z)^{(t + 1)}$ te optimiramo parametre $\bm{\theta}^{(t + 1)}$.\ 
 
 Pokažimo još da provođenjem algoritma maksimizacije očekivanja postižemo monotoni rast nepotpune log-izglednosti $\log p(X | \bm{\theta})$.\ 
 Na kraju E koraka raspolažemo distribucijom $q^{(t + 1)}(Z)$ uz koju vrijedi:
@@ -1264,7 +1261,7 @@ Kako bi iskoristio ovu činjenicu, okvir VIBE uključuje korak pretprocesiranja 
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.85]{./Slike/pretprocesiranje.png}
-  \caption{Prikaz koraka pretprocesiranja okvira VIBE.\ Primjeri zatrovani napadom s čistim oznakama (lijevo, crvena boja) podudaraju se s primjerima detektiranim tijekom koraka pretprocesiranja (desno, zelena boja).\ Visokodimenzionalne značajke ulaznih primjera projicirane su u 2-dimenzionalni prostor koristeći algoritam UMAP~\cite{mcinnes2018umap}. Preuzeto iz \cite{sabolic2025seal}.}
+  \caption{Prikaz koraka pretprocesiranja okvira VIBE.\ Primjeri zatrovani napadom s čistim oznakama (lijevo, crvena boja) podudaraju se s primjerima detektiranim tijekom koraka pretprocesiranja (desno, zelena boja).\ Visokodimenzionalne značajke ulaznih primjera projicirane su u 2-dimenzionalni prostor koristeći algoritam UMAP~\cite{mcinnes2018umap}.\ Preuzeto iz \cite{sabolic2025seal}.}
   \label{fig:preprocessing}
 \end{figure}
 
@@ -1531,8 +1528,8 @@ Pojedine eksperimente ponavljali smo tri puta, a najbolji rezultat je podebljan.
   \end{tabular}
 \end{table}
 
-Kao što možemo vidjeti, algoritam ILL postiže najvišu točnost pri učenju na čistom skupu CIFAR-10.\ Algoritam SOP+ postiže podjednaku točnost kao i algoritam ILL, dok okvir VIBE postiže za $0.6\%$ nižu točnost.\ 
-Usporedbom redaka CE i CE + CL, vidimo da dodavanje konzistencijskog gubitka povećava točnost nadziranog učenja za $1.1\%$.\ Zanimljivo je da algoritmi ILL te SOP+ postižu bolju točnost čak i od nadziranog učenja s konzistencijskim gubitkom.\ 
+Kao što možemo vidjeti, algoritam ILL postiže najvišu točnost pri učenju na čistom skupu CIFAR-10.\ Algoritam SOP+ postiže podjednaku točnost kao i algoritam ILL, dok okvir VIBE postiže za $0.6$pp (engl.\ \textit{percentage points}) nižu točnost.\ 
+Usporedbom redaka CE i CE + CL, vidimo da dodavanje konzistencijskog gubitka povećava točnost nadziranog učenja za $1.1$pp.\ Zanimljivo je da algoritmi ILL te SOP+ postižu bolju točnost čak i od nadziranog učenja s konzistencijskim gubitkom.\ 
 S druge strane, okvir VIBE postiže neznatno nižu točnost u usporedbi s nadziranim učenjem s konzistencijskim gubitkom.\ 
 
 Pogledajmo sada točnost različitih modela pri učenju na podatcima sa simetrično zašumljenim oznakama.\ 
@@ -1563,23 +1560,23 @@ Vrijednosti preuzete iz originalnih radova nisu uzete u obzir pri označavanju n
 \pagebreak
 
 Vidimo da za različite stope šuma različiti algoritmi postižu najvišu točnost.\ 
-Konkretno, uz stopu šuma iznosa $20\%$, algoritam SOP+ postiže najvišu točnost.\ Algoritam ILL podjednake je točnosti, dok okvir VIBE postiže za $0.7\%$ nižu točnost.\ 
-Iako se nadzirano učenje pokazuje kao najlošije u ovom postavu, zanimljivo je da dodavanjem konzistencijskog gubitka možemo postići točnost za samo $1.1\%$ nižu u usporedbi sa stanjem tehnike.\ 
+Konkretno, uz stopu šuma iznosa $20\%$, algoritam SOP+ postiže najvišu točnost.\ Algoritam ILL podjednake je točnosti, dok okvir VIBE postiže za $0.7$pp nižu točnost.\ 
+Iako se nadzirano učenje pokazuje kao najlošije u ovom postavu, zanimljivo je da dodavanjem konzistencijskog gubitka možemo postići točnost za samo $1.1$pp nižu u usporedbi sa stanjem tehnike.\ 
 Drugim riječima, iako standardno nadzirano učenje ne postiže visoku točnost pri učenju na skupu sa zašumljenim oznakama, jednostavnim dodavanjem konzistencijskog gubitka možemo drastično povećati točnost naučenog modela.\ 
 
-Uz stopu šuma iznosa $50\%$, algoritam ILL postiže najvišu točnost.\ Algoritam SOP+ u ovom slučaju je podjednake točnosti, dok okvir VIBE postiže za $0.9\%$ nižu točnost.\ U usporedbi sa stanjem tehnike, ovaj postav predstavlja najgori slučaj za okvir VIBE.\ 
+Uz stopu šuma iznosa $50\%$, algoritam ILL postiže najvišu točnost.\ Algoritam SOP+ u ovom slučaju je podjednake točnosti, dok okvir VIBE postiže za $0.9$pp nižu točnost.\ U usporedbi sa stanjem tehnike, ovaj postav predstavlja najgori slučaj za okvir VIBE.\ 
 Dok standardno nadzirano učenje ovdje postiže nisku točnost iznosa $57.6\%$, dodavanjem konzistencijskog gubitka istu možemo povećati na $91.6\%$.\ 
-Kada govorimo o postavu sa stopom šuma iznosa $80\%$, okvir VIBE postiže najvišu točnost.\ Pritom je točnost VIBE-a za $1.1\%$ viša u odnosu na algoritam SOP+, odnosno za $0.4\%$ viša u odnosu na algoritam ILL.\ 
-Kod ovog postava, nadzirano učenje postiže veoma nisku točnost iznosa $26.7\%$.\ Iako dodavanjem konzistencijskog gubitka točnost možemo povećati za čak $49.8\%$, ovaj rezultat je i dalje značajno lošiji od rezultata okvira VIBE.\ 
-Zanimljivo je da rezultati stanja tehnike za ovaj postav odudaraju od rezultata iz originalnih radova za $0.8\%$ u slučaju algoritma SOP+, odnosno za $0.4\%$ u slučaju algoritma ILL.\
+Kada govorimo o postavu sa stopom šuma iznosa $80\%$, okvir VIBE postiže najvišu točnost.\ Pritom je točnost VIBE-a za $1.1$pp viša u odnosu na algoritam SOP+, odnosno za $0.4$pp viša u odnosu na algoritam ILL.\ 
+Kod ovog postava, nadzirano učenje postiže veoma nisku točnost iznosa $26.7\%$.\ Iako dodavanjem konzistencijskog gubitka točnost možemo povećati za čak $49.8$pp, ovaj rezultat je i dalje značajno lošiji od rezultata okvira VIBE.\ 
+Zanimljivo je da rezultati stanja tehnike za ovaj postav odudaraju od rezultata iz originalnih radova za $0.8$pp u slučaju algoritma SOP+, odnosno za $0.4$pp u slučaju algoritma ILL.\
 
-Uočimo da povećavanjem stope šuma s $20\%$ na $80\%$ kod okvira VIBE gubimo samo $1.3\%$ točnosti, dok kod algoritama SOP+ te ILL gubimo $3.1\%$ odnosno $2.3\%$ točnosti.\ 
+Uočimo da povećavanjem stope šuma s $20\%$ na $80\%$ kod okvira VIBE gubimo samo $1.3$pp točnosti, dok kod algoritama SOP+ te ILL gubimo $3.1$pp odnosno $2.3$pp točnosti.\ 
 Robusnost okvira VIBE na povećanje stope šuma, kao i postizanje najboljih performansi u usporedbi sa stanjem tehnike pri visokoj stopi šuma, potencijalno su posljedica samonadzirane inicijalizacije parametara modela korištenjem okvira All4One.\ 
 Konkretno, samonadzirana inicijalizacija parametara mogla bi povećati važnost semantike slika u usporedbi s važnošću pridijeljenih oznaka te time doprinijeti učenju modela robusnog na zašumljene oznake.\
 
 Pogledajmo još i točnost različitih modela pri učenju na podatcima s asimetrično zašumljenim oznakama.\ 
 U tablici~\ref{tbl:usporedba_asimetricne}, stupac \textit{Algoritam} predstavlja algoritam korišten za učenje modela na skupu CIFAR-10 s asimetrično zašumljenim oznakama i stopom šuma iznosa $40\%$.\ 
-Kao i prije, stupac \textit{Točnost [\%]} predstavlja točnost naučenog modela na čistom skupu za ispitivanje skupa CIFAR-10. Pojedine eksperimente ponavljali smo tri puta, a najbolji rezultat je podebljan.\ 
+Kao i prije, stupac \textit{Točnost [\%]} predstavlja točnost naučenog modela na čistom skupu za ispitivanje skupa CIFAR-10.\ Pojedine eksperimente ponavljali smo tri puta, a najbolji rezultat je podebljan.\ 
 
 \begin{table}[htb]
   \caption{Točnost modela učenih na asimetrično zašumljenom skupu CIFAR-10.}
@@ -1597,16 +1594,16 @@ Kao i prije, stupac \textit{Točnost [\%]} predstavlja točnost naučenog modela
   \end{tabular}
 \end{table}
 
-Vidimo da u ovom slučaju okvir VIBE postiže najvišu točnost.\ Pritom je točnost okvira VIBE za $0.9\%$ viša u odnosu na algoritam SOP+, odnosno za $33.4\%$ viša u odnosu na algoritam ILL.\ 
+Vidimo da u ovom slučaju okvir VIBE postiže najvišu točnost.\ Pritom je točnost okvira VIBE za $0.9$pp viša u odnosu na algoritam SOP+, odnosno za $33.4$pp viša u odnosu na algoritam ILL.\ 
 Točnost algoritma ILL ovdje drastično odstupa od točnosti navedene u originalnom radu.\ Kroz naše eksperimente, zaključili smo da je algoritam ILL nestabilan u teškim postavima - različita pokretanja učenja mogu rezultirati modelima s veoma različitim performansama.\ 
-Dodatno, vidimo da i u ovom slučaju dodavanje konzistencijskog gubitka nadziranom učenju značajno povećava točnost.\ Konkretno, ovdje postižemo povećanje točnosti iznosa $15.8\%$.\ 
+Dodatno, vidimo da i u ovom slučaju dodavanje konzistencijskog gubitka nadziranom učenju značajno povećava točnost.\ Konkretno, ovdje postižemo povećanje točnosti iznosa $15.8$pp.\ 
 Dobiveni rezultati sugeriraju da bismo problem zašumljenih oznaka mogli riješiti fino podešenim nadziranim učenjem s konzistencijskim gubitkom.\ 
 
 Općenito, možemo vidjeti da je asimetrično zašumljivanje oznaka teži problem od simetričnog zašumljivanja.\ 
 Nažalost, ovo je često i realističniji model.\ Na primjer, u slučaju označavanja skupa MNIST, označivači mogu imati problema s razlikovanjem znamenki $1$ i $7$, ali ne i s razlikovanjem znamenki $1$ i $0$ ili znamenki $1$ i $8$.\ 
 Drugim riječima, u stvarnosti do zašumljivanja najčešće dolazi zbog sistematskih pogrešaka označivača, a ovo više odgovara modelu asimetričnog zašumljivanja oznaka.\ 
 
-Dok algoritmi SOP+ i ILL postižu najbolje performanse u postavima sa simetričnim zašumljivanjem i niskom stopom šuma, okvir VIBE postiže najbolje performanse u teškim postavima tj. pri simetričnom zašumljivanju uz stopu šuma iznosa $80\%$, kao i pri asimetričnom zašumljivanju uz stopu šuma iznosa $40\%$.\ 
+Dok algoritmi SOP+ i ILL postižu najbolje performanse u postavima sa simetričnim zašumljivanjem i niskom stopom šuma, okvir VIBE postiže najbolje performanse u teškim postavima tj.\ pri simetričnom zašumljivanju uz stopu šuma iznosa $80\%$, kao i pri asimetričnom zašumljivanju uz stopu šuma iznosa $40\%$.\ 
 Dodatno, dodavanjem konzistencijskog gubitka nadziranom učenju u lakšim postavima zašumljivanja možemo postići rezultate bliske onima algoritama za učenje na podatcima sa zašumljenim oznakama.\ 
 
 \subsection{Validacija hiperparametara}
@@ -1661,7 +1658,7 @@ Pritom jake augmentacije uključuju slabe augmentacije te augmentaciju AutoAugme
 \end{table}
 
 Vidimo da model učen $15000$ iteracija uz stopu učenja iznosa $5 \cdot 10^{-3}$ postiže najvišu točnost.\ 
-Pritom dobiveni model postiže točnost za $1.2\%$ višu od točnosti najboljeg modela učenog okvirom VIBE bez konzistencijskog gubitka.\ 
+Pritom dobiveni model postiže točnost za $1.2$pp višu od točnosti najboljeg modela učenog okvirom VIBE bez konzistencijskog gubitka.\ 
 Općenito, pokazuje se da dodavanje komponente konzistencijskog gubitka povećava konačnu točnost naučenog modela za skoro sve konfiguracije broja iteracija te stope učenja.\ 
 U sljedećim eksperimentima, podrazumijevamo učenje okvirom VIBE s konzistencijskim gubitkom i faktorom konzistencijskog gubitka iznosa $1$.\ 
 
@@ -1726,7 +1723,7 @@ Pogledajmo kako se točnost modela učenih okvirom VIBE s konzistencijskim gubit
 
 Vidimo da model učen $30000$ iteracija uz početnu stopu učenja iznosa $0.01$ te strategiju kosinusnog kaljenja postiže najvišu točnost iznosa $95.1\%$.\ 
 Dok se u prethodnim eksperimentima točnost smanjivala povećavanjem stope učenja, ovdje je situacija obrnuta: povećavanjem početne stope učenja, povećava se i točnost naučenih modela.\ 
-U usporedbi s najboljim modelom iz tablice~\ref{tbl:usporedba_lr_num_iter_con_loss}, novi najbolji model postiže za $0.3\%$ višu točnost.\ 
+U usporedbi s najboljim modelom iz tablice~\ref{tbl:usporedba_lr_num_iter_con_loss}, novi najbolji model postiže za $0.3$pp višu točnost.\ 
 Zbog ovoga, odlučujemo koristiti strategiju kosinusnog kaljenja u daljnjim eksperimentima.\ Dodatno, fiksiramo broj iteracija na $30000$, a stopu učenja na iznos $0.01$.\
 
 U prethodnim eksperimentima, faktor konzistencijskog gubitka smo fiksirali na iznos $1$.\ Pogledajmo sada kako se točnost modela učenih okvirom VIBE s konzistencijskim gubitkom mijenja ovisno o iznosu faktora konzistencijskog gubitka.\ 
@@ -1753,7 +1750,7 @@ U tablici~\ref{tbl:usporedba_con_rate}, stupac \textit{Faktor konzistencijskog g
 \pagebreak
 
 Kao što možemo vidjeti, model učen uz faktor konzistencijskog gubitka iznosa $7.5$ postiže najvišu točnost jednaku $95.7\%$.\ 
-Naučeni model postiže za $0.6\%$ višu točnost u usporedbi s prethodno najboljim modelom iz tablice~\ref{tbl:usporedba_lr_num_iter_con_loss_lr_scheduler}.\ 
+Naučeni model postiže za $0.6$pp višu točnost u usporedbi s prethodno najboljim modelom iz tablice~\ref{tbl:usporedba_lr_num_iter_con_loss_lr_scheduler}.\ 
 
 Kao i za stopu učenja, i za faktor konzistencijskog gubitka možemo definirati strategiju izmjene iznosa faktora.\ 
 Gledajući da ciljne oznake dobivamo kao izlaz modela za slabo augmentirane ulaze, na početku učenja će dobivene oznake potencijalno biti neprecizne.\ 
@@ -1859,7 +1856,7 @@ U tablici~\ref{tbl:usporedba_sop_gubitak}, stupac \textit{Faktor konzistencijsko
 \end{table}
 
 Vidimo da model učen uz faktor konzistencijskog gubitka iznosa $0.9$ te bez komponente gubitka ravnoteže razreda postiže najvišu točnost iznosa $96.4\%$.\ 
-Model učen uz osnovnu konfiguraciju postiže neznatno nižu točnost, dok model učen uz faktor gubitka ravnoteže razreda iznosa $0.1$ te bez komponente konzistencijskog gubitka postiže točnost za $2.5\%$ nižu od točnosti najboljeg modela.\ 
+Model učen uz osnovnu konfiguraciju postiže neznatno nižu točnost, dok model učen uz faktor gubitka ravnoteže razreda iznosa $0.1$ te bez komponente konzistencijskog gubitka postiže točnost za $2.5$pp nižu od točnosti najboljeg modela.\ 
 Možemo zaključiti da je za uspješnost algoritma SOP+ veoma važan konzistencijski gubitak, dok gubitak ravnoteže razreda ne mijenja znatno performanse naučenih modela.\ 
 Štoviše, uklanjanjem gubitka ravnoteže razreda bismo potencijalno mogli malo povećati uspješnost algoritma.\ Naravno, postoji mogućnost da je ova komponenta važna kod težih postava zašumljivanja ili kod težih skupova podataka.\ 
 
@@ -1877,7 +1874,7 @@ Kao i prije, učenje provodimo na simetrično zašumljenom skupu CIFAR-10 uz sto
   \end{tabular}
 \end{table}
 
-Vidimo da model učen bez komponente konzistencijskog gubitka postiže najvišu točnost.\ Ipak, razlika u točnosti je neznatna: samo $0.1\%$.\ 
+Vidimo da model učen bez komponente konzistencijskog gubitka postiže najvišu točnost.\ Ipak, razlika u točnosti je neznatna: samo $0.1$pp.\ 
 Možemo zaključiti da konzistencijski gubitak nije značajan za algoritam ILL.\ Ipak, kao i kod algoritma SOP+, ne možemo isključiti mogućnost da je komponenta konzistencijskog gubitka značajna kod težih postava zašumljivanja ili kod težih skupova podataka.
 
 \subsection{Validacija gubitka nadziranog učenja}
@@ -1905,7 +1902,7 @@ Kao i inače, rezultat za svaku inačicu skupa je podebljan.\
 \end{table}
 
 Možemo vidjeti da točnost modela učenih nadziranim učenjem bez konzistencijskog gubitka drastično pada kada su u skupu za učenje prisutni podatci sa zašumljenim oznakama.\ 
-Konkretno, učenje na asimetrično zašumljenoj inačici skupa CIFAR-10 uz stopu šuma iznosa $40\%$ rezultira modelom čija je točnost za $18.5\%$ niža od točnosti modela učenog na čistom skupu.\ 
+Konkretno, učenje na asimetrično zašumljenoj inačici skupa CIFAR-10 uz stopu šuma iznosa $40\%$ rezultira modelom čija je točnost za $18.5$pp niža od točnosti modela učenog na čistom skupu.\ 
 Dodatno, vidimo da učenje veći broj epoha rezultira boljim modelom neovisno o konkretnoj inačici skupa podataka.\ 
 
 Dodajmo sada komponentu konzistencijskog gubitka.\ Pritom faktor konzistencijskog gubitka fiksiramo na iznos $1$, a jake augmentacije definiramo kao slabe augmentacije uz dodanu augmentaciju AutoAugment.\ 
@@ -1928,7 +1925,7 @@ Dobiveni rezultati podudaraju se s rezultatima rada~\cite{grubivsic2023revisitin
 Pri učenju na čistom skupu, učenje veći broj epoha rezultira višom točnošću.\ S druge strane, učenje na zašumljenim inačicama skupa rezultira višom točnošću kada odaberemo manji broj epoha.\ 
 Dakle, ako želimo osigurati veću robusnost na prisutnost zašumljenih oznaka, bolje je model učiti manji broj epoha.\ 
 Iako ćemo ovim pristupom imati malo nižu točnost pri učenju na čistom skupu, točnost modela pri učenju na zašumljenim inačicama skupa bit će značajno viša.\ 
-Konkretno, kraćim učenjem možemo smanjiti razliku u točnosti modela učenog na čistom skupu te modela učenog na asimetrično zašumljenoj inačici skupa s $18.5\%$ na $5.8\%$, ali ćemo ovo platiti $0.5\%$ nižom točnošću pri učenju na čistom skupu.\  
+Konkretno, kraćim učenjem možemo smanjiti razliku u točnosti modela učenog na čistom skupu te modela učenog na asimetrično zašumljenoj inačici skupa s $18.5$pp na $5.8$pp, ali ćemo ovo platiti $0.5$pp nižom točnošću pri učenju na čistom skupu.\  
 
 Gledajući da je dodavanje augmentacije nasumičnog brisanja povećalo performanse okvira VIBE, odlučili smo primijeniti ovu promjenu i na nadzirano učenje.\ 
 Konačno, pogledajmo kako se točnost modela učenih nadziranim učenjem s augmentacijom nasumičnog brisanja na različitim inačicama skupa CIFAR-10 mijenja ovisno o broju epoha učenja.\ 
@@ -1947,7 +1944,7 @@ Konačno, pogledajmo kako se točnost modela učenih nadziranim učenjem s augme
 
 Možemo vidjeti da dodavanje augmentacije nasumičnog brisanja u skup jakih augmentacija također povećava točnost modela na svim inačicama skupa CIFAR-10.\ 
 Kao i kod prethodnog eksperimenta, učenje na čistom skupu rezultira višom točnošću uz veći broj epoha, dok je pri učenju na zašumljenim inačicama skupa situacija obrnuta.\ 
-Odabirom učenja $200$ epoha, razliku u točnosti modela učenog na čistom skupu te modela učenog na asimetrično zašumljenoj inačici skupa dodatno smanjujemo s $5.8\%$ na $3.7\%$, ali uz cijenu $0.4\%$ niže točnosti pri učenju na čistom skupu.\ 
+Odabirom učenja $200$ epoha, razliku u točnosti modela učenog na čistom skupu te modela učenog na asimetrično zašumljenoj inačici skupa dodatno smanjujemo s $5.8$pp na $3.7$pp, ali uz cijenu $0.4$pp niže točnosti pri učenju na čistom skupu.\ 
 Drugim riječima, korištenjem nadziranog učenja s konzistencijskim gubitkom te augmentacijom nasumičnog brisanja u skupu jakih augmentacija možemo postići prihvatljivu robusnost na prisutnost zašumljenih oznaka, ali i povećati točnost naučenog modela u slučaju učenja na čistom skupu CIFAR-10.\ 
 
 \section{Napadi umetanjem stražnjih vrata}
@@ -2002,7 +1999,7 @@ Eksperimente smo ponavljali tri puta, a najbolji rezultati za oba stupca su pode
 
 Možemo vidjeti da osnovna inačica okvira VIBE postiže višu točnost, ali i niži udio uspješnih napada u usporedbi s preostalim algoritmima obrane.\ 
 Pritom vrijedi napomenuti da algoritam ABL postiže višu točnost te podjednaki ili niži udio uspješnih napada od algoritama DBD i ASD.\ 
-Dodavanjem komponente konzistencijskog gubitka, dodatno poboljšavamo performanse okvira VIBE.\ Konkretno, postižemo povećanje točnosti iznosa $0.4\%$, kao i smanjenje udjela uspješnih napada iznosa $0.1\%$.\ 
+Dodavanjem komponente konzistencijskog gubitka, dodatno poboljšavamo performanse okvira VIBE.\ Konkretno, postižemo povećanje točnosti iznosa $0.4$pp, kao i smanjenje udjela uspješnih napada iznosa $0.1$pp.\ 
 Pogledajmo sada uspješnost opisanih algoritama obrane pri učenju na inačici skupa CIFAR-10 zatrovanoj napadom Blend.\ 
 
 \begin{table}[htb]
@@ -2020,8 +2017,8 @@ Pogledajmo sada uspješnost opisanih algoritama obrane pri učenju na inačici s
 \end{table}
 
 U ovom slučaju, osnovna inačica okvira VIBE postiže višu točnost, ali ne i niži udio uspješnih napada u usporedbi s preostalim algoritmima obrane.\ 
-Konkretno, algoritam ASD postiže za $2.5\%$ niži udio uspješnih napada u usporedbi s osnovnom inačicom okvira VIBE.\ 
-Kao i u prethodnom eksperimentu, dodavanjem konzistencijskog gubitka poboljšavamo performanse okvira VIBE.\ Pritom postižemo povećanje točnosti iznosa $0.2\%$, ali i smanjenje udjela uspješnih napada iznosa čak $2.8\%$.\ 
+Konkretno, algoritam ASD postiže za $2.5$pp niži udio uspješnih napada u usporedbi s osnovnom inačicom okvira VIBE.\ 
+Kao i u prethodnom eksperimentu, dodavanjem konzistencijskog gubitka poboljšavamo performanse okvira VIBE.\ Pritom postižemo povećanje točnosti iznosa $0.2$pp, ali i smanjenje udjela uspješnih napada iznosa čak $2.8$pp.\ 
 Uz ovo poboljšanje, okvir VIBE s konzistencijskim gubitkom postiže najbolje performanse u usporedbi s preostalim algoritmima.\ 
 Pogledajmo još i uspješnost navedenih algoritama obrane pri učenju na inačici skupa CIFAR-10 zatrovanoj napadom WaNet.\ 
 
@@ -2042,8 +2039,8 @@ Pogledajmo još i uspješnost navedenih algoritama obrane pri učenju na inačic
 \pagebreak
 
 Kao i u prethodnom eksperimentu, osnovna inačica okvira VIBE postiže višu točnost, ali ne i niži udio uspješnih napada u usporedbi s preostalim algoritmima obrane.\ 
-U ovom slučaju, algoritam DBD postiže za $0.4\%$ niži udio uspješnih napada u usporedbi s osnovnom inačicom okvira VIBE.\ 
-Dodavanjem komponente konzistencijskog gubitka, ponovno poboljšavamo performanse okvira VIBE.\ Konkretno, postižemo povećanje točnosti iznosa $0.4\%$, kao i smanjenje udjela uspješnih napada iznosa $0.2\%$.\ 
+U ovom slučaju, algoritam DBD postiže za $0.4$pp niži udio uspješnih napada u usporedbi s osnovnom inačicom okvira VIBE.\ 
+Dodavanjem komponente konzistencijskog gubitka, ponovno poboljšavamo performanse okvira VIBE.\ Konkretno, postižemo povećanje točnosti iznosa $0.4$pp, kao i smanjenje udjela uspješnih napada iznosa $0.2$pp.\ 
 Iako okvir VIBE s konzistencijskim gubitkom u ovom eksperimentu ima najvišu točnost, algoritam DBD i dalje postiže najniži udio uspješnih napada.\ 
 
 Dakle, zaključujemo da dodavanje konzistencijskog gubitka okviru VIBE vodi do povećanja točnosti, kao i do smanjenja udjela uspješnih napada.\ 
